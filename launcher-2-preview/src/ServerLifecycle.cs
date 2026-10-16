@@ -63,6 +63,7 @@ namespace XHLLauncher
         readonly string root;
         readonly ServerControl processes;
         Process bootstrap;
+        int shutdownPid = -1;
         readonly object gate = new object();
         string startupStatus = "";
         public string StartupStatus { get { lock (gate) return startupStatus; } }
@@ -92,11 +93,28 @@ namespace XHLLauncher
             if (!File.Exists(script)) return ActionResult.Fail("Existing startup wrapper is missing. No direct launch attempted.");
             string powershell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
             var info = new ProcessStartInfo(powershell, "-NoLogo -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"");
+            info.EnvironmentVariables["PSModulePath"] = Path.Combine(Path.GetDirectoryName(powershell), "Modules");
             info.WorkingDirectory = root; info.UseShellExecute = false; info.CreateNoWindow = true; info.WindowStyle = ProcessWindowStyle.Hidden;
             bootstrap = Process.Start(info);
             startupStatus = "Startup wrapper running; awaiting process observation.";
             return bootstrap == null ? ActionResult.Fail("Startup wrapper did not start.") : ActionResult.Ok("Startup requested through your existing wrapper. The dashboard will report online only after the selected server process appears.");
             }
+        }
+        bool ShutdownLogged(Process p)
+        {
+            try
+            {
+                string config = Path.Combine(root, "enshrouded_server.json");
+                var data = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<System.Collections.Generic.Dictionary<string, object>>(File.ReadAllText(config));
+                object configured; string folder = data.TryGetValue("logDirectory", out configured) ? Convert.ToString(configured) : "./logs";
+                string path = Path.Combine(root, folder, "enshrouded_server.log");
+                if (File.GetLastWriteTimeUtc(path) < p.StartTime.ToUniversalTime()) return false;
+                string last = "";
+                using (var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
+                { input.Seek(Math.Max(0, input.Length - 131072), SeekOrigin.Begin); using (var reader = new StreamReader(input)) { string line; while ((line = reader.ReadLine()) != null) if (line.Contains("[game_server] Switching state")) last = line; } }
+                return last.Contains(" to Shutdown ") || last.Contains(" to Destroy ") || last.Contains(" to Invalid ");
+            }
+            catch { return false; }
         }
         public ActionResult Stop()
         {
@@ -105,7 +123,14 @@ namespace XHLLauncher
                 if (p == null) return ActionResult.Ok("The selected server is already stopped.");
                 // Keep an open process handle through signaling and waiting, preventing PID reuse.
                 IntPtr handle = p.Handle;
-                if (!GracefulConsole.Signal((uint)p.Id)) return ActionResult.Fail("Could not signal the server console. The server was left running.");
+                if (shutdownPid != p.Id && !ShutdownLogged(p))
+                {
+                    // The exact current build handles CTRL_BREAK as graceful shutdown; unlike CTRL_C,
+                    // it is not suppressed by an inherited console ignore flag. Never send both.
+                    uint signal = InstallationAudit.Hash(Path.Combine(root, "enshrouded_server.exe")) == InstallationAudit.CurrentBuild ? 1U : 0U;
+                    if (!GracefulConsole.Signal((uint)p.Id, signal)) return ActionResult.Fail("Could not signal the server console. The server was left running.");
+                    shutdownPid = p.Id;
+                }
                 if (!p.WaitForExit(30000)) return ActionResult.Fail("Shutdown was requested, but the server has not exited. It was not force-killed.");
                 return ActionResult.Ok("The selected server exited after the graceful shutdown request.");
             }
@@ -120,7 +145,7 @@ namespace XHLLauncher
         [DllImport("kernel32.dll", SetLastError = true)] static extern bool FreeConsole();
         [DllImport("kernel32.dll", SetLastError = true)] static extern bool SetConsoleCtrlHandler(ConsoleHandler handler, bool add);
         [DllImport("kernel32.dll", SetLastError = true)] static extern bool GenerateConsoleCtrlEvent(uint signal, uint group);
-        internal static bool Signal(uint pid)
+        internal static bool Signal(uint pid, uint signal = 0)
         {
             // A winexe has no console. Do not detach an unrelated console if attachment fails.
             if (!AttachConsole(pid)) return false;
@@ -129,7 +154,7 @@ namespace XHLLauncher
             {
                 handler = SetConsoleCtrlHandler(Ignore, true);
                 if (!handler) return false;
-                bool sent = GenerateConsoleCtrlEvent(0, 0); Thread.Sleep(200); return sent;
+                bool sent = GenerateConsoleCtrlEvent(signal, 0); Thread.Sleep(200); return sent;
             }
             finally { FreeConsole(); if (handler) SetConsoleCtrlHandler(Ignore, false); }
         }

@@ -11,6 +11,7 @@ namespace XHLLauncher
     public sealed class InstallationAudit
     {
         public const string FlightBuild = "4DE2ACDD3B18E562F129BC488A2DAEA2DA16B00341497304423E1E18C49A83BA";
+        public const string CurrentBuild = "B627639CE4A3F8C940FE90AFA1D36ED59DB3FF9CED24E935890EB7C99B04D5BF";
         public bool FlightCompatible;
         public bool StackMatches;
         public bool LoadersIsolated;
@@ -34,6 +35,11 @@ namespace XHLLauncher
             {
                 result.ExecutableHash = Hash(Path.Combine(root, "enshrouded_server.exe"));
                 result.FlightCompatible = result.ExecutableHash.Equals(FlightBuild, StringComparison.OrdinalIgnoreCase);
+                if (result.ExecutableHash == CurrentBuild)
+                {
+                    string flight = Path.Combine(root, "XHL-Flight-Control.ps1"), gifting = Path.Combine(root, "XHL-Gifting-Range-1.0.ps1");
+                    result.FlightCompatible = File.Exists(flight) && File.Exists(gifting) && Hash(flight) == "5CD61743D54EBEF6408156CEC32C2CBBE505EFC7D26B9CB592885E937EC1038A" && Hash(gifting) == "AB4E34ADF6F3E31526735A41E5AD1BEA71843667A604ED25365E615948C84C88";
+                }
                 notes.AppendLine("Server executable SHA256: " + result.ExecutableHash);
                 notes.AppendLine("Flight / gifting build: " + (result.FlightCompatible ? "Matches pinned build; runtime unverified." : "Unsupported by the installed pinned controllers."));
                 string attestation = Path.Combine(root, "XHL-STACK-1.0-ATTESTATION.json");
@@ -55,6 +61,12 @@ namespace XHLLauncher
                     }
                 }
                 else notes.AppendLine("Stacking attestation is missing.");
+                if (result.ExecutableHash == CurrentBuild)
+                {
+                    result.StackMatches &= Hash(Path.Combine(root, "enshrouded_server.kfc")) == "5BC0A5117714D69CE07960BFB5DDE87F0D929A1F7CB8A469CBA67016037B6E5D" &&
+                        Hash(Path.Combine(root, "enshrouded_server.kfc_resources")) == "F55CF7101A78D4476F72B2574BA7EE219762AFFD6C470FF2CAB3D73DC20EBF2B";
+                    notes.AppendLine("Current-build stacking profile: " + (result.StackMatches ? "Verified patched resource hashes" : "Does not match verified patched resources"));
+                }
                 result.LoadersIsolated = File.Exists(Path.Combine(root, "XHL-SAFE-MODE.flag"));
                 foreach (string name in new[] { "winmm.dll", "dinput8.dll", "dbghelp.dll" })
                 {

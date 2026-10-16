@@ -31,6 +31,10 @@ static class Checks
         Require(InstallationAudit.Hash(savePath) == before, "Backup leaves original save unchanged");
         Require(!StagedUpdate.Confirmed(1, "Success! App '2278520' fully installed", server), "Failed updater exit cannot claim success");
         Require(!StagedUpdate.Confirmed(0, "Another app fully installed", server), "Updater requires exact app success evidence");
+        Require(!UpdateActivation.Prepare(server, server, output, delegate { return false; }).Success, "Update activation rejects the current installation as destination");
+        string staged = Path.Combine(output, "Staged-Updates", "fixture-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(staged);
+        Require(!UpdateActivation.Prepare(server, staged, output, delegate { return true; }).Success, "Update activation refuses while a server runs");
+        Require(!UpdateActivation.Prepare(server, staged, output, delegate { return false; }).Success, "Update activation refuses unverified mod files");
         Require(StagedUpdate.Confirmed(0, "Success! App '2278520' fully installed", server), "Updater requires app evidence and all three output files");
     }
     [STAThread]

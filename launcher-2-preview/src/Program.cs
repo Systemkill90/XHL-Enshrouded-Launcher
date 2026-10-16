@@ -61,7 +61,7 @@ namespace XHLLauncher
                     }
                 }
 
-                Application.Run(new ControlRoom(baseDir, settings, true, args != null && args.Contains("--controls")));
+                Application.Run(new ControlRoom(baseDir, settings, true, args == null || !args.Contains("--monitor")));
             }
             catch (Exception ex)
             {

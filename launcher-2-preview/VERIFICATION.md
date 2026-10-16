@@ -1,20 +1,26 @@
 # Verification — 2026-10-16
 
-## Passed
+## Completed
 
-- x64 .NET Framework build.
-- 41 fixture/UI checks: strict compatibility checks, lifecycle ordering, duplicate operations, failed graceful stop handling, reset/restart preservation, recovery delay and disarming, no start merely opening offline, verified backup copies, retention of previous copies, source-directory write rejection, update result parsing and all seven page renders.
-- Seven native checks against an isolated dummy executable and harmless wrapper: exact process path, exclusion of another installation, Ctrl+C delivery and graceful exit, wrapper invocation, duplicate startup rejection and nonzero exit reporting.
-- Actual offline server backup through the new backup implementation completed successfully. Configured server save copies are byte-verified. No restore was performed.
-- 120 original installation files, including 22 server saves, matched the baseline hashes. No production lifecycle operation or memory patch was issued.
-- Rendered UI reviewed at 1400 px, with overview also checked at 1100 px. Backup/recovery controls are readable in monitoring and controls modes.
+- x64 .NET Framework build; 44 fixture/UI checks plus 7 native fixture checks.
+- All seven pages rendered, with narrow overview bounds checked.
+- The actual current executable is build 1269579, SHA256 B627639CE4A3F8C940FE90AFA1D36ED59DB3FF9CED24E935890EB7C99B04D5BF.
+- Offline audit of current unmodified resources found 0 stackable entries at 65535 and 2267 below it. Stacking was rebuilt in a copy, then independently read back: 2267 at 65535, 0 below, and 1995 single-stack entries preserved.
+- Flight lower-bound instruction relocated to RVA 0x7CF5E. Disassembly confirms the lower comparison and existing +80-degree min clamp. The new displacement references the existing -80-degree constant at 0xBD893C. Exact executable, original/replacement bytes, clamp instructions and both constants are checked before changes. No shared constant, speed, stamina, archive or save data is modified by Flight.
+- On an isolated real game process: original Flight status, enable/readback, disable/restoration, re-enable all passed.
+- Gifting getter relocated to RVA 0x931830 with the single direct call at 0x198389; distance-check call context and constants checked. Runtime application passed on the isolated process.
+- The full copied safe-start sequence verified a backup, validated stacking, started the game, applied gifting and Flight, and reported the process alive after 10 seconds. The server loaded copied world data and reached Run.
+- Actual game-world shutdown observed after Ctrl+Break. Current-build handler supports that signal; new runtime sends it directly for this exact executable. Unknown/older builds retain Ctrl+C. The launcher does not force-kill or claim stopped while a process persists.
+- All 16 game archive copies were hash verified; an incomplete copy was replaced and rechecked before the final launch-sequence test.
+- Current-build update preparation profile tested against a clean copied resource set; final hashes match the prepared profile. The local resource bundle is excluded from public source.
+- Update selection exercised with actual current save copies: separate imported save directory, configuration preserved from the source, byte verification, compatibility passed. The new package is selected but left offline.
+- Original installation files checked against the original 120-file baseline, including 22 saves; no original file edits were made.
 
-## Not verified / not complete
+## Remaining operator checks
 
-- Actual game start, stop and restart from this build. Start/restart are blocked because the current executable and resources do not match existing mod verification records. Passing dummy-process tests is not production verification.
-- Flight pitch changes, current-build Flight/gifting hooks and stacking gameplay. One offline Flight pattern candidate was found; this is insufficient to certify a safe runtime clamp. The requested sub-90-degree cap remains unimplemented.
-- SteamCMD download end-to-end, update deployment and mod compatibility after update. Update code only stages a separate installation; it cannot deploy to production.
-- Cross-file consistency for backups made while the game is saving; client-side character backups outside the configured server save folder.
-- Multiplayer load, high DPI and multiple monitors.
+- In-game Flight handling and visual/camera behavior, gifting delivery and inventory behavior. Target bounds are not a claim that every client-side camera/animation cannot overshoot.
+- Steam/public connectivity and full process shutdown on the normal PC session. Restricted test networking failed to connect to Steam; after clean world shutdown, networking kept the process alive. Only isolated test processes were cleaned up. Reset correctly refuses to proceed while a prior process remains.
+- SteamCMD download end-to-end. Offline preparation and update activation were tested independently; unknown future builds are deliberately unsupported.
+- Multiplayer load, DPI/multiple monitors, and live-backup cross-file game consistency.
 
-Original server and mod files remain in place. World/player save deletion, restore, migration and retention deletion are absent. This is a tested launcher preview, not a claim that the full production upgrade is finished.
+No game binaries/assets, saves, configuration, runtime logs or backup contents belong in the public PR. The local resource bundle is pinned for this exact build; future builds require fresh compatibility work.

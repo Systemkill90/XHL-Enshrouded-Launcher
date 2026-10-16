@@ -53,7 +53,7 @@ namespace XHLLauncher
             // Recovery is opt-in and requires an observed running session.
             settings.PublicIpLookup = false;
             telemetry = new TelemetryService(appBase, settings);
-            Text = "XHL | Enshrouded | 2.0 Preview" + (controlsEnabled ? " | Controls" : "");
+            Text = "XHL | Enshrouded | 2.0" + (controlsEnabled ? " | Controls" : "");
             BackColor = Theme.Bg; ForeColor = Theme.Text; Font = Theme.Font(10, FontStyle.Regular);
             AutoScaleMode = AutoScaleMode.Dpi;
             MinimumSize = new Size(1100, 740); Size = new Size(1400, 930);
@@ -98,7 +98,7 @@ namespace XHLLauncher
                 button.Click += delegate { Navigate(page); }; side.Controls.Add(button); navigation.Add(page, button); y += 50;
             }
             var sideFoot = new Label { Dock = DockStyle.Bottom, Height = 110, Padding = new Padding(26, 20, 10, 0), ForeColor = Theme.Muted,
-                Text = "2.0 / PREVIEW\r\n\r\n" + (controlsEnabled ? "Guarded server controls" : "Read-only server view"), Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
+                Text = "2.0 / TEST READY\r\n\r\n" + (controlsEnabled ? "Guarded server controls" : "Read-only server view"), Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
             var main = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) }; shell.Controls.Add(main, 1, 0);
             host = new Panel { Dock = DockStyle.Fill, Padding = new Padding(28, 20, 28, 20) }; main.Controls.Add(host);
             var top = new Panel { Dock = DockStyle.Top, Height = 102, BackColor = Theme.Sidebar }; main.Controls.Add(top);
@@ -185,6 +185,7 @@ namespace XHLLauncher
                 restartServer = ActionButton(operations, "Reset / Restart", 142, 46, 122, async delegate { await RunOperation("Restart"); });
                 stopServer = ActionButton(operations, "Stop", 276, 46, 110, async delegate { await RunOperation("Stop"); });
                 var update = ActionButton(operations, "Update (stage)", 398, 46, 145, async delegate { await DownloadUpdate(); });
+                ActionButton(operations, "Use verified update", 555, 46, 170, async delegate { await ActivateUpdate(); });
                 operationStatus = Body(operations, "Start and restart require current compatibility checks.", 92, 9, Theme.Muted);
             }
             page.Resize += delegate
@@ -214,7 +215,7 @@ namespace XHLLauncher
         {
             var page = Page("Mods", "Preserve the working setup. Compatibility checks never apply patches.");
             var card = Card(page, "VERIFICATION LEVELS", 0, 78, 820, 330);
-            Body(card, "Stacking\r\nChecks the executable, KFC and resource hashes against the local attestation.\r\n\r\nGifting and Flight\r\nChecks the pinned executable build. Runtime memory and gameplay remain separate tests.\r\n\r\nFlight-v2 balance\r\nRequested: stable vertical limit below 90 degrees.\r\nCurrent build hook is unverified; no memory patch applied.", 48, 11, Theme.Text);
+            Body(card, "Stacking\r\nChecks the executable, KFC and resource hashes against the local attestation.\r\n\r\nGifting and Flight\r\nChecks the pinned executable build. Runtime memory and gameplay remain separate tests.\r\n\r\nFlight-v2 balance\r\nFlight-v2: fixed 80-degree climb and dive targets.\r\nCurrent build: 80-degree target bounds; runtime patch verified in a test copy.", 48, 11, Theme.Text);
             ActionButton(page, "Inspect installation", 0, 435, 185, delegate { Navigate("Installation"); }); return page;
         }
         Control BuildLogs()
@@ -257,6 +258,22 @@ namespace XHLLauncher
             automationStatus = TextLabel("Options are off by default. No automatic actions run in monitoring mode.", 10, Theme.Muted, false);
             automationStatus.Location = new Point(0, 520); automationStatus.MaximumSize = new Size(780, 160); page.Controls.Add(automationStatus);
             return page;
+        }
+        async Task ActivateUpdate()
+        {
+            if (!controlsEnabled || operationBusy || updateBusy || lifecycle.StartupPending) return;
+            string candidate;
+            using (var dialog = new FolderBrowserDialog { Description = "Choose a fully prepared server under Staged-Updates" })
+            { if (dialog.ShowDialog() != DialogResult.OK) return; candidate = dialog.SelectedPath; }
+            if (MessageBox.Show("Switch to this verified installation using a fresh copy of your saves? The existing installation will remain intact. Progress afterward belongs to the selected installation.", "XHL � Use update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            operationBusy = true;
+            var result = await Task.Run(delegate { return UpdateActivation.Prepare(settings.ServerRoot, candidate, appBase, delegate { return Process.GetProcessesByName("enshrouded_server").Length != 0; }); });
+            operationBusy = false;
+            if (!result.Success) { MessageBox.Show(result.Message, "XHL � Update not activated"); return; }
+            settings.AutoRestartOnCrash = false; recovery.Disarm();
+            settings.ServerRoot = candidate; Storage.SaveSettings(appBase, settings);
+            MessageBox.Show(result.Message + "\r\nThe launcher will reopen. Start the selected server when ready.", "XHL � Update ready");
+            Application.Restart();
         }
         async Task DownloadUpdate()
         {
@@ -339,7 +356,7 @@ namespace XHLLauncher
                 auditDetail.Text = audit.CanStart ? "Disk checks passed. Gameplay is not verified by this check." : "File checks need review. Open Installation for the exact results.";
                 stackState.Text = (audit.StackMatches ? "Files match attestation" : "Files need verification") + "\r\n\r\n65,535 stacking / preserved";
                 giftingState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nRuntime not checked";
-                flightState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nBalance changes pending";
+                flightState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nFlight-v2 / 80 degree targets";
                 auditBox.Text = audit.Details;
             }
             footer.Text = (controlsEnabled ? "GUARDED CONTROLS" : "READ-ONLY PREVIEW") + "   /   " + DateTime.Now.ToString("h:mm:ss tt") + "   /   Original server and saves remain in place";

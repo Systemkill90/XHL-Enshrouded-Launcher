@@ -38,7 +38,18 @@ namespace XHLLauncher
                     p.Start(); p.BeginOutputReadLine(); p.BeginErrorReadLine(); p.WaitForExit();
                     if (!Confirmed(p.ExitCode, output.ToString(), stage)) return ActionResult.Fail("Download was not confirmed. Review " + Path.Combine(job, "download.log"));
                 }
-                File.WriteAllText(Path.Combine(job, "compatibility.txt"), InstallationAudit.Inspect(stage).Details);
+                string profile = Path.Combine(appBase, "compatibility", "Prepare-Current-Build.ps1");
+                string resources = Path.Combine(appBase, "compatibility", "resources", "enshrouded_server.kfc_resources");
+                if (File.Exists(profile) && File.Exists(resources) && InstallationAudit.Hash(Path.Combine(stage, "enshrouded_server.exe")) == InstallationAudit.CurrentBuild)
+                {
+                    string shell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
+                    var prepare = new ProcessStartInfo(shell, "-NoProfile -ExecutionPolicy Bypass -File \"" + profile + "\" -Stage \"" + stage + "\"") { UseShellExecute = false, CreateNoWindow = true, WindowStyle = ProcessWindowStyle.Hidden };
+                    prepare.EnvironmentVariables["PSModulePath"] = Path.Combine(Path.GetDirectoryName(shell), "Modules");
+                    using (var p = Process.Start(prepare)) { p.WaitForExit(); if (p.ExitCode != 0) return ActionResult.Fail("Download completed, but current-build mod preparation failed. Live server unchanged. Stage: " + stage); }
+                }
+                var compatibility = InstallationAudit.Inspect(stage);
+                File.WriteAllText(Path.Combine(job, "compatibility.txt"), compatibility.Details);
+                if (compatibility.CanStart) return ActionResult.Ok("Update prepared: " + stage + "\r\nStop the server, then choose Use verified update to transfer fresh save copies and select it. Nothing has been deployed to the old installation.");
                 return ActionResult.Ok("Update downloaded to " + stage + "\r\nNot deployed: all three mods must be verified for that build first. Live server and saves were not changed.");
             }
             catch (Exception ex) { return ActionResult.Fail("Staged update failed: " + ex.Message); }

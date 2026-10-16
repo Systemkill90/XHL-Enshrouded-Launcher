@@ -1,20 +1,30 @@
-# Launcher 2.0 — controls and automation preview
+# XHL Launcher 2.0 — ready for operator testing
 
-Build with `./Build.ps1` on Windows with .NET Framework 4.x. Run the executable with `--controls` to enable guarded operations, or without arguments for monitoring only. The supplied XHL Server Controls shortcut uses controls mode. Keep this folder outside the server installation.
+Open XHL-Launcher-2.exe in this folder. Controls are enabled by default; --monitor opens read-only mode. Nothing starts automatically. Click Start when ready. This package selects its own prepared server under Staged-Updates/1269579/Server and uses a fresh, byte-verified copy of your current server saves.
 
-- Start uses the existing safe-start wrapper. Reset / Restart means graceful server restart, never world or character reset. Stop requests Ctrl+C and never force-kills the server.
-- Start and restart require matching build and mod checks. The inspected installation does not pass those checks; these operations are currently blocked there.
-- Automation offers scheduled backups (5–1440 minutes, default 30) and recovery 60 seconds after a running process disappears. Options are off by default and work only while the launcher is open in controls mode. Stop disables recovery. Recovery makes one attempt per observed running session, subject to compatibility checks. A stop initiated outside this launcher cannot be distinguished from a crash; disable recovery before externally stopping the server.
-- Back up now copies the configured server save directory and server configuration to World-Backups beside this launcher. Every file is SHA256 checked, the source file list is rechecked, and source bytes are checked again after copying. No originals or older backups are deleted. Copies made while the game is running are not transactional snapshots and may span game save cycles. Client-side character saves stored elsewhere are not included.
-- Each backup starts with INCOMPLETE.txt. Only a VERIFIED.txt marker confirms completed byte verification and supersedes that initial marker. Failed/incomplete copies remain available for inspection and must not be treated as verified backups. There is no restore action.
-- Update (stage) accepts an official steamcmd.exe and copies the downloader into a unique workspace. It downloads app 2278520 into a separate Staged-Updates folder, records output and checks completion evidence. It never deploys into the live installation. A real download was not tested; current network restrictions prevented downloading additional tooling. No SteamCMD installation was located at the known locations. The three mods need build-specific verification before deployment can be added safely.
+IMPORTANT: This is a separate installation. Your original Steam server and saves remain untouched. Once you play in this copy, new progress belongs to this copy. Do not alternate between the original and this copy expecting saves to synchronize. No automatic restore or synchronization is included.
 
-## Flight requirement
+## Included
 
-The requested behavior is balanced flight with a vertical limit below 90 degrees. An 85-degree target would provide a margin, but is not yet implemented. Offline inspection found one candidate matching the historical instruction pattern in the current executable, shifted from the old address. This does not verify the hook's gameplay semantics or prove a hard pitch clamp. No new Flight patch was deployed or published. Existing Flight, gifting and stacking files remain untouched.
+- Restrained dark UI; Start, Stop and Reset / Restart (restart never resets a world).
+- Flight-v2 for build 1269579: fixed -80/+80 degree target bounds, using the verified current-build instruction and existing constants. No speed/stamina changes. Enable, status, disable, restoration and re-enable were verified on the real isolated process. Actual flight handling awaits your test.
+- Current-build gifting getter relocation, verified in the isolated process.
+- Rebuilt stacking resources: 2,267 stackable definitions at 65,535; 1,995 single-stack definitions preserved. Independently reopened and checked after patching.
+- Optional scheduled save copies and recovery after a stopped process. Both are OFF initially. Turn them on under Automation if wanted. Recovery waits 60 seconds and makes one attempt per observed running session. Stop disables it. Turn recovery off before stopping through another app.
+- Backups never overwrite originals or delete previous copies. They cover the configured server saves and configuration, not separate client-side character saves. Live copies are byte-checked but are not transactional game snapshots.
+- Update (stage) uses an official SteamCMD chosen by the operator. It downloads separately. The included local resource bundle can prepare the exact supported build; unknown future builds remain blocked until their mods are verified. Use verified update copies fresh saves while stopped and switches the launcher to that prepared installation. It never replaces the prior installation.
 
-## Verification and rollback
+## Testing limits
 
-Run `./Test.ps1` and `./Test-Native.ps1`; they use separate fixtures and never launch the real server. See VERIFICATION.md for actual results and remaining limitations. To stop using this build, close it and use the untouched original launcher. Closing disables its automation; it does not stop the game server. The original wrapper has its own stale-attestation restriction, so returning to it does not resolve compatibility.
+The isolated server loaded the copied world and reached Run. Its full launch sequence applied stacking, gifting and Flight successfully. The current build handles Ctrl+Break as a graceful game-world shutdown; the launcher uses that signal for this exact build and avoids repeated signals. In the restricted test environment, Steam could not connect and the process remained alive after its world shutdown. The launcher correctly refused to claim completion or restart it. Only isolated test processes were cleaned up afterward; no production process was started or stopped. Successful full process exit, public connectivity, player gifting and flight handling still need your normal-PC session.
 
-Never upload World-Backups, Staged-Updates, launcher runtime data, local configuration or logs. Public source is the explicit source package only.
+51 fixture/native checks pass. The update preparation profile and transfer/selection routine were exercised locally. A real SteamCMD download was not possible in this environment. Reset/Restart is wired and tested for ordering/failure handling; it refuses to restart if shutdown has not completed.
+
+## First session
+
+1. Open this folder's XHL-Launcher-2.exe and confirm Installation checks passed.
+2. Click Start. Confirm the expected world and inventory appear before playing normally.
+3. Test Flight: climb toward vertical, hold/release pitch, dive, turn through headings, land and relaunch. The target bounds are 80 degrees, leaving 10 degrees before vertical; in-game behavior still needs confirmation.
+4. Verify stacking and gifting with expendable items. If anything is wrong, Stop and retain both installations. Do not copy old saves over new progress.
+
+Closing the launcher does not stop the server. For rollback before any new play, close it and use the original launcher; the original installation remains exactly as found, including its update-related mod issues. After new play, preserve the new saves before any migration. Never upload this package's game files, backups, configuration or logs to GitHub.
