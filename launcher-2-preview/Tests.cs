@@ -10,6 +10,29 @@ static class Checks
 {
     static int passed;
     static void Require(bool condition, string message) { if (!condition) throw new Exception(message); Console.WriteLine("PASS " + message); passed++; }
+    static void CheckAutomation(string server, string output, string savePath)
+    {
+        var policy = new RecoveryPolicy(); var now = DateTime.UtcNow;
+        Require(!policy.Poll(true, false, false, now.AddHours(1)), "Recovery never starts an offline installation merely on opening");
+        policy.Poll(true, true, false, now); policy.Poll(true, false, false, now);
+        Require(!policy.Poll(true, false, false, now.AddSeconds(59)), "Recovery waits 60 seconds");
+        Require(!policy.Poll(true, false, true, now.AddSeconds(61)), "Recovery waits for operations to finish");
+        Require(policy.Poll(true, false, false, now.AddSeconds(62)) && !policy.Poll(true, false, false, now.AddMinutes(5)), "Recovery makes one attempt per observed session");
+        policy.Poll(true, true, false, now); policy.Disarm();
+        Require(!policy.Poll(true, false, false, now.AddMinutes(5)), "Intentional stop disarms recovery");
+        File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\"}");
+        string before = InstallationAudit.Hash(savePath);
+        string backups = Path.Combine(output, "backup-fixture-" + Guid.NewGuid().ToString("N"));
+        Require(SaveBackup.Create(server, backups, false).Success, "Configured saves copied and verified");
+        string first = Directory.GetDirectories(backups)[0];
+        Require(File.Exists(Path.Combine(first, "VERIFIED.txt")) && InstallationAudit.Hash(Path.Combine(first, "saves", "preservation-test")) == before, "Backup bytes match source with completion marker");
+        Require(SaveBackup.Create(server, backups, true).Success && Directory.GetDirectories(backups).Length == 2, "Next backup retains previous backup");
+        Require(!SaveBackup.Create(server, Path.Combine(server, "savegame", "bad"), false).Success, "Backup cannot write inside source saves");
+        Require(InstallationAudit.Hash(savePath) == before, "Backup leaves original save unchanged");
+        Require(!StagedUpdate.Confirmed(1, "Success! App '2278520' fully installed", server), "Failed updater exit cannot claim success");
+        Require(!StagedUpdate.Confirmed(0, "Another app fully installed", server), "Updater requires exact app success evidence");
+        Require(StagedUpdate.Confirmed(0, "Success! App '2278520' fully installed", server), "Updater requires app evidence and all three output files");
+    }
     [STAThread]
     static int Main(string[] args)
     {
@@ -45,6 +68,7 @@ static class Checks
             File.AppendAllText(Path.Combine(server, "enshrouded_server.kfc"), "changed");
             Require(!InstallationAudit.Inspect(server).StackMatches, "Changed KFC invalidates stacking attestation");
             CheckLifecycle();
+            CheckAutomation(server, root, savePath);
             string sentinelHash = InstallationAudit.Hash(savePath);
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
             using (var form = new ControlRoom(root, settings, false))
@@ -52,7 +76,7 @@ static class Checks
                 form.ClientSize = new Size(1384, 870);
                 form.ShowInTaskbar = false; form.Opacity = 0; form.Show(); Application.DoEvents();
                 form.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: unsupported executable. No live patch or save changes." });
-                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation" })
+                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation" })
                 {
                     form.Navigate(page); form.PerformLayout(); Application.DoEvents();
                     using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, page + ".png"), ImageFormat.Png); }
@@ -67,7 +91,9 @@ static class Checks
                 controls.ClientSize = new Size(1384, 970); controls.ShowInTaskbar = false; controls.Opacity = 0; controls.Show(); Application.DoEvents();
                 controls.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: no live operations are run." });
                 using (var bmp = new Bitmap(controls.Width, controls.Height)) { controls.DrawToBitmap(bmp, new Rectangle(0, 0, controls.Width, controls.Height)); bmp.Save(Path.Combine(root, "Controls.png"), ImageFormat.Png); }
-                Require(Buttons(controls).Where(b => b.Text == "Start" || b.Text == "Restart").All(b => !b.Enabled), "Start and restart remain disabled for unsupported fixture");
+                controls.Navigate("Automation"); Application.DoEvents();
+                using (var bmp = new Bitmap(controls.Width, controls.Height)) { controls.DrawToBitmap(bmp, new Rectangle(0, 0, controls.Width, controls.Height)); bmp.Save(Path.Combine(root, "Automation-controls.png"), ImageFormat.Png); }
+                Require(Buttons(controls).Where(b => b.Text == "Start" || b.Text == "Reset / Restart").All(b => !b.Enabled), "Start and restart remain disabled for unsupported fixture");
             }
             Require(sentinelHash == InstallationAudit.Hash(savePath), "Save sentinel unchanged after every page and audit");
             Require(!Directory.EnumerateFiles(server, "*", SearchOption.AllDirectories).Any(p => p.EndsWith(".log")), "Preview creates no server logs or runtime artifacts");

@@ -1,37 +1,20 @@
-# XHL Launcher 2.0 — guarded controls preview
+# Launcher 2.0 — controls and automation preview
 
-A restrained charcoal, parchment and muted brass interface for an existing Enshrouded server. This preview is a separate application. Monitoring is the default; optional guarded controls are available without replacing the existing launcher.
+Build with `./Build.ps1` on Windows with .NET Framework 4.x. Run the executable with `--controls` to enable guarded operations, or without arguments for monitoring only. The supplied XHL Server Controls shortcut uses controls mode. Keep this folder outside the server installation.
 
-## Run
+- Start uses the existing safe-start wrapper. Reset / Restart means graceful server restart, never world or character reset. Stop requests Ctrl+C and never force-kills the server.
+- Start and restart require matching build and mod checks. The inspected installation does not pass those checks; these operations are currently blocked there.
+- Automation offers scheduled backups (5–1440 minutes, default 30) and recovery 60 seconds after a running process disappears. Options are off by default and work only while the launcher is open in controls mode. Stop disables recovery. Recovery makes one attempt per observed running session, subject to compatibility checks. A stop initiated outside this launcher cannot be distinguished from a crash; disable recovery before externally stopping the server.
+- Back up now copies the configured server save directory and server configuration to World-Backups beside this launcher. Every file is SHA256 checked, the source file list is rechecked, and source bytes are checked again after copying. No originals or older backups are deleted. Copies made while the game is running are not transactional snapshots and may span game save cycles. Client-side character saves stored elsewhere are not included.
+- Each backup starts with INCOMPLETE.txt. Only a VERIFIED.txt marker confirms completed byte verification and supersedes that initial marker. Failed/incomplete copies remain available for inspection and must not be treated as verified backups. There is no restore action.
+- Update (stage) accepts an official steamcmd.exe and copies the downloader into a unique workspace. It downloads app 2278520 into a separate Staged-Updates folder, records output and checks completion evidence. It never deploys into the live installation. A real download was not tested; current network restrictions prevented downloading additional tooling. No SteamCMD installation was located at the known locations. The three mods need build-specific verification before deployment can be added safely.
 
-On Windows x64 with .NET Framework 4.8, build with `powershell -NoProfile -File .\Build.ps1`, then open `build\XHL-Launcher-2.exe`. An optional first argument selects an existing server folder. Otherwise, the launcher checks the standard Steam dedicated-server folder. No game files or third-party art are bundled.
+## Flight requirement
 
-To enable the optional Start, Stop and Restart interface, launch `build\XHL-Launcher-2.exe --controls`. Actions require confirmation inside the app. Start and Restart require matching compatibility checks and delegate to the existing `XHL-Diagnostic-Wrapper.ps1`; there is no fallback to a direct game executable. Restart checks compatibility before stopping and checks again before starting. Stop sends Ctrl+C to the matching installation and never force-kills it. The current inspected installation fails compatibility checks, so Start and Restart remain disabled.
+The requested behavior is balanced flight with a vertical limit below 90 degrees. An 85-degree target would provide a margin, but is not yet implemented. Offline inspection found one candidate matching the historical instruction pattern in the current executable, shifted from the old address. This does not verify the hook's gameplay semantics or prove a hard pitch clamp. No new Flight patch was deployed or published. Existing Flight, gifting and stacking files remain untouched.
 
-The application stores its own settings and telemetry in `XHL-Launcher-Data` beside its executable. Keep the preview in its own writable folder, outside the server and save directories.
+## Verification and rollback
 
-## Implemented
+Run `./Test.ps1` and `./Test-Native.ps1`; they use separate fixtures and never launch the real server. See VERIFICATION.md for actual results and remaining limitations. To stop using this build, close it and use the untouched original launcher. Closing disables its automation; it does not stop the game server. The original wrapper has its own stale-attestation restriction, so returning to it does not resolve compatibility.
 
-- Overview with process state, players, CPU, memory, uptime and world metadata.
-- Player connection table, world observations, bounded searchable logs and pause/resume.
-- Separate stacking, gifting and Flight status cards without adjustment controls.
-- Read-only executable compatibility, stacking attestation and loader-isolation checks.
-- Process detection matches the selected executable path; another server installation is not reported as this one.
-- Monitoring opens world/player saves and server files only for reading. No save restore, deletion, mod installation or update actions are exposed.
-- Optional lifecycle actions invoke the existing wrapper or send a graceful console signal. Normal game saving and the existing wrapper's snapshot/mod behavior occur only when the operator explicitly requests a permitted operation. There is no automatic start or restart.
-
-## Verification and limits
-
-The native Windows x64 build, 27 fixture/UI checks and seven isolated native-runtime checks pass. See `VERIFICATION.md` for the exact scope. A matching attestation proves file correspondence only, not correct gameplay. Presence of a mod DLL or flag does not prove that a mod is active.
-
-Flight-v2 balance changes are **not implemented**. The earlier test plan was unavailable, and the inspected executable differs from the hash accepted by the existing controller. Stamina, speed, ascent, landing and other hooks have not been verified for that executable. No guard was relaxed and no speculative hook was added.
-
-This remains a preview, not a verified production replacement. Runtime mod verification, multiplayer behavior, actual-game lifecycle validation and high-DPI/multi-monitor testing remain outstanding. The UI direction was approved; Flight-v2 requirements are pending from the operator.
-
-## Rollback
-
-Close the preview and use the existing launcher. There is nothing to restore in the server installation: this preview has not replaced or rearranged it. Keep any pre-existing backups and working launcher files. Never copy a save or game resource from this package into the server; none are supplied.
-
-## Tests
-
-Run `powershell -NoProfile -File .\Test.ps1` and `powershell -NoProfile -File .\Test-Native.ps1`. Tests create isolated synthetic fixtures and UI renders. The native test compiles a tiny dummy console executable named `enshrouded_server.exe` under a unique test folder; this is not the game. It also runs a harmless fixture startup script. The dummy self-exits after 20 seconds if signaling fails. Tests never launch the production game or delete earlier fixtures.
+Never upload World-Backups, Staged-Updates, launcher runtime data, local configuration or logs. Public source is the explicit source package only.

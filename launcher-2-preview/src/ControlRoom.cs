@@ -19,7 +19,12 @@ namespace XHLLauncher
         readonly bool controlsEnabled;
         readonly ServerLifecycle lifecycle;
         Button startServer, stopServer, restartServer;
-        bool operationBusy;
+        bool operationBusy, updateBusy;
+        readonly RecoveryPolicy recovery = new RecoveryPolicy();
+        DateTime nextBackup = DateTime.UtcNow.AddMinutes(30);
+        Label automationStatus;
+        CheckBox recoveryOption;
+        string BackupRoot { get { return Path.Combine(appBase, "World-Backups"); } }
         Label operationStatus;
         readonly Dictionary<string, Control> pages = new Dictionary<string, Control>();
         readonly Dictionary<string, Button> navigation = new Dictionary<string, Button>();
@@ -41,10 +46,11 @@ namespace XHLLauncher
         {
             this.appBase = appBase;
             this.settings = settings;
+            nextBackup = DateTime.UtcNow.AddMinutes(Math.Max(5, settings.BackupIntervalMinutes));
             controlsEnabled = enableOperations;
             lifecycle = new ServerLifecycle(new ExistingServerRuntime(settings.ServerRoot, settings), delegate { return ServerLifecycle.CheckInstallation(settings.ServerRoot); });
             // The preview cannot auto-start a server or perform external identity lookups.
-            settings.AutoRestartOnCrash = false;
+            // Recovery is opt-in and requires an observed running session.
             settings.PublicIpLookup = false;
             telemetry = new TelemetryService(appBase, settings);
             Text = "XHL | Enshrouded | 2.0 Preview" + (controlsEnabled ? " | Controls" : "");
@@ -60,9 +66,10 @@ namespace XHLLauncher
             AddPage("Mods", BuildMods());
             AddPage("Logs", BuildLogs());
             AddPage("Installation", BuildInstallation());
+            AddPage("Automation", BuildAutomation());
             Navigate("Overview");
             refresh.Interval = 1000;
-            refresh.Tick += delegate { frames++; UpdateState(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
+            refresh.Tick += async delegate { frames++; UpdateState(); await TickAutomation(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
             if (startMonitoring) { telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); }; }
             FormClosing += delegate(object sender, FormClosingEventArgs e) { if (operationBusy) { e.Cancel = true; MessageBox.Show("Wait for the current server operation to finish.", "XHL"); } };
             FormClosed += delegate { refresh.Stop(); refresh.Dispose(); telemetry.Dispose(); };
@@ -83,7 +90,7 @@ namespace XHLLauncher
             var sub = TextLabel("ENSHROUDED", 8, Theme.Cyan, true); sub.Location = new Point(26, 89); side.Controls.Add(sub);
             var category = TextLabel("YOUR REALM", 8, Theme.Muted2, true); category.Location = new Point(26, 143); side.Controls.Add(category);
             int y = 178;
-            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation" })
+            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation" })
             {
                 var button = Theme.Button(page, Theme.Border);
                 button.TextAlign = ContentAlignment.MiddleLeft; button.Padding = new Padding(16, 0, 0, 0);
@@ -175,8 +182,9 @@ namespace XHLLauncher
             {
                 operations = Card(page, "SERVER OPERATIONS", 0, 78, 1040, 126);
                 startServer = ActionButton(operations, "Start", 20, 46, 110, async delegate { await RunOperation("Start"); });
-                restartServer = ActionButton(operations, "Restart", 142, 46, 110, async delegate { await RunOperation("Restart"); });
-                stopServer = ActionButton(operations, "Stop", 264, 46, 110, async delegate { await RunOperation("Stop"); });
+                restartServer = ActionButton(operations, "Reset / Restart", 142, 46, 122, async delegate { await RunOperation("Restart"); });
+                stopServer = ActionButton(operations, "Stop", 276, 46, 110, async delegate { await RunOperation("Stop"); });
+                var update = ActionButton(operations, "Update (stage)", 398, 46, 145, async delegate { await DownloadUpdate(); });
                 operationStatus = Body(operations, "Start and restart require current compatibility checks.", 92, 9, Theme.Muted);
             }
             page.Resize += delegate
@@ -199,14 +207,14 @@ namespace XHLLauncher
         {
             var page = Page("World", "Save metadata is read-only. World and player data stay in their original locations.");
             var card = Card(page, "LATEST OBSERVATION", 0, 78, 740, 270); worldDetail = Body(card, "Waiting for world data", 48, 12, Theme.Text);
-            var note = TextLabel("Snapshots and backups remain available through your existing launcher.\r\nThis preview has no restore, delete, migration, or retention actions.", 10, Theme.Muted, false);
+            var note = TextLabel("Open Automation to create verified copies or enable scheduled backups.\r\nThis preview has no restore, delete, migration, or retention actions.", 10, Theme.Muted, false);
             note.Location = new Point(0, 378); page.Controls.Add(note); return page;
         }
         Control BuildMods()
         {
             var page = Page("Mods", "Preserve the working setup. Compatibility checks never apply patches.");
             var card = Card(page, "VERIFICATION LEVELS", 0, 78, 820, 330);
-            Body(card, "Stacking\r\nChecks the executable, KFC and resource hashes against the local attestation.\r\n\r\nGifting and Flight\r\nChecks the pinned executable build. Runtime memory and gameplay remain separate tests.\r\n\r\nFlight-v2 balance\r\nPending the agreed test plan and validated hooks for the installed build.", 48, 11, Theme.Text);
+            Body(card, "Stacking\r\nChecks the executable, KFC and resource hashes against the local attestation.\r\n\r\nGifting and Flight\r\nChecks the pinned executable build. Runtime memory and gameplay remain separate tests.\r\n\r\nFlight-v2 balance\r\nRequested: stable vertical limit below 90 degrees.\r\nCurrent build hook is unverified; no memory patch applied.", 48, 11, Theme.Text);
             ActionButton(page, "Inspect installation", 0, 435, 185, delegate { Navigate("Installation"); }); return page;
         }
         Control BuildLogs()
@@ -229,6 +237,67 @@ namespace XHLLauncher
                 Multiline = true, ScrollBars = ScrollBars.Both, WordWrap = false, BackColor = Theme.Panel2, ForeColor = Theme.Text, Font = new Font("Consolas", 10), BorderStyle = BorderStyle.FixedSingle, Text = "Checking installation..." };
             page.Controls.Add(auditBox); page.Resize += delegate { auditBox.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 210)); }; return page;
         }
+        Control BuildAutomation()
+        {
+            var page = Page("Automation", "Optional protection while this launcher stays open. Existing backups are never removed.");
+            var card = Card(page, "SAVE COPIES AND RECOVERY", 0, 78, 780, 360);
+            var backup = new CheckBox { Text = "Back up saves automatically", Checked = settings.AutoBackup, AutoCheck = controlsEnabled, TabStop = controlsEnabled, ForeColor = Theme.Muted, AutoSize = true, Location = new Point(20, 48) };
+            card.Controls.Add(backup);
+            var interval = new NumericUpDown { Minimum = 5, Maximum = 1440, Value = Math.Max(5, Math.Min(1440, settings.BackupIntervalMinutes)), Location = new Point(340, 46), Width = 75, Enabled = controlsEnabled };
+            card.Controls.Add(interval);
+            var minutes = TextLabel("minutes", 10, Theme.Muted, false); minutes.Location = new Point(425, 49); card.Controls.Add(minutes);
+            backup.CheckedChanged += delegate { settings.AutoBackup = backup.Checked; nextBackup = DateTime.UtcNow.AddMinutes((double)interval.Value); Storage.SaveSettings(appBase, settings); };
+            interval.ValueChanged += delegate { settings.BackupIntervalMinutes = (int)interval.Value; nextBackup = DateTime.UtcNow.AddMinutes((double)interval.Value); Storage.SaveSettings(appBase, settings); };
+            recoveryOption = new CheckBox { Text = "Restart after an unexpected stop (60-second delay)", Checked = settings.AutoRestartOnCrash, AutoCheck = controlsEnabled, TabStop = controlsEnabled, ForeColor = Theme.Muted, AutoSize = true, Location = new Point(20, 96) };
+            card.Controls.Add(recoveryOption);
+            recoveryOption.CheckedChanged += delegate { settings.AutoRestartOnCrash = recoveryOption.Checked; recovery.Disarm(); Storage.SaveSettings(appBase, settings); };
+            Body(card, "Recovery makes one attempt after an observed running session.\r\nStop turns recovery off. Start still requires all compatibility checks.\r\n\r\nBackups copy the configured server saves and configuration only.\r\nLive copies are byte-checked, but may span multiple game save cycles.\r\nClient-side character saves outside that folder are not included.", 140, 10, Theme.Muted);
+            var now = ActionButton(page, "Back up now", 0, 460, 150, async delegate { await BackupNow(); }); now.Enabled = controlsEnabled;
+            ActionButton(page, "Backup folder", 166, 460, 150, delegate { Directory.CreateDirectory(BackupRoot); Process.Start("explorer.exe", "\"" + BackupRoot + "\""); });
+            automationStatus = TextLabel("Options are off by default. No automatic actions run in monitoring mode.", 10, Theme.Muted, false);
+            automationStatus.Location = new Point(0, 520); automationStatus.MaximumSize = new Size(780, 160); page.Controls.Add(automationStatus);
+            return page;
+        }
+        async Task DownloadUpdate()
+        {
+            if (!controlsEnabled || updateBusy) return;
+            string client = settings.SteamCmdPath;
+            if (!File.Exists(client))
+            {
+                using (var dialog = new OpenFileDialog { Title = "Choose official SteamCMD (download is staged separately)", Filter = "SteamCMD|steamcmd.exe", CheckFileExists = true })
+                { if (dialog.ShowDialog() != DialogResult.OK) return; client = dialog.FileName; }
+            }
+            if (MessageBox.Show("Download a separate server installation for compatibility testing? This may use several GB. It will not replace the live server.", "XHL � Staged update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            settings.SteamCmdPath = client; Storage.SaveSettings(appBase, settings);
+            updateBusy = true; automationStatus.Text = "Downloading isolated update. Server controls remain available.";
+            var result = await Task.Run(delegate { return StagedUpdate.Download(client, appBase, settings.ServerRoot); });
+            updateBusy = false;
+            if (!IsDisposed) { automationStatus.Text = result.Message; MessageBox.Show(result.Message, "XHL � Staged update"); }
+        }
+        async Task BackupNow()
+        {
+            if (!controlsEnabled || operationBusy) return;
+            operationBusy = true;
+            automationStatus.Text = "Copying and verifying saves�";
+            bool running = telemetry.GetHost().ServerRunning;
+            var result = await Task.Run(delegate { return SaveBackup.Create(settings.ServerRoot, BackupRoot, running); });
+            operationBusy = false;
+            if (!IsDisposed) automationStatus.Text = result.Message;
+            nextBackup = DateTime.UtcNow.AddMinutes(Math.Max(5, settings.BackupIntervalMinutes));
+        }
+        async Task TickAutomation()
+        {
+            if (!controlsEnabled) return;
+            bool busy = operationBusy || lifecycle.StartupPending;
+            if (recovery.Poll(settings.AutoRestartOnCrash, telemetry.GetHost().ServerRunning, busy, DateTime.UtcNow))
+            {
+                operationBusy = true;
+                var result = await Task.Run(delegate { return lifecycle.Execute("Start"); });
+                operationBusy = false;
+                if (!IsDisposed) automationStatus.Text = "Automatic recovery: " + result.Message;
+            }
+            if (!operationBusy && !lifecycle.StartupPending && settings.AutoBackup && DateTime.UtcNow >= nextBackup) await BackupNow();
+        }
         async Task InspectAsync()
         {
             if (auditBusy) return; auditBusy = true; recheck.Enabled = false;
@@ -242,6 +311,7 @@ namespace XHLLauncher
             if (!controlsEnabled || operationBusy) return;
             string detail = operation == "Start" ? "Start using the existing safe-start wrapper?" : operation == "Stop" ? "Request a graceful server shutdown? Connected players will be disconnected. The server will not be force-killed." : "Restart the server? Compatibility is checked before stopping. Connected players will be disconnected.";
             if (MessageBox.Show(detail, "XHL — " + operation, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            if (operation == "Stop") { settings.AutoRestartOnCrash = false; recovery.Disarm(); if (recoveryOption != null) recoveryOption.Checked = false; Storage.SaveSettings(appBase, settings); }
             operationBusy = true; UpdateState(); operationStatus.Text = operation + " requested…";
             ActionResult result = await Task.Run(delegate { return lifecycle.Execute(operation); });
             if (IsDisposed) return;
@@ -255,7 +325,7 @@ namespace XHLLauncher
             var h = telemetry.GetHost(); var w = telemetry.GetWorld(); var list = telemetry.GetPlayers();
             serverName.Text = settings.ServerName;
             state.Text = h.ServerRunning ? "The realm is online" : "The realm is resting"; state.ForeColor = h.ServerRunning ? Theme.Green : Theme.Text;
-            statusDetail.Text = h.ServerRunning ? "Process observed  /  PID " + h.Pid + "  /  " + FormatUtil.Duration(h.Uptime) : "No matching server process observed. Use your existing launcher to go live.";
+            statusDetail.Text = h.ServerRunning ? "Process observed  /  PID " + h.Pid + "  /  " + FormatUtil.Duration(h.Uptime) : "No matching server process observed. Check Installation before starting.";
             players.Set(h.ServerRunning ? list.Count.ToString() : "—", h.ServerRunning ? "Connected players" : "Server offline");
             cpu.Set(h.ServerRunning ? h.CpuPercent.ToString("0.0") + "%" : "—", "Selected server process");
             memory.Set(h.ServerRunning ? FormatUtil.Bytes(h.RamBytes) : "—", "Server working set");

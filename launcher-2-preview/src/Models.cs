@@ -12,6 +12,8 @@ namespace XHLLauncher
         public string SteamCmdPath = "";
         public bool PublicIpLookup = true;
         public bool AutoRestartOnCrash = false;
+        public bool AutoBackup = false;
+        public int BackupIntervalMinutes = 30;
         public int RefreshMilliseconds = 1000;
         public int BackupRetentionCount = 30;
         public string ActiveModProfile = "Velaris Normal";

@@ -1,36 +1,20 @@
-# Verification record — 2026-10-16
+# Verification — 2026-10-16
 
 ## Passed
 
-- Compiled with the installed Windows .NET Framework x64 compiler; final build has no warnings.
-- Missing executable, unknown build, empty/malformed attestation all fail verification.
-- A matching local attestation cannot override the pinned Flight executable hash.
-- Legacy loader presence is detected without renaming or deleting the loader.
-- A changed KFC invalidates the stacking file check.
-- Incorrect attestation format/stack size is rejected even when file hashes match.
-- 27 fixture/UI checks pass, including preflight-before-stop ordering, duplicate/concurrent operation rejection, failed-stop handling, and post-stop revalidation.
-- Seven native-runtime checks pass against an isolated dummy executable and harmless fixture wrapper: matching process path, exclusion of another installation, Ctrl+C receipt, graceful exit, wrapper invocation, duplicate bootstrap rejection, and accurate nonzero exit reporting.
-- All six pages construct and render; rendered layout inspected at 1400 px and overview also at 1100 px window width.
-- A synthetic save file retains its SHA256 after all page and audit checks.
-- No server logs or runtime artifacts are created in the synthetic server folder.
-- 120 original installation files checked against the pre-edit backup matched, including the 22 server save files. Development edits are outside that installation.
+- x64 .NET Framework build.
+- 41 fixture/UI checks: strict compatibility checks, lifecycle ordering, duplicate operations, failed graceful stop handling, reset/restart preservation, recovery delay and disarming, no start merely opening offline, verified backup copies, retention of previous copies, source-directory write rejection, update result parsing and all seven page renders.
+- Seven native checks against an isolated dummy executable and harmless wrapper: exact process path, exclusion of another installation, Ctrl+C delivery and graceful exit, wrapper invocation, duplicate startup rejection and nonzero exit reporting.
+- Actual offline server backup through the new backup implementation completed successfully. Configured server save copies are byte-verified. No restore was performed.
+- 120 original installation files, including 22 server saves, matched the baseline hashes. No production lifecycle operation or memory patch was issued.
+- Rendered UI reviewed at 1400 px, with overview also checked at 1100 px. Backup/recovery controls are readable in monitoring and controls modes.
 
-## Installation findings
+## Not verified / not complete
 
-The installed executable, KFC and KFC resources differ from the old stacking attestation. The executable also differs from the existing Flight/gifting controllers' pinned build. This is a compatibility finding, not proof that gameplay currently fails. Existing working files were preserved.
+- Actual game start, stop and restart from this build. Start/restart are blocked because the current executable and resources do not match existing mod verification records. Passing dummy-process tests is not production verification.
+- Flight pitch changes, current-build Flight/gifting hooks and stacking gameplay. One offline Flight pattern candidate was found; this is insufficient to certify a safe runtime clamp. The requested sub-90-degree cap remains unimplemented.
+- SteamCMD download end-to-end, update deployment and mod compatibility after update. Update code only stages a separate installation; it cannot deploy to production.
+- Cross-file consistency for backups made while the game is saving; client-side character backups outside the configured server save folder.
+- Multiplayer load, high DPI and multiple monitors.
 
-The current build's runtime memory and multiplayer behavior were not tested. No production server was started, stopped, patched, updated or repaired. Player saves outside the server save folder were not scanned or modified.
-
-## Still unverified / incomplete
-
-- Agreed Flight-v2 balance requirements and the necessary hooks on the installed executable.
-- Flight, gifting and stacking gameplay on the current build.
-- Production start/stop/restart integration in the redesigned interface.
-- Player table under live multiplayer load; network timing accuracy.
-- High-DPI/multiple-monitor behavior and user acceptance of the visual direction.
-
-The UI preview is intentionally labeled as such. Build success and offline signature checks are not described as gameplay verification.
-
-## Controls implementation scope
-
-Optional `--controls` mode is implemented and tested with fixtures. Production start/stop/restart behavior remains unverified on the actual game. The inspected current installation is incompatible with its old attestation, so the new Start/Restart controls remain disabled. Nothing was changed to bypass this. Monitoring remains the default, and no production lifecycle operation was issued during development.
+Original server and mod files remain in place. World/player save deletion, restore, migration and retention deletion are absent. This is a tested launcher preview, not a claim that the full production upgrade is finished.
