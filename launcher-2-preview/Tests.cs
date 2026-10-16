@@ -52,6 +52,8 @@ static class Checks
                 Require(c.UploadString(phone.Url+"command/Start","POST","").Contains("Start") && calls==1,"Authenticated command reaches handler once");
                 rejected=false;try{c.DownloadString(phone.Url+"command/Stop");}catch(System.Net.WebException){rejected=true;}Require(rejected && calls==1,"GET never executes a command");
                 rejected=false;try{c.UploadString(phone.Url+"command/Delete","POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected && calls==1,"Unknown command is rejected");
+                foreach(string op in new[]{"Backup","AutoBackupOn","AutoBackupOff","RecoveryOn","RecoveryOff"}) {int before=calls;Require(c.UploadString(phone.Url+"command/"+op,"POST","").Contains(op)&&calls==before+1,"Phone dispatches authenticated "+op);}
+
             }
         }
     }
@@ -116,7 +118,7 @@ static class Checks
                 using (var bmp = new Bitmap(controls.Width, controls.Height)) { controls.DrawToBitmap(bmp, new Rectangle(0, 0, controls.Width, controls.Height)); bmp.Save(Path.Combine(root, "Controls.png"), ImageFormat.Png); }
                 controls.Navigate("Automation"); Application.DoEvents();
                 using (var bmp = new Bitmap(controls.Width, controls.Height)) { controls.DrawToBitmap(bmp, new Rectangle(0, 0, controls.Width, controls.Height)); bmp.Save(Path.Combine(root, "Automation-controls.png"), ImageFormat.Png); }
-                Require(Buttons(controls).Where(b => b.Text == "Start" || b.Text == "Reset / Restart").All(b => !b.Enabled), "Start and restart remain disabled for unsupported fixture");
+                Require(Buttons(controls).Where(b => b.Text == "Start" || b.Text == "Restart").All(b => !b.Enabled), "Start and restart remain disabled for unsupported fixture");
             }
             Require(sentinelHash == InstallationAudit.Hash(savePath), "Save sentinel unchanged after every page and audit");
             Require(!Directory.EnumerateFiles(server, "*", SearchOption.AllDirectories).Any(p => p.EndsWith(".log")), "Preview creates no server logs or runtime artifacts");

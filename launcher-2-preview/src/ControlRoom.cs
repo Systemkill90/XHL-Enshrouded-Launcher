@@ -26,7 +26,10 @@ namespace XHLLauncher
         readonly RecoveryPolicy recovery = new RecoveryPolicy();
         DateTime nextBackup = DateTime.UtcNow.AddMinutes(30);
         Label automationStatus;
-        CheckBox recoveryOption;
+        CheckBox recoveryOption, backupOption;
+        DateTime phoneBackupScan = DateTime.MinValue;
+        string lastPhoneBackup = "No verified backup found";
+        string phoneWorldFiles="Checking", phoneWorldSize="Checking", phoneWorldSaved="Checking";
         string BackupRoot { get { return Path.Combine(appBase, "World-Backups"); } }
         Label operationStatus;
         readonly Dictionary<string, Control> pages = new Dictionary<string, Control>();
@@ -186,7 +189,7 @@ namespace XHLLauncher
             {
                 operations = Card(page, "SERVER OPERATIONS", 0, 78, 1040, 126);
                 startServer = ActionButton(operations, "Start", 20, 46, 110, async delegate { await RunOperation("Start"); });
-                restartServer = ActionButton(operations, "Reset / Restart", 142, 46, 122, async delegate { await RunOperation("Restart"); });
+                restartServer = ActionButton(operations, "Restart", 142, 46, 122, async delegate { await RunOperation("Restart"); });
                 stopServer = ActionButton(operations, "Stop", 276, 46, 110, async delegate { await RunOperation("Stop"); });
                 var update = ActionButton(operations, "Update (stage)", 398, 46, 145, async delegate { await DownloadUpdate(); });
                 ActionButton(operations, "Use verified update", 555, 46, 170, async delegate { await ActivateUpdate(); });
@@ -263,24 +266,42 @@ namespace XHLLauncher
         void PublishPhone()
         {
             if(phone==null)return;var h=telemetry.GetHost();
-            phone.Publish(new {name=settings.ServerName,online=h.ServerRunning,players=telemetry.GetPlayers().Count,cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text});
+            if(DateTime.UtcNow >= phoneBackupScan) {
+                try {var markers=Directory.Exists(BackupRoot)?Directory.GetFiles(BackupRoot,"VERIFIED.txt",SearchOption.AllDirectories):new string[0];
+                    lastPhoneBackup=markers.Length==0?"No verified backup found":markers.Select(File.GetLastWriteTime).Max().ToString("MMM d, h:mm tt");
+                } catch {lastPhoneBackup="Backup history unavailable";}
+                try {var cfg=ConfigReader.Read(settings.ServerRoot);var dir=Path.GetFullPath(Path.Combine(settings.ServerRoot,cfg.SaveDirectory));var files=new DirectoryInfo(dir).GetFiles();phoneWorldFiles=string.Join(", ",files.Select(f=>f.Name));phoneWorldSize=FormatUtil.Bytes(files.Sum(f=>f.Length));phoneWorldSaved=files.Length==0?"No save files found":files.Max(f=>f.LastWriteTime).ToString("MMM d, h:mm tt");}catch{phoneWorldFiles="Unavailable";phoneWorldSize="Unavailable";phoneWorldSaved="Unavailable";}
+                phoneBackupScan=DateTime.UtcNow.AddSeconds(30);
+            }
+            var list=h.ServerRunning?telemetry.GetPlayers():new List<PlayerState>();
+            var known=telemetry.GetAllKnownPlayers().Where(p=>!string.IsNullOrWhiteSpace(p.Name)&&!p.Name.StartsWith("Player ")).Select(p=>new {name=p.Name,evidence=p.CharacterSaveBytes>0?"Character save transfer observed ("+FormatUtil.Bytes(p.CharacterSaveBytes)+")":"Seen in server log"}).ToList();
+            foreach(var session in Storage.ReadSessions(settings.ServerRoot)) if(!known.Any(p=>p.name==session.Player))known.Add(new {name=session.Player,evidence="Recorded session history"});
+            var world=telemetry.GetWorld();
+            phone.Publish(new {worldFiles=phoneWorldFiles,worldSize=phoneWorldSize,worldSaved=phoneWorldSaved,bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString(),knownPlayers=known.OrderBy(p=>p.name).ToArray(),name=settings.ServerName,online=h.ServerRunning,players=list.Count,roster=list.Select(p=>new {name=p.Name,session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed"}).ToArray(),uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text,lastBackup=lastPhoneBackup,backupStatus=automationStatus==null?"":automationStatus.Text,autoBackup=settings.AutoBackup,recovery=settings.AutoRestartOnCrash,backupMinutes=settings.BackupIntervalMinutes,nextBackup=nextBackup.ToLocalTime().ToString("h:mm tt")});
         }
+
         ActionResult PhoneCommand(string operation)
         {
             if(IsDisposed || Disposing)return ActionResult.Fail("Launcher is closing.");
             return (ActionResult)Invoke(new Func<ActionResult>(delegate {
                 if(!controlsEnabled || operationBusy || updateBusy || lifecycle.StartupPending)return ActionResult.Fail("Controls unavailable or another operation is in progress.");
-                RunOperation(operation, true);
+                if(operation=="Backup") { BeginPhoneBackup(); }
+                else if(operation=="AutoBackupOn" || operation=="AutoBackupOff") {backupOption.Checked=operation=="AutoBackupOn";operationStatus.Text="Automatic backups "+(settings.AutoBackup?"enabled.":"disabled.");}
+                else if(operation=="RecoveryOn" || operation=="RecoveryOff") {recoveryOption.Checked=operation=="RecoveryOn";operationStatus.Text="Crash recovery "+(settings.AutoRestartOnCrash?"enabled.":"disabled.");}
+                else if(operation=="Start" || operation=="Stop" || operation=="Restart") BeginPhoneOperation(operation);
+                else return ActionResult.Fail("Unknown operation.");
                 PublishPhone();
                 return ActionResult.Ok(operation + " requested. Watch status for the result.");
             }));
         }
+        async void BeginPhoneOperation(string operation) { try {await RunOperation(operation,true);} catch(Exception ex){operationBusy=false;operationStatus.Text=ex.Message;PublishPhone();} }
+        async void BeginPhoneBackup() { try {await BackupNow();} catch(Exception ex){operationBusy=false;automationStatus.Text="Backup failed: "+ex.Message;} phoneBackupScan=DateTime.MinValue;PublishPhone(); }
         Control BuildAutomation()
         {
             var page = Page("Automation", "Optional protection while this launcher stays open. Existing backups are never removed.");
             var card = Card(page, "SAVE COPIES AND RECOVERY", 0, 78, 780, 360);
             var backup = new CheckBox { Text = "Back up saves automatically", Checked = settings.AutoBackup, AutoCheck = controlsEnabled, TabStop = controlsEnabled, ForeColor = Theme.Muted, AutoSize = true, Location = new Point(20, 48) };
-            card.Controls.Add(backup);
+            backupOption = backup; card.Controls.Add(backup);
             var interval = new NumericUpDown { Minimum = 5, Maximum = 1440, Value = Math.Max(5, Math.Min(1440, settings.BackupIntervalMinutes)), Location = new Point(340, 46), Width = 75, Enabled = controlsEnabled };
             card.Controls.Add(interval);
             var minutes = TextLabel("minutes", 10, Theme.Muted, false); minutes.Location = new Point(425, 49); card.Controls.Add(minutes);
@@ -338,6 +359,7 @@ namespace XHLLauncher
             operationBusy = false;
             if (!IsDisposed) automationStatus.Text = result.Message;
             nextBackup = DateTime.UtcNow.AddMinutes(Math.Max(5, settings.BackupIntervalMinutes));
+            phoneBackupScan=DateTime.MinValue; PublishPhone();
         }
         async Task TickAutomation()
         {

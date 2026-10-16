@@ -2,7 +2,7 @@
 
 ## Completed
 
-- x64 .NET Framework build; 54 fixture/UI checks plus 7 native fixture checks.
+- x64 .NET Framework build; 59 fixture/UI checks plus 7 native fixture checks.
 - All eight pages rendered, with narrow overview bounds checked.
 - The actual current executable is build 1269579, SHA256 B627639CE4A3F8C940FE90AFA1D36ED59DB3FF9CED24E935890EB7C99B04D5BF.
 - Offline audit of current unmodified resources found 0 stackable entries at 65535 and 2267 below it. Stacking was rebuilt in a copy, then independently read back: 2267 at 65535, 0 below, and 1995 single-stack entries preserved.
@@ -35,4 +35,8 @@ No game binaries/assets, saves, configuration, runtime logs or backup contents b
 
 
 - Phone page now provides Start, Stop and Restart with browser confirmation and operation feedback; logs are omitted. Commands reuse guarded lifecycle operations and intentional Stop disarms recovery. A live duplicate Start returned already-running without restarting the server. Actual handset Stop/Restart still awaits operator testing.
+
+
+- Expanded mobile dashboard: uptime, resources, observed online players, world file metadata, known player history, backup status/action, and persisted automation switches. Renamed desktop Reset / Restart to Restart. Player history is not represented as proof of individual save files.
+- Mobile layout checked at 390px with no horizontal overflow or JavaScript errors. Live backup command created a verified snapshot while the same server process remained online. Existing automation settings were preserved.
 
