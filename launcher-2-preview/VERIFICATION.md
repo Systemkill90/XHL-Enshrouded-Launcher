@@ -2,7 +2,7 @@
 
 ## Completed
 
-- x64 .NET Framework build; 49 fixture/UI checks plus 7 native fixture checks.
+- x64 .NET Framework build; 54 fixture/UI checks plus 7 native fixture checks.
 - All eight pages rendered, with narrow overview bounds checked.
 - The actual current executable is build 1269579, SHA256 B627639CE4A3F8C940FE90AFA1D36ED59DB3FF9CED24E935890EB7C99B04D5BF.
 - Offline audit of current unmodified resources found 0 stackable entries at 65535 and 2267 below it. Stacking was rebuilt in a copy, then independently read back: 2267 at 65535, 0 below, and 1995 single-stack entries preserved.
@@ -30,6 +30,9 @@ No game binaries/assets, saves, configuration, runtime logs or backup contents b
 - Normal-session graceful stop completed and current configured saves were backed up before replacement; old launcher and startup script retained for rollback.
 - Restart connected to Steam and reached Host_Online; all three mod startup checks passed. No separate console window appeared.
 - Production launcher title and sidebar labels replace test labels.
-- Phone tab offers a private, read-only LAN link; dashboard and status endpoint passed HTTP checks, including rejection of wrong keys and POST requests. The running launcher returned HTTP 200 with online status and recent logs on the host.
+- Phone tab offers a private LAN control link; dashboard and status endpoint passed HTTP checks, including rejection of wrong keys, missing command headers, foreign origins, GET commands and unknown commands. The running launcher returned HTTP 200 with online status and recent logs on the host.
 - Open the Phone tab link on the same home Wi-Fi. Leave the launcher open. Allow Private networks in the Windows prompt; no router forwarding is needed. Remote-phone connectivity has not been claimed as tested.
+
+
+- Phone page now provides Start, Stop and Restart with browser confirmation and operation feedback; logs are omitted. Commands reuse guarded lifecycle operations and intentional Stop disarms recovery. A live duplicate Start returned already-running without restarting the server. Actual handset Stop/Restart still awaits operator testing.
 

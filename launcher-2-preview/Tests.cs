@@ -38,13 +38,20 @@ static class Checks
         Require(StagedUpdate.Confirmed(0, "Success! App '2278520' fully installed", server), "Updater requires app evidence and all three output files");
     }
     static void CheckPhone() {
-        using(var phone=new PhoneView("test-secret")) {
+        int calls=0; using(var phone=new PhoneView("test-secret", delegate(string op){calls++;return ActionResult.Ok(op);})) {
             phone.Start(System.Net.IPAddress.Loopback,0);phone.Publish(new {name="Fixture",online=true});
             using(var c=new System.Net.WebClient()) {
-                Require(c.DownloadString(phone.Url).Contains("Read-only"), "Phone page serves read-only dashboard");
+                Require(c.DownloadString(phone.Url).Contains("Server controls"), "Phone page serves server controls");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
                 bool rejected=false;try{c.DownloadString(phone.Url.Replace("test-secret","wrong"));}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects requests without private key");
-                rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects write requests");
+                rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects unsupported write requests");
+                rejected=false;try{c.UploadString(phone.Url+"command/Stop","POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected && calls==0,"Phone rejects commands without authentication header");
+                c.Headers["X-XHL-Key"]="test-secret";c.Headers["Origin"]="http://foreign.example";
+                rejected=false;try{c.UploadString(phone.Url+"command/Stop","POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected && calls==0,"Phone rejects foreign origin");
+                c.Headers.Remove("Origin");
+                Require(c.UploadString(phone.Url+"command/Start","POST","").Contains("Start") && calls==1,"Authenticated command reaches handler once");
+                rejected=false;try{c.DownloadString(phone.Url+"command/Stop");}catch(System.Net.WebException){rejected=true;}Require(rejected && calls==1,"GET never executes a command");
+                rejected=false;try{c.UploadString(phone.Url+"command/Delete","POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected && calls==1,"Unknown command is rejected");
             }
         }
     }

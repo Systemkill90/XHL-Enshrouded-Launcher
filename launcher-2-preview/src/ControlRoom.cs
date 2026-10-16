@@ -244,27 +244,36 @@ namespace XHLLauncher
         }
         Control BuildPhone()
         {
-            var page=Page("Phone access", "View status and logs from your couch on the same home Wi-Fi.");
+            var page=Page("Phone access", "Control your server from your couch on the same home Wi-Fi.");
             phoneLink=new TextBox {ReadOnly=true,Location=new Point(0,90),Width=730}; Theme.StyleTextBox(phoneLink); page.Controls.Add(phoneLink);
             ActionButton(page,"Copy link",0,140,140,delegate {if(phoneLink.Text.StartsWith("http"))Clipboard.SetText(phoneLink.Text);});
             ActionButton(page,"Enable",160,140,140,delegate {settings.PhoneViewEnabled=true;Storage.SaveSettings(appBase,settings);StartPhone();});
             ActionButton(page,"Disable",320,140,140,delegate {settings.PhoneViewEnabled=false;Storage.SaveSettings(appBase,settings);if(phone!=null){phone.Dispose();phone=null;}phoneLink.Text="";phoneStatus.Text="Phone access is off.";});
             phoneStatus=TextLabel("Phone access starts with the launcher. Keep this private link to yourself.",10,Theme.Muted,false);phoneStatus.Location=new Point(0,200);phoneStatus.MaximumSize=new Size(760,140);page.Controls.Add(phoneStatus);
-            Body(Card(page,"CONNECTION",0,350,780,160),"Open the link in your phone browser while connected to the same Wi-Fi.\r\nIf Windows asks, allow this launcher on Private networks.\r\nThe page is read-only. No port forwarding or public internet exposure is needed.\r\nLeave the launcher open; minimize it when you leave the desk.",45,10,Theme.Text);
+            Body(Card(page,"CONNECTION",0,350,780,160),"Open the link in your phone browser while connected to the same Wi-Fi.\r\nIf Windows asks, allow this launcher on Private networks.\r\nKeep this control link private. No port forwarding or public internet exposure is needed.\r\nLeave the launcher open; minimize it when you leave the desk.",45,10,Theme.Text);
             return page;
         }
         void StartPhone()
         {
             if(phone!=null)return;
             try { if(string.IsNullOrEmpty(settings.PhoneViewKey)){settings.PhoneViewKey=Guid.NewGuid().ToString("N")+Guid.NewGuid().ToString("N");Storage.SaveSettings(appBase,settings);}
-                phone=new PhoneView(settings.PhoneViewKey);phone.Start(PhoneView.LocalAddress(),8765);phoneLink.Text=phone.Url;phoneStatus.Text="Phone view is on. Open this private link on your home Wi-Fi.";PublishPhone();
+                phone=new PhoneView(settings.PhoneViewKey, PhoneCommand);phone.Start(PhoneView.LocalAddress(),8765);phoneLink.Text=phone.Url;phoneStatus.Text="Phone view is on. Open this private link on your home Wi-Fi.";PublishPhone();
             } catch(Exception ex){if(phone!=null)phone.Dispose();phone=null;phoneStatus.Text="Phone view could not start: "+ex.Message;}
         }
         void PublishPhone()
         {
-            if(phone==null)return;var h=telemetry.GetHost();string tail="No log available.";
-            try {string path=telemetry.CurrentLogPath;if(File.Exists(path))using(var f=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete)){f.Seek(Math.Max(0,f.Length-6000),SeekOrigin.Begin);using(var r=new StreamReader(f))tail=r.ReadToEnd();}}catch{tail="Log is temporarily unavailable.";}
-            phone.Publish(new {name=settings.ServerName,online=h.ServerRunning,players=telemetry.GetPlayers().Count,cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),logs=tail});
+            if(phone==null)return;var h=telemetry.GetHost();
+            phone.Publish(new {name=settings.ServerName,online=h.ServerRunning,players=telemetry.GetPlayers().Count,cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text});
+        }
+        ActionResult PhoneCommand(string operation)
+        {
+            if(IsDisposed || Disposing)return ActionResult.Fail("Launcher is closing.");
+            return (ActionResult)Invoke(new Func<ActionResult>(delegate {
+                if(!controlsEnabled || operationBusy || updateBusy || lifecycle.StartupPending)return ActionResult.Fail("Controls unavailable or another operation is in progress.");
+                RunOperation(operation, true);
+                PublishPhone();
+                return ActionResult.Ok(operation + " requested. Watch status for the result.");
+            }));
         }
         Control BuildAutomation()
         {
@@ -293,14 +302,14 @@ namespace XHLLauncher
             string candidate;
             using (var dialog = new FolderBrowserDialog { Description = "Choose a fully prepared server under Staged-Updates" })
             { if (dialog.ShowDialog() != DialogResult.OK) return; candidate = dialog.SelectedPath; }
-            if (MessageBox.Show("Switch to this verified installation using a fresh copy of your saves? The existing installation will remain intact. Progress afterward belongs to the selected installation.", "XHL � Use update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            if (MessageBox.Show("Switch to this verified installation using a fresh copy of your saves? The existing installation will remain intact. Progress afterward belongs to the selected installation.", "XHL — Use update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             operationBusy = true;
             var result = await Task.Run(delegate { return UpdateActivation.Prepare(settings.ServerRoot, candidate, appBase, delegate { return Process.GetProcessesByName("enshrouded_server").Length != 0; }); });
             operationBusy = false;
-            if (!result.Success) { MessageBox.Show(result.Message, "XHL � Update not activated"); return; }
+            if (!result.Success) { MessageBox.Show(result.Message, "XHL — Update not activated"); return; }
             settings.AutoRestartOnCrash = false; recovery.Disarm();
             settings.ServerRoot = candidate; Storage.SaveSettings(appBase, settings);
-            MessageBox.Show(result.Message + "\r\nThe launcher will reopen. Start the selected server when ready.", "XHL � Update ready");
+            MessageBox.Show(result.Message + "\r\nThe launcher will reopen. Start the selected server when ready.", "XHL — Update ready");
             Application.Restart();
         }
         async Task DownloadUpdate()
@@ -312,18 +321,18 @@ namespace XHLLauncher
                 using (var dialog = new OpenFileDialog { Title = "Choose official SteamCMD (download is staged separately)", Filter = "SteamCMD|steamcmd.exe", CheckFileExists = true })
                 { if (dialog.ShowDialog() != DialogResult.OK) return; client = dialog.FileName; }
             }
-            if (MessageBox.Show("Download a separate server installation for compatibility testing? This may use several GB. It will not replace the live server.", "XHL � Staged update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            if (MessageBox.Show("Download a separate server installation for compatibility testing? This may use several GB. It will not replace the live server.", "XHL — Staged update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             settings.SteamCmdPath = client; Storage.SaveSettings(appBase, settings);
             updateBusy = true; automationStatus.Text = "Downloading isolated update. Server controls remain available.";
             var result = await Task.Run(delegate { return StagedUpdate.Download(client, appBase, settings.ServerRoot); });
             updateBusy = false;
-            if (!IsDisposed) { automationStatus.Text = result.Message; MessageBox.Show(result.Message, "XHL � Staged update"); }
+            if (!IsDisposed) { automationStatus.Text = result.Message; MessageBox.Show(result.Message, "XHL — Staged update"); }
         }
         async Task BackupNow()
         {
             if (!controlsEnabled || operationBusy) return;
             operationBusy = true;
-            automationStatus.Text = "Copying and verifying saves�";
+            automationStatus.Text = "Copying and verifying saves…";
             bool running = telemetry.GetHost().ServerRunning;
             var result = await Task.Run(delegate { return SaveBackup.Create(settings.ServerRoot, BackupRoot, running); });
             operationBusy = false;
@@ -351,18 +360,18 @@ namespace XHLLauncher
             if (IsDisposed) return; audit = result; auditBusy = false; recheck.Enabled = true; UpdateState();
         }
         internal void SetAuditForTest(InstallationAudit value) { audit = value; UpdateState(); }
-        async Task RunOperation(string operation)
+        async Task RunOperation(string operation, bool fromPhone = false)
         {
             if (!controlsEnabled || operationBusy) return;
             string detail = operation == "Start" ? "Start using the existing safe-start wrapper?" : operation == "Stop" ? "Request a graceful server shutdown? Connected players will be disconnected. The server will not be force-killed." : "Restart the server? Compatibility is checked before stopping. Connected players will be disconnected.";
-            if (MessageBox.Show(detail, "XHL — " + operation, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            if (!fromPhone && MessageBox.Show(detail, "XHL — " + operation, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
             if (operation == "Stop") { settings.AutoRestartOnCrash = false; recovery.Disarm(); if (recoveryOption != null) recoveryOption.Checked = false; Storage.SaveSettings(appBase, settings); }
             operationBusy = true; UpdateState(); operationStatus.Text = operation + " requested…";
             ActionResult result = await Task.Run(delegate { return lifecycle.Execute(operation); });
             if (IsDisposed) return;
-            operationBusy = false; operationStatus.Text = result.Success ? result.Message : "Operation did not complete. See details.";
-            MessageBox.Show(result.Message, "XHL — " + operation, MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
-            UpdateState();
+            operationBusy = false; operationStatus.Text = result.Message;
+            if (!fromPhone) MessageBox.Show(result.Message, "XHL — " + operation, MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            UpdateState(); PublishPhone();
         }
         void UpdateState()
         {
