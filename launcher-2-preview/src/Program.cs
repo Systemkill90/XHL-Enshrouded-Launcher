@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace XHLLauncher
@@ -48,9 +49,10 @@ namespace XHLLauncher
 
                 // The bootstrap BAT passes the folder it was launched from. If that
                 // folder contains the dedicated server, prefer it over auto-detection.
-                if (args != null && args.Length > 0)
+                string serverArgument = args == null ? null : args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal));
+                if (!string.IsNullOrEmpty(serverArgument))
                 {
-                    string hintedRoot = (args[0] ?? "").Trim().Trim('"');
+                    string hintedRoot = serverArgument.Trim().Trim('"');
                     try { hintedRoot = Path.GetFullPath(hintedRoot); } catch { }
                     if (Directory.Exists(hintedRoot) && File.Exists(Path.Combine(hintedRoot, "enshrouded_server.exe")))
                     {
@@ -59,7 +61,7 @@ namespace XHLLauncher
                     }
                 }
 
-                Application.Run(new ControlRoom(baseDir, settings, true));
+                Application.Run(new ControlRoom(baseDir, settings, true, args != null && args.Contains("--controls")));
             }
             catch (Exception ex)
             {

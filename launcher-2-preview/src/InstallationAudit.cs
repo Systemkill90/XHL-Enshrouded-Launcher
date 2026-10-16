@@ -42,7 +42,9 @@ namespace XHLLauncher
                     var data = new JavaScriptSerializer().Deserialize<Dictionary<string, object>>(File.ReadAllText(attestation));
                     string[] files = { "enshrouded_server.exe", "enshrouded_server.kfc", "enshrouded_server.kfc_resources" };
                     string[] keys = { "ExeSha256", "KfcSha256", "ResourcesSha256" };
-                    result.StackMatches = true;
+                    object format, maxStack;
+                    result.StackMatches = data.TryGetValue("Format", out format) && Convert.ToString(format) == "XHL-EML-OFFLINE-STAGING-v1" && data.TryGetValue("MaxStack", out maxStack) && Convert.ToString(maxStack) == "65535";
+                    if (!result.StackMatches) notes.AppendLine("Attestation format or maximum stack size is invalid.");
                     for (int i = 0; i < files.Length; i++)
                     {
                         object expected;
@@ -62,7 +64,7 @@ namespace XHLLauncher
                 notes.AppendLine("These checks read files only. Memory and gameplay require separate verification.");
                 result.Summary = result.CanStart ? "Installation checks passed" : "Compatibility needs attention";
             }
-            catch (Exception ex) { result.Summary = "Installation could not be verified"; notes.AppendLine(ex.Message); }
+            catch (Exception ex) { result.StackMatches = false; result.LoadersIsolated = false; result.Summary = "Installation could not be verified"; notes.AppendLine(ex.Message); }
             result.Details = notes.ToString();
             return result;
         }

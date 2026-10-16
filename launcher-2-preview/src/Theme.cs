@@ -70,6 +70,12 @@ namespace XHLLauncher
             b.UseVisualStyleBackColor = false;
             b.MouseEnter += delegate { b.BackColor = Color.FromArgb(46, 46, 44); };
             b.MouseLeave += delegate { b.BackColor = Color.FromArgb(34, 35, 36); };
+            b.Paint += delegate(object sender, PaintEventArgs e)
+            {
+                if (b.Enabled) return;
+                using (var brush = new SolidBrush(b.BackColor)) e.Graphics.FillRectangle(brush, new Rectangle(2, 2, b.Width - 4, b.Height - 4));
+                TextRenderer.DrawText(e.Graphics, b.Text, b.Font, b.ClientRectangle, Muted2, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+            };
             return b;
         }
 

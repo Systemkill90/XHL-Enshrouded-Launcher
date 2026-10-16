@@ -10,12 +10,17 @@ using System.Windows.Forms;
 
 namespace XHLLauncher
 {
-    // Side-by-side preview: no process control, patching, save restore or deletion.
+    // Monitoring is the default; lifecycle controls require an explicit --controls launch.
     public sealed class ControlRoom : Form
     {
         readonly string appBase;
         readonly LauncherSettings settings;
         readonly TelemetryService telemetry;
+        readonly bool controlsEnabled;
+        readonly ServerLifecycle lifecycle;
+        Button startServer, stopServer, restartServer;
+        bool operationBusy;
+        Label operationStatus;
         readonly Dictionary<string, Control> pages = new Dictionary<string, Control>();
         readonly Dictionary<string, Button> navigation = new Dictionary<string, Button>();
         readonly Timer refresh = new Timer();
@@ -32,15 +37,17 @@ namespace XHLLauncher
         bool auditBusy, paused;
         int frames;
 
-        public ControlRoom(string appBase, LauncherSettings settings, bool startMonitoring)
+        public ControlRoom(string appBase, LauncherSettings settings, bool startMonitoring, bool enableOperations = false)
         {
             this.appBase = appBase;
             this.settings = settings;
+            controlsEnabled = enableOperations;
+            lifecycle = new ServerLifecycle(new ExistingServerRuntime(settings.ServerRoot, settings), delegate { return ServerLifecycle.CheckInstallation(settings.ServerRoot); });
             // The preview cannot auto-start a server or perform external identity lookups.
             settings.AutoRestartOnCrash = false;
             settings.PublicIpLookup = false;
             telemetry = new TelemetryService(appBase, settings);
-            Text = "XHL | Enshrouded | 2.0 Preview";
+            Text = "XHL | Enshrouded | 2.0 Preview" + (controlsEnabled ? " | Controls" : "");
             BackColor = Theme.Bg; ForeColor = Theme.Text; Font = Theme.Font(10, FontStyle.Regular);
             AutoScaleMode = AutoScaleMode.Dpi;
             MinimumSize = new Size(1100, 740); Size = new Size(1400, 930);
@@ -57,6 +64,7 @@ namespace XHLLauncher
             refresh.Interval = 1000;
             refresh.Tick += delegate { frames++; UpdateState(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
             if (startMonitoring) { telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); }; }
+            FormClosing += delegate(object sender, FormClosingEventArgs e) { if (operationBusy) { e.Cancel = true; MessageBox.Show("Wait for the current server operation to finish.", "XHL"); } };
             FormClosed += delegate { refresh.Stop(); refresh.Dispose(); telemetry.Dispose(); };
             UpdateState();
         }
@@ -83,14 +91,14 @@ namespace XHLLauncher
                 button.Click += delegate { Navigate(page); }; side.Controls.Add(button); navigation.Add(page, button); y += 50;
             }
             var sideFoot = new Label { Dock = DockStyle.Bottom, Height = 110, Padding = new Padding(26, 20, 10, 0), ForeColor = Theme.Muted,
-                Text = "2.0 / PREVIEW\r\n\r\nRead-only server view", Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
+                Text = "2.0 / PREVIEW\r\n\r\n" + (controlsEnabled ? "Guarded server controls" : "Read-only server view"), Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
             var main = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) }; shell.Controls.Add(main, 1, 0);
             host = new Panel { Dock = DockStyle.Fill, Padding = new Padding(28, 20, 28, 20) }; main.Controls.Add(host);
             var top = new Panel { Dock = DockStyle.Top, Height = 102, BackColor = Theme.Sidebar }; main.Controls.Add(top);
             serverName = TextLabel(settings.ServerName, 25, Theme.Text, false); serverName.Font = new Font("Georgia", 25);
             serverName.Location = new Point(28, 22); top.Controls.Add(serverName);
             var topSub = TextLabel("SERVER CONTROL ROOM", 8, Theme.Muted, true); topSub.Location = new Point(30, 66); top.Controls.Add(topSub);
-            var notice = TextLabel("MONITORING ONLY\r\nYour existing launcher remains available", 9, Theme.Cyan, false);
+            var notice = TextLabel(controlsEnabled ? "GUARDED CONTROLS\r\nCompatibility required before start" : "MONITORING ONLY\r\nYour existing launcher remains available", 9, Theme.Cyan, false);
             notice.AutoSize = false; notice.Size = new Size(320, 46); notice.TextAlign = ContentAlignment.MiddleRight;
             notice.Location = new Point(top.Width - 350, 27); notice.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             serverName.AutoSize = false; serverName.Size = new Size(Math.Max(200, top.Width - 410), 42); serverName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -133,7 +141,7 @@ namespace XHLLauncher
         Control BuildOverview()
         {
             var page = Page("The realm, at a glance", "Live observation, clear checks, and the details that matter.");
-            var canvas = new Panel { Location = new Point(0, 78), Size = new Size(1040, 650) }; page.Controls.Add(canvas);
+            var canvas = new Panel { Location = new Point(0, controlsEnabled ? 220 : 78), Size = new Size(1040, 650) }; page.Controls.Add(canvas);
             var statusCard = Card(canvas, "SERVER", 0, 0, 640, 152);
             state = Body(statusCard, "Checking server", 43, 23, Theme.Text); state.Height = 40;
             statusDetail = Body(statusCard, "Waiting for the first process observation", 96, 9, Theme.Muted); statusDetail.Height = 34;
@@ -162,11 +170,21 @@ namespace XHLLauncher
             var logsButton = ActionButton(shortcuts, "View logs", 20, 48, 132, delegate { Navigate("Logs"); });
             var detailsButton = ActionButton(shortcuts, "Check details", 164, 48, 145, delegate { Navigate("Installation"); });
             shortcuts.Resize += delegate { logsButton.Width = detailsButton.Width = Math.Max(90, (shortcuts.Width - 52) / 2); detailsButton.Left = logsButton.Right + 12; };
+            Panel operations = null;
+            if (controlsEnabled)
+            {
+                operations = Card(page, "SERVER OPERATIONS", 0, 78, 1040, 126);
+                startServer = ActionButton(operations, "Start", 20, 46, 110, async delegate { await RunOperation("Start"); });
+                restartServer = ActionButton(operations, "Restart", 142, 46, 110, async delegate { await RunOperation("Restart"); });
+                stopServer = ActionButton(operations, "Stop", 264, 46, 110, async delegate { await RunOperation("Stop"); });
+                operationStatus = Body(operations, "Start and restart require current compatibility checks.", 92, 9, Theme.Muted);
+            }
             page.Resize += delegate
             {
                 int width = Math.Max(760, page.ClientSize.Width - 20); canvas.Width = width;
                 int left = (int)(width * .60); statusCard.Width = left; auditCard.Left = left + 16; auditCard.Width = width - left - 16;
                 stats.Width = modGrid.Width = width; save.Width = left; shortcuts.Left = left + 16; shortcuts.Width = width - left - 16;
+                if (operations != null) operations.Width = width;
             };
             return page;
         }
@@ -219,6 +237,18 @@ namespace XHLLauncher
             if (IsDisposed) return; audit = result; auditBusy = false; recheck.Enabled = true; UpdateState();
         }
         internal void SetAuditForTest(InstallationAudit value) { audit = value; UpdateState(); }
+        async Task RunOperation(string operation)
+        {
+            if (!controlsEnabled || operationBusy) return;
+            string detail = operation == "Start" ? "Start using the existing safe-start wrapper?" : operation == "Stop" ? "Request a graceful server shutdown? Connected players will be disconnected. The server will not be force-killed." : "Restart the server? Compatibility is checked before stopping. Connected players will be disconnected.";
+            if (MessageBox.Show(detail, "XHL — " + operation, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            operationBusy = true; UpdateState(); operationStatus.Text = operation + " requested…";
+            ActionResult result = await Task.Run(delegate { return lifecycle.Execute(operation); });
+            if (IsDisposed) return;
+            operationBusy = false; operationStatus.Text = result.Success ? result.Message : "Operation did not complete. See details.";
+            MessageBox.Show(result.Message, "XHL — " + operation, MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            UpdateState();
+        }
         void UpdateState()
         {
             if (state == null) return;
@@ -242,7 +272,16 @@ namespace XHLLauncher
                 flightState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nBalance changes pending";
                 auditBox.Text = audit.Details;
             }
-            footer.Text = "READ-ONLY PREVIEW   /   " + DateTime.Now.ToString("h:mm:ss tt") + "   /   Original server and saves remain in place";
+            footer.Text = (controlsEnabled ? "GUARDED CONTROLS" : "READ-ONLY PREVIEW") + "   /   " + DateTime.Now.ToString("h:mm:ss tt") + "   /   Original server and saves remain in place";
+            if (controlsEnabled && startServer != null)
+            {
+                bool pending = lifecycle.StartupPending;
+                startServer.Enabled = !operationBusy && !pending && !h.ServerRunning && audit != null && audit.CanStart;
+                restartServer.Enabled = !operationBusy && !pending && h.ServerRunning && audit != null && audit.CanStart;
+                stopServer.Enabled = !operationBusy && !pending && h.ServerRunning;
+                if (!operationBusy && audit != null && !audit.CanStart) operationStatus.Text = "Start / restart blocked: installation checks need attention. Your existing files are unchanged.";
+                else if (!operationBusy && !string.IsNullOrEmpty(lifecycle.StartupStatus)) operationStatus.Text = lifecycle.StartupStatus;
+            }
             if (current == "Players" && playerGrid != null)
             {
                 playerGrid.Rows.Clear();
