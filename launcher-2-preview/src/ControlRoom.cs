@@ -20,6 +20,9 @@ namespace XHLLauncher
         readonly ServerLifecycle lifecycle;
         Button startServer, stopServer, restartServer;
         bool operationBusy, updateBusy;
+        PhoneView phone;
+        TextBox phoneLink;
+        Label phoneStatus;
         readonly RecoveryPolicy recovery = new RecoveryPolicy();
         DateTime nextBackup = DateTime.UtcNow.AddMinutes(30);
         Label automationStatus;
@@ -53,7 +56,7 @@ namespace XHLLauncher
             // Recovery is opt-in and requires an observed running session.
             settings.PublicIpLookup = false;
             telemetry = new TelemetryService(appBase, settings);
-            Text = "XHL | Enshrouded | 2.0" + (controlsEnabled ? " | Controls" : "");
+            Text = "XHL Server Manager - " + settings.ServerName;
             BackColor = Theme.Bg; ForeColor = Theme.Text; Font = Theme.Font(10, FontStyle.Regular);
             AutoScaleMode = AutoScaleMode.Dpi;
             MinimumSize = new Size(1100, 740); Size = new Size(1400, 930);
@@ -67,12 +70,13 @@ namespace XHLLauncher
             AddPage("Logs", BuildLogs());
             AddPage("Installation", BuildInstallation());
             AddPage("Automation", BuildAutomation());
+            AddPage("Phone", BuildPhone());
             Navigate("Overview");
             refresh.Interval = 1000;
-            refresh.Tick += async delegate { frames++; UpdateState(); await TickAutomation(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
-            if (startMonitoring) { telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); }; }
+            refresh.Tick += async delegate { frames++; UpdateState(); if(frames % 5 == 0) PublishPhone(); await TickAutomation(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
+            if (startMonitoring) { telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); if (settings.PhoneViewEnabled) StartPhone(); }; }
             FormClosing += delegate(object sender, FormClosingEventArgs e) { if (operationBusy) { e.Cancel = true; MessageBox.Show("Wait for the current server operation to finish.", "XHL"); } };
-            FormClosed += delegate { refresh.Stop(); refresh.Dispose(); telemetry.Dispose(); };
+            FormClosed += delegate { refresh.Stop(); refresh.Dispose(); telemetry.Dispose(); if(phone!=null)phone.Dispose(); };
             UpdateState();
         }
 
@@ -90,7 +94,7 @@ namespace XHLLauncher
             var sub = TextLabel("ENSHROUDED", 8, Theme.Cyan, true); sub.Location = new Point(26, 89); side.Controls.Add(sub);
             var category = TextLabel("YOUR REALM", 8, Theme.Muted2, true); category.Location = new Point(26, 143); side.Controls.Add(category);
             int y = 178;
-            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation" })
+            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation", "Phone" })
             {
                 var button = Theme.Button(page, Theme.Border);
                 button.TextAlign = ContentAlignment.MiddleLeft; button.Padding = new Padding(16, 0, 0, 0);
@@ -98,7 +102,7 @@ namespace XHLLauncher
                 button.Click += delegate { Navigate(page); }; side.Controls.Add(button); navigation.Add(page, button); y += 50;
             }
             var sideFoot = new Label { Dock = DockStyle.Bottom, Height = 110, Padding = new Padding(26, 20, 10, 0), ForeColor = Theme.Muted,
-                Text = "2.0 / TEST READY\r\n\r\n" + (controlsEnabled ? "Guarded server controls" : "Read-only server view"), Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
+                Text = "SERVER MANAGER 2.0\r\n\r\n" + (controlsEnabled ? "Guarded server controls" : "Read-only server view"), Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
             var main = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) }; shell.Controls.Add(main, 1, 0);
             host = new Panel { Dock = DockStyle.Fill, Padding = new Padding(28, 20, 28, 20) }; main.Controls.Add(host);
             var top = new Panel { Dock = DockStyle.Top, Height = 102, BackColor = Theme.Sidebar }; main.Controls.Add(top);
@@ -237,6 +241,30 @@ namespace XHLLauncher
             auditBox = new TextBox { Location = new Point(0, 195), Size = new Size(1000, 380), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ReadOnly = true,
                 Multiline = true, ScrollBars = ScrollBars.Both, WordWrap = false, BackColor = Theme.Panel2, ForeColor = Theme.Text, Font = new Font("Consolas", 10), BorderStyle = BorderStyle.FixedSingle, Text = "Checking installation..." };
             page.Controls.Add(auditBox); page.Resize += delegate { auditBox.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 210)); }; return page;
+        }
+        Control BuildPhone()
+        {
+            var page=Page("Phone access", "View status and logs from your couch on the same home Wi-Fi.");
+            phoneLink=new TextBox {ReadOnly=true,Location=new Point(0,90),Width=730}; Theme.StyleTextBox(phoneLink); page.Controls.Add(phoneLink);
+            ActionButton(page,"Copy link",0,140,140,delegate {if(phoneLink.Text.StartsWith("http"))Clipboard.SetText(phoneLink.Text);});
+            ActionButton(page,"Enable",160,140,140,delegate {settings.PhoneViewEnabled=true;Storage.SaveSettings(appBase,settings);StartPhone();});
+            ActionButton(page,"Disable",320,140,140,delegate {settings.PhoneViewEnabled=false;Storage.SaveSettings(appBase,settings);if(phone!=null){phone.Dispose();phone=null;}phoneLink.Text="";phoneStatus.Text="Phone access is off.";});
+            phoneStatus=TextLabel("Phone access starts with the launcher. Keep this private link to yourself.",10,Theme.Muted,false);phoneStatus.Location=new Point(0,200);phoneStatus.MaximumSize=new Size(760,140);page.Controls.Add(phoneStatus);
+            Body(Card(page,"CONNECTION",0,350,780,160),"Open the link in your phone browser while connected to the same Wi-Fi.\r\nIf Windows asks, allow this launcher on Private networks.\r\nThe page is read-only. No port forwarding or public internet exposure is needed.\r\nLeave the launcher open; minimize it when you leave the desk.",45,10,Theme.Text);
+            return page;
+        }
+        void StartPhone()
+        {
+            if(phone!=null)return;
+            try { if(string.IsNullOrEmpty(settings.PhoneViewKey)){settings.PhoneViewKey=Guid.NewGuid().ToString("N")+Guid.NewGuid().ToString("N");Storage.SaveSettings(appBase,settings);}
+                phone=new PhoneView(settings.PhoneViewKey);phone.Start(PhoneView.LocalAddress(),8765);phoneLink.Text=phone.Url;phoneStatus.Text="Phone view is on. Open this private link on your home Wi-Fi.";PublishPhone();
+            } catch(Exception ex){if(phone!=null)phone.Dispose();phone=null;phoneStatus.Text="Phone view could not start: "+ex.Message;}
+        }
+        void PublishPhone()
+        {
+            if(phone==null)return;var h=telemetry.GetHost();string tail="No log available.";
+            try {string path=telemetry.CurrentLogPath;if(File.Exists(path))using(var f=new FileStream(path,FileMode.Open,FileAccess.Read,FileShare.ReadWrite|FileShare.Delete)){f.Seek(Math.Max(0,f.Length-6000),SeekOrigin.Begin);using(var r=new StreamReader(f))tail=r.ReadToEnd();}}catch{tail="Log is temporarily unavailable.";}
+            phone.Publish(new {name=settings.ServerName,online=h.ServerRunning,players=telemetry.GetPlayers().Count,cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),logs=tail});
         }
         Control BuildAutomation()
         {

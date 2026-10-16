@@ -37,6 +37,17 @@ static class Checks
         Require(!UpdateActivation.Prepare(server, staged, output, delegate { return false; }).Success, "Update activation refuses unverified mod files");
         Require(StagedUpdate.Confirmed(0, "Success! App '2278520' fully installed", server), "Updater requires app evidence and all three output files");
     }
+    static void CheckPhone() {
+        using(var phone=new PhoneView("test-secret")) {
+            phone.Start(System.Net.IPAddress.Loopback,0);phone.Publish(new {name="Fixture",online=true});
+            using(var c=new System.Net.WebClient()) {
+                Require(c.DownloadString(phone.Url).Contains("Read-only"), "Phone page serves read-only dashboard");
+                Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
+                bool rejected=false;try{c.DownloadString(phone.Url.Replace("test-secret","wrong"));}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects requests without private key");
+                rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects write requests");
+            }
+        }
+    }
     [STAThread]
     static int Main(string[] args)
     {
@@ -72,6 +83,7 @@ static class Checks
             File.AppendAllText(Path.Combine(server, "enshrouded_server.kfc"), "changed");
             Require(!InstallationAudit.Inspect(server).StackMatches, "Changed KFC invalidates stacking attestation");
             CheckLifecycle();
+            CheckPhone();
             CheckAutomation(server, root, savePath);
             string sentinelHash = InstallationAudit.Hash(savePath);
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
@@ -80,7 +92,7 @@ static class Checks
                 form.ClientSize = new Size(1384, 870);
                 form.ShowInTaskbar = false; form.Opacity = 0; form.Show(); Application.DoEvents();
                 form.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: unsupported executable. No live patch or save changes." });
-                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation" })
+                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation", "Phone" })
                 {
                     form.Navigate(page); form.PerformLayout(); Application.DoEvents();
                     using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, page + ".png"), ImageFormat.Png); }

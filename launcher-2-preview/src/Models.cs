@@ -13,6 +13,8 @@ namespace XHLLauncher
         public bool PublicIpLookup = true;
         public bool AutoRestartOnCrash = false;
         public bool AutoBackup = false;
+        public bool PhoneViewEnabled = true;
+        public string PhoneViewKey = "";
         public int BackupIntervalMinutes = 30;
         public int RefreshMilliseconds = 1000;
         public int BackupRetentionCount = 30;

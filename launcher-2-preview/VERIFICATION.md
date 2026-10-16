@@ -2,8 +2,8 @@
 
 ## Completed
 
-- x64 .NET Framework build; 44 fixture/UI checks plus 7 native fixture checks.
-- All seven pages rendered, with narrow overview bounds checked.
+- x64 .NET Framework build; 49 fixture/UI checks plus 7 native fixture checks.
+- All eight pages rendered, with narrow overview bounds checked.
 - The actual current executable is build 1269579, SHA256 B627639CE4A3F8C940FE90AFA1D36ED59DB3FF9CED24E935890EB7C99B04D5BF.
 - Offline audit of current unmodified resources found 0 stackable entries at 65535 and 2267 below it. Stacking was rebuilt in a copy, then independently read back: 2267 at 65535, 0 below, and 1995 single-stack entries preserved.
 - Flight lower-bound instruction relocated to RVA 0x7CF5E. Disassembly confirms the lower comparison and existing +80-degree min clamp. The new displacement references the existing -80-degree constant at 0xBD893C. Exact executable, original/replacement bytes, clamp instructions and both constants are checked before changes. No shared constant, speed, stamina, archive or save data is modified by Flight.
@@ -13,14 +13,23 @@
 - Actual game-world shutdown observed after Ctrl+Break. Current-build handler supports that signal; new runtime sends it directly for this exact executable. Unknown/older builds retain Ctrl+C. The launcher does not force-kill or claim stopped while a process persists.
 - All 16 game archive copies were hash verified; an incomplete copy was replaced and rechecked before the final launch-sequence test.
 - Current-build update preparation profile tested against a clean copied resource set; final hashes match the prepared profile. The local resource bundle is excluded from public source.
-- Update selection exercised with actual current save copies: separate imported save directory, configuration preserved from the source, byte verification, compatibility passed. The new package is selected but left offline.
+- Update selection exercised with actual current save copies: separate imported save directory, configuration preserved from the source, byte verification, compatibility passed. The prepared package is selected and running in the normal PC session.
 - Original installation files checked against the original 120-file baseline, including 22 saves; no original file edits were made.
 
 ## Remaining operator checks
 
-- In-game Flight handling and visual/camera behavior, gifting delivery and inventory behavior. Target bounds are not a claim that every client-side camera/animation cannot overshoot.
-- Steam/public connectivity and full process shutdown on the normal PC session. Restricted test networking failed to connect to Steam; after clean world shutdown, networking kept the process alive. Only isolated test processes were cleaned up. Reset correctly refuses to proceed while a prior process remains.
+- Extended multiplayer Flight/camera testing. The operator reports all three mods working in-game; target bounds do not guarantee every client-side camera/animation cannot overshoot.
+- Phone access from an actual handset remains unverified; Windows network permission awaits the operator.
 - SteamCMD download end-to-end. Offline preparation and update activation were tested independently; unknown future builds are deliberately unsupported.
 - Multiplayer load, DPI/multiple monitors, and live-backup cross-file game consistency.
 
 No game binaries/assets, saves, configuration, runtime logs or backup contents belong in the public PR. The local resource bundle is pinned for this exact build; future builds require fresh compatibility work.
+
+## Host quality-of-life verification
+
+- Normal-session graceful stop completed and current configured saves were backed up before replacement; old launcher and startup script retained for rollback.
+- Restart connected to Steam and reached Host_Online; all three mod startup checks passed. No separate console window appeared.
+- Production launcher title and sidebar labels replace test labels.
+- Phone tab offers a private, read-only LAN link; dashboard and status endpoint passed HTTP checks, including rejection of wrong keys and POST requests. The running launcher returned HTTP 200 with online status and recent logs on the host.
+- Open the Phone tab link on the same home Wi-Fi. Leave the launcher open. Allow Private networks in the Windows prompt; no router forwarding is needed. Remote-phone connectivity has not been claimed as tested.
+

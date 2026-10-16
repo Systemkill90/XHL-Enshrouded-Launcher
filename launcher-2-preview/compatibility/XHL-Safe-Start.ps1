@@ -126,6 +126,7 @@ try {
     $psi.FileName = $exe
     $psi.WorkingDirectory = $root
     $psi.UseShellExecute = $true
+    $psi.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
     if ($ServerArgs -and $ServerArgs.Count -gt 0) { $psi.Arguments = (($ServerArgs | ForEach-Object { Q $_ }) -join ' ') }
     $p = [Diagnostics.Process]::Start($psi)
     if ($null -eq $p) { throw 'CreateProcess did not return a process.' }
