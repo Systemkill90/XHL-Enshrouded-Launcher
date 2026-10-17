@@ -53,6 +53,9 @@ jobs:
           if (-not (Test-Path -LiteralPath $binary -PathType Leaf)) { throw 'Build output missing.' }
           $target = Join-Path $stage 'Enshrouded-Server-Companion-2-Preview.exe'
           Copy-Item -LiteralPath $binary -Destination $target
+          Copy-Item -LiteralPath 'launcher-2-preview/assets' -Destination $stage -Recurse
+          New-Item -ItemType Directory -Path (Join-Path $stage 'compatibility') -Force | Out-Null
+          Get-ChildItem 'launcher-2-preview/compatibility/*.ps1' | Copy-Item -Destination (Join-Path $stage 'compatibility')
           Copy-Item -LiteralPath 'launcher-2-preview/README-PREVIEW.md' -Destination (Join-Path $stage 'TECHNICAL-NOTES.md')
           @'
           WINDOWS PREVIEW BUILD - NOT AN INSTALLER OR PUBLIC RELEASE

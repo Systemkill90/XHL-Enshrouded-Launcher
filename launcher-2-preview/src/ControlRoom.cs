@@ -11,7 +11,7 @@ using System.Windows.Forms;
 namespace XHLLauncher
 {
     // Monitoring is the default; lifecycle controls require an explicit --controls launch.
-    public sealed class ControlRoom : Form
+    public sealed partial class ControlRoom : Form
     {
         readonly string appBase;
         readonly LauncherSettings settings;
@@ -59,10 +59,10 @@ namespace XHLLauncher
             // Recovery is opt-in and requires an observed running session.
             settings.PublicIpLookup = false;
             telemetry = new TelemetryService(appBase, settings);
-            Text = "XHL Server Manager - " + settings.ServerName;
+            Text = "XHL Realm Companion 2.0 — " + settings.ServerName;
             BackColor = Theme.Bg; ForeColor = Theme.Text; Font = Theme.Font(10, FontStyle.Regular);
             AutoScaleMode = AutoScaleMode.Dpi;
-            MinimumSize = new Size(1100, 740); Size = new Size(1400, 930);
+            MinimumSize = new Size(1060, 720); Size = new Size(1320, 900);
             StartPosition = FormStartPosition.CenterScreen;
             try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             BuildShell();
@@ -75,10 +75,13 @@ namespace XHLLauncher
             AddPage("Files", BuildFiles());
             AddPage("Automation", BuildAutomation());
             AddPage("Phone", BuildPhone());
+            AddPage("Backups", BuildBackups());
+            AddPage("Settings", BuildSettings());
+            AddPage("Updates", BuildUpdates());
             Navigate("Overview");
             refresh.Interval = 1000;
             refresh.Tick += async delegate { frames++; UpdateState(); if(frames % 5 == 0) PublishPhone(); await TickAutomation(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
-            if (startMonitoring) { telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); if (settings.PhoneViewEnabled) StartPhone(); }; }
+            if (startMonitoring) { ConfigureTray(); telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); if (settings.PhoneViewEnabled) StartPhone(); }; }
             FormClosing += delegate(object sender, FormClosingEventArgs e) { if (operationBusy) { e.Cancel = true; MessageBox.Show("Wait for the current server operation to finish.", "XHL"); } };
             FormClosed += delegate { refresh.Stop(); refresh.Dispose(); telemetry.Dispose(); if(phone!=null)phone.Dispose(); };
             UpdateState();
@@ -87,41 +90,7 @@ namespace XHLLauncher
         Label TextLabel(string text, float size, Color color, bool strong)
         { return Theme.Label(text, size, color, strong ? FontStyle.Bold : FontStyle.Regular); }
 
-        void BuildShell()
-        {
-            var shell = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 2, RowCount = 1, Margin = new Padding(0) };
-            shell.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 204)); shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-            shell.RowStyles.Add(new RowStyle(SizeType.Percent, 100)); Controls.Add(shell);
-            var side = new Panel { Dock = DockStyle.Fill, BackColor = Theme.Sidebar, Margin = new Padding(0) }; shell.Controls.Add(side, 0, 0);
-            var emblem = new Sigil { Location = new Point(24, 25), Size = new Size(38, 46) }; side.Controls.Add(emblem);
-            var brand = TextLabel("XHL", 24, Theme.Text, false); brand.Location = new Point(73, 29); side.Controls.Add(brand);
-            var sub = TextLabel("ENSHROUDED", 8, Theme.Cyan, true); sub.Location = new Point(26, 89); side.Controls.Add(sub);
-            var category = TextLabel("YOUR REALM", 8, Theme.Muted2, true); category.Location = new Point(26, 143); side.Controls.Add(category);
-            int y = 178;
-            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone" })
-            {
-                var button = Theme.Button(page, Theme.Border);
-                button.TextAlign = ContentAlignment.MiddleLeft; button.Padding = new Padding(16, 0, 0, 0);
-                button.Location = new Point(12, y); button.Size = new Size(180, 44); button.FlatAppearance.BorderSize = 0;
-                button.Click += delegate { Navigate(page); }; side.Controls.Add(button); navigation.Add(page, button); y += 50;
-            }
-            var sideFoot = new Label { Dock = DockStyle.Bottom, Height = 110, Padding = new Padding(26, 20, 10, 0), ForeColor = Theme.Muted,
-                Text = "SERVER MANAGER 2.0\r\n\r\n" + (controlsEnabled ? "Guarded server controls" : "Read-only server view"), Font = Theme.Font(8.5f, FontStyle.Regular) }; side.Controls.Add(sideFoot);
-            var main = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) }; shell.Controls.Add(main, 1, 0);
-            host = new Panel { Dock = DockStyle.Fill, Padding = new Padding(28, 20, 28, 20) }; main.Controls.Add(host);
-            var top = new Panel { Dock = DockStyle.Top, Height = 102, BackColor = Theme.Sidebar }; main.Controls.Add(top);
-            serverName = TextLabel(settings.ServerName, 25, Theme.Text, false); serverName.Font = new Font("Georgia", 25);
-            serverName.Location = new Point(28, 22); top.Controls.Add(serverName);
-            var topSub = TextLabel("SERVER CONTROL ROOM", 8, Theme.Muted, true); topSub.Location = new Point(30, 66); top.Controls.Add(topSub);
-            var notice = TextLabel(controlsEnabled ? "GUARDED CONTROLS\r\nCompatibility required before start" : "MONITORING ONLY\r\nYour existing launcher remains available", 9, Theme.Cyan, false);
-            notice.AutoSize = false; notice.Size = new Size(320, 46); notice.TextAlign = ContentAlignment.MiddleRight;
-            notice.Location = new Point(top.Width - 350, 27); notice.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            serverName.AutoSize = false; serverName.Size = new Size(Math.Max(200, top.Width - 410), 42); serverName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            top.Controls.Add(notice);
-            footer = new Label { Dock = DockStyle.Bottom, Height = 32, Padding = new Padding(28, 7, 0, 0), ForeColor = Theme.Muted2,
-                Font = Theme.Font(8, FontStyle.Regular), Text = "Reading installation. World and player saves are read-only." }; main.Controls.Add(footer);
-        }
-
+        void BuildShell() { BuildModernShell(); }
         Panel Page(string title, string description)
         {
             var page = new Panel { AutoScroll = true };
@@ -135,7 +104,7 @@ namespace XHLLauncher
             current = page;
             foreach (var entry in pages) entry.Value.Visible = entry.Key == page;
             foreach (var entry in navigation) { entry.Value.BackColor = entry.Key == page ? Theme.Panel3 : Theme.Sidebar; entry.Value.ForeColor = entry.Key == page ? Theme.Cyan : Theme.Muted; }
-            UpdateState(); if (page == "Logs") ReadLogs();
+            UpdateState(); if (page == "Logs") ReadLogs(); if(page == "Backups") RefreshBackupList();
         }
         Panel Card(Control parent, string title, int x, int y, int width, int height)
         {
@@ -153,79 +122,16 @@ namespace XHLLauncher
             var button = Theme.Button(text, Theme.Border); button.SetBounds(x, y, width, 36); button.Click += delegate { action(); }; parent.Controls.Add(button); return button;
         }
 
-        Control BuildOverview()
-        {
-            var page = Page("The realm, at a glance", "Live observation, clear checks, and the details that matter.");
-            var canvas = new Panel { Location = new Point(0, controlsEnabled ? 220 : 78), Size = new Size(1040, 650) }; page.Controls.Add(canvas);
-            var statusCard = Card(canvas, "SERVER", 0, 0, 640, 152);
-            state = Body(statusCard, "Checking server", 43, 23, Theme.Text); state.Height = 40;
-            statusDetail = Body(statusCard, "Waiting for the first process observation", 96, 9, Theme.Muted); statusDetail.Height = 34;
-            var auditCard = Card(canvas, "INSTALLATION", 656, 0, 384, 152);
-            auditSummary = Body(auditCard, "Checking compatibility", 44, 13, Theme.Amber); auditSummary.Height = 32;
-            auditDetail = Body(auditCard, "A matching build is required for native mods.", 85, 9, Theme.Muted); auditDetail.Height = 44;
-            var stats = new TableLayoutPanel { Location = new Point(0, 168), Size = new Size(1040, 100), ColumnCount = 4, RowCount = 1 };
-            canvas.Controls.Add(stats);
-            players = new MetricCard("Players", Theme.Cyan); cpu = new MetricCard("CPU", Theme.Cyan); memory = new MetricCard("Memory", Theme.Cyan); uptime = new MetricCard("Uptime", Theme.Cyan);
-            MetricCard[] metrics = { players, cpu, memory, uptime };
-            for (int i = 0; i < 4; i++) { stats.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25)); metrics[i].Dock = DockStyle.Fill; metrics[i].Margin = new Padding(i == 0 ? 0 : 6, 0, i == 3 ? 0 : 6, 0); stats.Controls.Add(metrics[i], i, 0); }
-            var modTitle = TextLabel("THE THREE MODS", 8, Theme.Muted, true); modTitle.Location = new Point(1, 293); canvas.Controls.Add(modTitle);
-            var modGrid = new TableLayoutPanel { Location = new Point(0, 322), Size = new Size(1040, 146), ColumnCount = 3, RowCount = 1 }; canvas.Controls.Add(modGrid);
-            string[] names = { "01  /  STACKING", "02  /  GIFTING", "03  /  FLIGHT" };
-            Label[] states = new Label[3];
-            for (int i = 0; i < 3; i++)
-            {
-                modGrid.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100f / 3));
-                var card = Card(modGrid, names[i], 0, 0, 330, 146); card.Dock = DockStyle.Fill; card.Margin = new Padding(i == 0 ? 0 : 6, 0, i == 2 ? 0 : 6, 0);
-                modGrid.SetCellPosition(card, new TableLayoutPanelCellPosition(i, 0));
-                states[i] = Body(card, "Not verified", 46, 11, Theme.Text);
-            }
-            stackState = states[0]; giftingState = states[1]; flightState = states[2];
-            var save = Card(canvas, "WORLD RECORD", 0, 486, 640, 118); saveSummary = Body(save, "Reading world metadata", 44, 10, Theme.Text);
-            var shortcuts = Card(canvas, "QUICK ACCESS", 656, 486, 384, 118);
-            var logsButton = ActionButton(shortcuts, "View logs", 20, 48, 132, delegate { Navigate("Logs"); });
-            var detailsButton = ActionButton(shortcuts, "Check details", 164, 48, 145, delegate { Navigate("Installation"); });
-            shortcuts.Resize += delegate { logsButton.Width = detailsButton.Width = Math.Max(90, (shortcuts.Width - 52) / 2); detailsButton.Left = logsButton.Right + 12; };
-            Panel operations = null;
-            if (controlsEnabled)
-            {
-                operations = Card(page, "SERVER OPERATIONS", 0, 78, 1040, 126);
-                startServer = ActionButton(operations, "Start", 20, 46, 110, async delegate { await RunOperation("Start"); });
-                restartServer = ActionButton(operations, "Restart", 142, 46, 122, async delegate { await RunOperation("Restart"); });
-                stopServer = ActionButton(operations, "Stop", 276, 46, 110, async delegate { await RunOperation("Stop"); });
-                var update = ActionButton(operations, "Update (stage)", 398, 46, 145, async delegate { await DownloadUpdate(); });
-                ActionButton(operations, "Use verified update", 555, 46, 170, async delegate { await ActivateUpdate(); });
-                operationStatus = Body(operations, "Start and restart require current compatibility checks.", 92, 9, Theme.Muted);
-            }
-            page.Resize += delegate
-            {
-                int width = Math.Max(760, page.ClientSize.Width - 20); canvas.Width = width;
-                int left = (int)(width * .60); statusCard.Width = left; auditCard.Left = left + 16; auditCard.Width = width - left - 16;
-                stats.Width = modGrid.Width = width; save.Width = left; shortcuts.Left = left + 16; shortcuts.Width = width - left - 16;
-                if (operations != null) operations.Width = width;
-            };
-            return page;
-        }
+        Control BuildOverview() { return BuildModernOverview(); }
         Control BuildPlayers()
         {
-            var page = Page("Players", "Connection telemetry from the selected server. No character or inventory changes.");
+            var page = Page("Players", "Players identified in server logs and queries. Character inventories remain on game clients.");
             playerGrid = new DataGridView { Location = new Point(0, 78), Size = new Size(1000, 500), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ReadOnly = true };
             Theme.StyleGrid(playerGrid); foreach (string column in new[] { "Player", "Ping", "Jitter", "Session", "Status" }) playerGrid.Columns.Add(column, column);
             page.Controls.Add(playerGrid); page.Resize += delegate { playerGrid.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 90)); }; return page;
         }
-        Control BuildWorld()
-        {
-            var page = Page("World", "Save metadata is read-only. World and player data stay in their original locations.");
-            var card = Card(page, "LATEST OBSERVATION", 0, 78, 740, 270); worldDetail = Body(card, "Waiting for world data", 48, 12, Theme.Text);
-            var note = TextLabel("Open Automation to create verified copies or enable scheduled backups.\r\nThis preview has no restore, delete, migration, or retention actions.", 10, Theme.Muted, false);
-            note.Location = new Point(0, 378); page.Controls.Add(note); return page;
-        }
-        Control BuildMods()
-        {
-            var page = Page("Mods", "Preserve the working setup. Compatibility checks never apply patches.");
-            var card = Card(page, "VERIFICATION LEVELS", 0, 78, 820, 330);
-            Body(card, "Stacking\r\nChecks the executable, KFC and resource hashes against the local attestation.\r\n\r\nGifting and Flight\r\nChecks the pinned executable build. Runtime memory and gameplay remain separate tests.\r\n\r\nFlight-v2 balance\r\nFlight-v2: fixed 80-degree climb and dive targets.\r\nCurrent build: 80-degree target bounds; runtime patch verified in a test copy.", 48, 11, Theme.Text);
-            ActionButton(page, "Inspect installation", 0, 435, 185, delegate { Navigate("Installation"); }); return page;
-        }
+        Control BuildWorld(){return BuildRichWorld();}
+        Control BuildMods(){return BuildRichMods();}
         Control BuildLogs()
         {
             var page = Page("Logs", "Latest server log. Search locally or pause the view while the server continues.");
@@ -255,6 +161,11 @@ namespace XHLLauncher
             ActionButton(page, "Scan folders", 0, 120, 160, async delegate { await ScanFilesAsync(); });
             ActionButton(page, "Preview cleanup", 351, 120, 175, async delegate { await PreviewMigrationAsync(); });
             ActionButton(page, "Use server folder", 542, 120, 175, delegate { ChooseServerLocation(); });
+            ActionButton(page,"Organize archives",542,72,175,async delegate {
+                if(!controlsEnabled||operationBusy||updateBusy||lifecycle.StartupPending)return;
+                if(MessageBox.Show("Move only unreferenced, hash-verified old launcher ZIP archives into Manager / Archive? The server must be stopped. A world backup and move journal are created first. Game files and unknown files stay in place.","Organize historical archives",MessageBoxButtons.YesNo,MessageBoxIcon.Question)!=DialogResult.Yes)return;
+                operationBusy=true;var result=await Task.Run(delegate{return Maintenance.Archive(settings.ServerRoot,BackupRoot);});operationBusy=false;inventoryBox.Text=result.Message;
+            });
             ActionButton(page, "Copy report", 175, 120, 160, delegate {
                 if (inventoryBox != null && !string.IsNullOrEmpty(inventoryBox.Text))
                     try { Clipboard.SetText(inventoryBox.Text); }
@@ -366,7 +277,8 @@ namespace XHLLauncher
             var known=telemetry.GetAllKnownPlayers().Where(p=>!string.IsNullOrWhiteSpace(p.Name)&&!p.Name.StartsWith("Player ")).Select(p=>new {name=p.Name,evidence=p.CharacterSaveBytes>0?"Character save transfer observed ("+FormatUtil.Bytes(p.CharacterSaveBytes)+")":"Seen in server log"}).ToList();
             foreach(var session in Storage.ReadSessions(settings.ServerRoot)) if(!known.Any(p=>p.name==session.Player))known.Add(new {name=session.Player,evidence="Recorded session history"});
             var world=telemetry.GetWorld();
-            phone.Publish(new {worldFiles=phoneWorldFiles,worldSize=phoneWorldSize,worldSaved=phoneWorldSaved,bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString(),knownPlayers=known.OrderBy(p=>p.name).ToArray(),name=settings.ServerName,online=h.ServerRunning,players=list.Count,roster=list.Select(p=>new {name=p.Name,session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed"}).ToArray(),uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text,lastBackup=lastPhoneBackup,backupStatus=automationStatus==null?"":automationStatus.Text,autoBackup=settings.AutoBackup,recovery=settings.AutoRestartOnCrash,backupMinutes=settings.BackupIntervalMinutes,nextBackup=nextBackup.ToLocalTime().ToString("h:mm tt")});
+            if(lastRealm!=null)foreach(string name in lastRealm.KnownPlayers)if(!known.Any(p=>p.name==name))known.Add(new {name=name,evidence="Previous server session / saved history"});
+            phone.Publish(new {worldFiles=phoneWorldFiles,worldSize=phoneWorldSize,worldSaved=phoneWorldSaved,bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString(),knownPlayers=known.OrderBy(p=>p.name).ToArray(),name=settings.ServerName,online=h.ServerRunning,players=h.ServerRunning?telemetry.PlayerCountText:"—",playerEvidence=telemetry.PlayerCountEvidence,roster=list.Select(p=>new {name=p.Name,session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed"}).ToArray(),uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text,lastBackup=lastPhoneBackup,backupStatus=automationStatus==null?"":automationStatus.Text,autoBackup=settings.AutoBackup,recovery=settings.AutoRestartOnCrash,backupMinutes=settings.BackupIntervalMinutes,nextBackup=nextBackup.ToLocalTime().ToString("h:mm tt")});
         }
 
         ActionResult PhoneCommand(string operation)
@@ -518,14 +430,15 @@ namespace XHLLauncher
             if (!fromPhone) MessageBox.Show(result.Message, "XHL — " + operation, MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
             UpdateState(); PublishPhone();
         }
-        void UpdateState()
+        void UpdateState(){ UpdateStateCore(); if(state!=null)UpdateRichState(); }
+        void UpdateStateCore()
         {
             if (state == null) return;
             var h = telemetry.GetHost(); var w = telemetry.GetWorld(); var list = telemetry.GetPlayers();
             serverName.Text = settings.ServerName;
-            state.Text = h.ServerRunning ? "The realm is online" : "The realm is resting"; state.ForeColor = h.ServerRunning ? Theme.Green : Theme.Text;
+            state.Text = h.ServerRunning ? "Realm online" : "Realm offline"; state.ForeColor = h.ServerRunning ? Theme.Green : Theme.Text;
             statusDetail.Text = h.ServerRunning ? "Process observed  /  PID " + h.Pid + "  /  " + FormatUtil.Duration(h.Uptime) : "No matching server process observed. Check Installation before starting.";
-            players.Set(h.ServerRunning ? list.Count.ToString() : "—", h.ServerRunning ? "Connected players" : "Server offline");
+            players.Set(h.ServerRunning ? telemetry.PlayerCountText : "—", h.ServerRunning ? telemetry.PlayerCountEvidence : "Server offline");
             cpu.Set(h.ServerRunning ? h.CpuPercent.ToString("0.0") + "%" : "—", "Selected server process");
             memory.Set(h.ServerRunning ? FormatUtil.Bytes(h.RamBytes) : "—", "Server working set");
             uptime.Set(h.ServerRunning ? FormatUtil.Duration(h.Uptime) : "—", "Current session");
@@ -537,10 +450,11 @@ namespace XHLLauncher
                 auditSummary.Text = audit.Summary; auditSummary.ForeColor = audit.CanStart ? Theme.Green : Theme.Amber;
                 auditDetail.Text = audit.CanStart ? "Disk checks passed. Gameplay is not verified by this check." : "File checks need review. Open Installation for the exact results.";
                 stackState.Text = (audit.StackMatches ? "Files match attestation" : "Files need verification") + "\r\n\r\n65,535 stacking / preserved";
-                giftingState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nRuntime not checked";
-                flightState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nFlight-v2 / 80 degree targets";
+                giftingState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nApplied by the safe-start routine";
+                flightState.Text = (audit.FlightCompatible ? "Pinned build matches" : "Build not supported") + "\r\n\r\nPitch hold / ±80° bounds";
                 auditBox.Text = audit.Details;
             }
+            UpdateModernDetails();
             footer.Text = (controlsEnabled ? "GUARDED CONTROLS" : "READ-ONLY PREVIEW") + "   /   " + DateTime.Now.ToString("h:mm:ss tt") + "   /   Original server and saves remain in place";
             if (controlsEnabled && startServer != null)
             {
@@ -554,7 +468,7 @@ namespace XHLLauncher
             if (current == "Players" && playerGrid != null)
             {
                 playerGrid.Rows.Clear();
-                if (h.ServerRunning) foreach (var p in list) playerGrid.Rows.Add(p.Name, p.PingMs < 0 ? "Unknown" : p.PingMs + " ms", p.Jitter.ToString("0") + " ms", p.JoinTime == DateTime.MinValue ? "Unknown" : FormatUtil.Duration(DateTime.Now - p.JoinTime), p.SessionState);
+                foreach (var p in telemetry.GetAllKnownPlayers().Where(p => !string.IsNullOrWhiteSpace(p.Name) && !p.Name.StartsWith("Player ")).OrderByDescending(p=>p.Connected)) playerGrid.Rows.Add(p.Name, p.PingMs < 0 ? "Unknown" : p.PingMs + " ms", p.Jitter.ToString("0") + " ms", p.JoinTime == DateTime.MinValue ? "Unknown" : FormatUtil.Duration(DateTime.Now - p.JoinTime), p.Connected ? p.SessionState : "Previously seen in log");
             }
         }
         void ReadLogs()
@@ -595,3 +509,5 @@ namespace XHLLauncher
         }
     }
 }
+
+

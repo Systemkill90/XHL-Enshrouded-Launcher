@@ -16,6 +16,10 @@ node_modules/
 .venv/
 __pycache__/
 *.pyc
+launcher-2-preview/compatibility/resources/
+**/Manager Data/
+**/World-Backups/
+**/Staged-Updates/
 .vs/
 .idea/
 .DS_Store

@@ -8,16 +8,16 @@ namespace XHLLauncher
 {
     public static class Theme
     {
-        public static readonly Color Bg = Color.FromArgb(20, 21, 23);
-        public static readonly Color Sidebar = Color.FromArgb(24, 25, 27);
-        public static readonly Color Panel = Color.FromArgb(29, 30, 32);
-        public static readonly Color Panel2 = Color.FromArgb(24, 25, 27);
-        public static readonly Color Panel3 = Color.FromArgb(38, 38, 38);
-        public static readonly Color Border = Color.FromArgb(63, 61, 56);
-        public static readonly Color Text = Color.FromArgb(231, 226, 214);
-        public static readonly Color Muted = Color.FromArgb(170, 167, 157);
-        public static readonly Color Muted2 = Color.FromArgb(140, 137, 129);
-        public static readonly Color Cyan = Color.FromArgb(190, 164, 112);
+        public static readonly Color Bg = Color.FromArgb(12, 17, 20);
+        public static readonly Color Sidebar = Color.FromArgb(16, 23, 27);
+        public static readonly Color Panel = Color.FromArgb(21, 30, 34);
+        public static readonly Color Panel2 = Color.FromArgb(16, 23, 27);
+        public static readonly Color Panel3 = Color.FromArgb(28, 40, 44);
+        public static readonly Color Border = Color.FromArgb(43, 58, 61);
+        public static readonly Color Text = Color.FromArgb(234, 236, 228);
+        public static readonly Color Muted = Color.FromArgb(155, 172, 174);
+        public static readonly Color Muted2 = Color.FromArgb(118, 139, 145);
+        public static readonly Color Cyan = Color.FromArgb(194, 172, 125);
         public static readonly Color Teal = Color.FromArgb(159, 173, 153);
         public static readonly Color Green = Color.FromArgb(157, 183, 148);
         public static readonly Color Amber = Color.FromArgb(211, 178, 119);
@@ -59,6 +59,7 @@ namespace XHLLauncher
         {
             Button b = new Button();
             b.Text = text;
+            b.UseMnemonic = false;
             b.FlatStyle = FlatStyle.Flat;
             b.FlatAppearance.BorderSize = 1;
             b.FlatAppearance.BorderColor = Color.FromArgb(Math.Min(255, accent.R + 5), Math.Min(255, accent.G + 5), Math.Min(255, accent.B + 5));
@@ -83,6 +84,7 @@ namespace XHLLauncher
         {
             Label l = new Label();
             l.Text = text;
+            l.UseMnemonic = false;
             l.ForeColor = color;
             l.Font = Font(size, style);
             l.AutoSize = true;
@@ -95,7 +97,7 @@ namespace XHLLauncher
             RoundedPanel p = new RoundedPanel();
             p.BackColor = Panel;
             p.BorderColor = Border;
-            p.Radius = 3;
+            p.Radius = 10;
             p.Padding = new Padding(14);
             return p;
         }
@@ -107,10 +109,10 @@ namespace XHLLauncher
             grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
             grid.GridColor = Border;
             grid.EnableHeadersVisualStyles = false;
-            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(38, 38, 38);
+            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(28, 40, 44);
             grid.ColumnHeadersDefaultCellStyle.ForeColor = Muted;
             grid.ColumnHeadersDefaultCellStyle.Font = Font(9f, FontStyle.Bold);
-            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(38, 38, 38);
+            grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.FromArgb(28, 40, 44);
             grid.DefaultCellStyle.BackColor = Panel2;
             grid.DefaultCellStyle.ForeColor = Text;
             grid.DefaultCellStyle.SelectionBackColor = Color.FromArgb(66, 61, 49);
@@ -126,7 +128,7 @@ namespace XHLLauncher
 
         public static void StyleTextBox(TextBox tb)
         {
-            tb.BackColor = Color.FromArgb(24, 25, 27);
+            tb.BackColor = Color.FromArgb(16, 23, 27);
             tb.ForeColor = Text;
             tb.BorderStyle = BorderStyle.FixedSingle;
             tb.Font = Font(9f, FontStyle.Regular);
@@ -228,7 +230,7 @@ namespace XHLLauncher
             }
             else
             {
-                using (LinearGradientBrush b = new LinearGradientBrush(r, Color.FromArgb(18, 42, 58), Color.FromArgb(24, 25, 27), 0f))
+                using (LinearGradientBrush b = new LinearGradientBrush(r, Color.FromArgb(18, 42, 58), Color.FromArgb(16, 23, 27), 0f))
                     e.Graphics.FillRectangle(b, r);
             }
         }
@@ -251,7 +253,7 @@ namespace XHLLauncher
             Height = 86;
             BackColor = Theme.Panel;
             BorderColor = Theme.Border;
-            Radius = 3;
+            Radius = 10;
             Padding = new Padding(12, 9, 12, 8);
             title = Theme.Label(titleText.ToUpperInvariant(), 8.2f, Theme.Muted, FontStyle.Bold);
             title.Location = new Point(12, 9);

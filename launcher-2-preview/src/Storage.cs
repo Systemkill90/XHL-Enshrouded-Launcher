@@ -11,8 +11,10 @@ namespace XHLLauncher
     {
         public static string DataDir(string baseDir)
         {
-            string d = Path.Combine(baseDir, "XHL-Launcher-Data");
+            string d = Path.Combine(baseDir, "Manager Data");
             Directory.CreateDirectory(d);
+            string old = Path.Combine(baseDir,"XHL-Launcher-Data","settings.xml");
+            if(!File.Exists(Path.Combine(d,"settings.xml")) && File.Exists(old)) File.Copy(old,Path.Combine(d,"settings.xml"));
             return d;
         }
 

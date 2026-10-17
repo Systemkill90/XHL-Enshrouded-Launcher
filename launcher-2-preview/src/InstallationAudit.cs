@@ -26,11 +26,24 @@ namespace XHLLauncher
             using (var sha = SHA256.Create())
                 return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
         }
+        public static string ScriptHash(string path)
+        {
+            byte[] bytes=Encoding.UTF8.GetBytes(File.ReadAllText(path).Replace("\r\n","\n"));
+            using(var sha=SHA256.Create())return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-","");
+        }
 
         public static InstallationAudit Inspect(string root)
         {
             var result = new InstallationAudit();
             var notes = new StringBuilder();
+            notes.AppendLine("SYSTEM PREREQUISITES");
+            notes.AppendLine("64-bit Windows process: " + Environment.Is64BitProcess);
+            foreach(string dll in new[]{"vcruntime140.dll","msvcp140.dll"})
+                notes.AppendLine(dll + ": " + (File.Exists(Path.Combine(Environment.SystemDirectory,dll)) ? "Installed" : "Not found in System32; review installed game prerequisites"));
+            foreach(string dll in new[]{"steam_api64.dll","steamclient64.dll"})
+                notes.AppendLine(dll + ": " + (File.Exists(Path.Combine(root,dll)) ? "Present in selected installation" : "Missing; review Steam runtime files"));
+            notes.AppendLine("SteamCMD is optional for running the existing server; required only for downloading updates.");
+            notes.AppendLine();
             try
             {
                 result.ExecutableHash = Hash(Path.Combine(root, "enshrouded_server.exe"));
@@ -38,7 +51,7 @@ namespace XHLLauncher
                 if (result.ExecutableHash == CurrentBuild)
                 {
                     string flight = Path.Combine(root, "XHL-Flight-Control.ps1"), gifting = Path.Combine(root, "XHL-Gifting-Range-1.0.ps1");
-                    result.FlightCompatible = File.Exists(flight) && File.Exists(gifting) && Hash(flight) == "5CD61743D54EBEF6408156CEC32C2CBBE505EFC7D26B9CB592885E937EC1038A" && Hash(gifting) == "AB4E34ADF6F3E31526735A41E5AD1BEA71843667A604ED25365E615948C84C88";
+                    result.FlightCompatible = File.Exists(flight) && File.Exists(gifting) && ScriptHash(flight) == "434543F22C2945E7544A0F54EC5B56502EF5EB9E20FA5BED41A68EC8126511E9" && File.Exists(Path.Combine(root,"XHL-Pitch-Hold.ps1")) && ScriptHash(Path.Combine(root,"XHL-Pitch-Hold.ps1")) == "B7DA535F736946A83FD78F3A3E2D76BEE7E332A0C152E98871C5D24E7E87D8F5" && ScriptHash(gifting) == "A2D8B0BE9CB542FDA062F68C5FBE29355007D23604BE10275FAFFC0C0B34641B";
                 }
                 notes.AppendLine("Server executable SHA256: " + result.ExecutableHash);
                 notes.AppendLine("Flight / gifting build: " + (result.FlightCompatible ? "Matches pinned build; runtime unverified." : "Unsupported by the installed pinned controllers."));
