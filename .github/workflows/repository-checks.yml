@@ -26,3 +26,21 @@ jobs:
           $missing = @($files | Where-Object { -not (Test-Path $_ -PathType Leaf) })
           if ($missing.Count) { throw "Incomplete source import: $($missing -join ', ')" }
           Write-Host 'Original build input layout exists. Separate compilation/runtime verification is still required.'
+
+  launcher-2-preview-build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and fixture-test preview source when included
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'launcher-2-preview/Build.ps1')) {
+            Write-Host 'The 2.0 preview source is not on this branch; skipping its separate build and tests.'
+            exit 0
+          }
+          & ./launcher-2-preview/Build.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'xhl-preview-build')
+          if ($LASTEXITCODE -ne 0) { throw 'Preview build failed.' }
+          & ./launcher-2-preview/Test.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'xhl-preview-fixtures')
+          if ($LASTEXITCODE -ne 0) { throw 'Preview fixture tests failed.' }
+          & ./launcher-2-preview/Test-Native.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'xhl-preview-native')
+          if ($LASTEXITCODE -ne 0) { throw 'Preview native fixture tests failed.' }
