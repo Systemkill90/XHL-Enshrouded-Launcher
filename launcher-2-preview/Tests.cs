@@ -91,6 +91,14 @@ static class Checks
             Require(!InstallationAudit.Inspect(server).LoadersIsolated, "Legacy loader is detected without renaming or deleting it");
             File.AppendAllText(Path.Combine(server, "enshrouded_server.kfc"), "changed");
             Require(!InstallationAudit.Inspect(server).StackMatches, "Changed KFC invalidates stacking attestation");
+            string beforeInventory = InstallationAudit.Hash(savePath);
+            var filesReport = InstallationInventory.Scan(server);
+            Require(filesReport.Files >= 4 && filesReport.TotalBytes > 0, "Read-only scan counts server files");
+            Require(filesReport.Groups.ContainsKey("World saves - protected"), "Scan protects configured saves");
+            Require(filesReport.Groups.ContainsKey("Game server - protected"), "Scan identifies game runtime");
+            Require(filesReport.ReviewFiles > 0, "Scan flags unknown and potentially stale files");
+            Require(filesReport.Describe().Contains("No file was created, moved, deleted, renamed or modified."), "Inventory visibly promises read-only operation");
+            Require(InstallationAudit.Hash(savePath) == beforeInventory, "Inventory leaves existing saves unchanged");
             CheckLifecycle();
             CheckPhone();
             CheckAutomation(server, root, savePath);
@@ -101,7 +109,7 @@ static class Checks
                 form.ClientSize = new Size(1384, 870);
                 form.ShowInTaskbar = false; form.Opacity = 0; form.Show(); Application.DoEvents();
                 form.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: unsupported executable. No live patch or save changes." });
-                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation", "Phone" })
+                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone" })
                 {
                     form.Navigate(page); form.PerformLayout(); Application.DoEvents();
                     using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, page + ".png"), ImageFormat.Png); }
