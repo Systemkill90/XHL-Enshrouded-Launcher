@@ -1,9 +1,9 @@
-# Contributing to XHL
+# Help improve Enshrouded Server Companion
 
-This is an **early-stage project**. Please start with a GitHub issue describing the bug or proposed feature. Avoid PRs that simultaneously change the server runtime, mods and UI: separate concerns so they can be reviewed and rolled back.
+You don't need to be a programmer to help.
 
-For a bug report, include the launcher version, Windows version, game-server version, steps to reproduce, expected vs actual behavior, and a **redacted** diagnostic snippet. Never include IP addresses that identify individuals, Steam credentials/tokens, server passwords, player identifiers, or raw save files.
+**Found a bug?** Open a [bug report](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose). Tell us what you clicked, what happened and what you expected. Screenshots can help, but remove passwords, player identifiers and personal paths.
 
-Before proposing source changes: reproduce a build on Windows, document which configurations were tested, and ensure save changes are reversible. Avoid publishing compiled injectors, game binaries, third-party proprietary assets or mods without distribution rights.
+**Have an idea?** Open a [feature request](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose). Describe the problem the feature would solve and how you'd want it to feel in the app.
 
-See [Development](docs/DEVELOPMENT.md), [Server safety](docs/SERVER-SAFETY.md), and [Security](SECURITY.md).
+**Want to contribute code?** Read the [developer guide](docs/FOR-DEVELOPERS.md), [development instructions](docs/DEVELOPMENT.md) and [security guidance](SECURITY.md). Test changes against a **copy** of a server, not a live public world. Avoid adding game binaries, player saves or third-party assets without distribution rights.

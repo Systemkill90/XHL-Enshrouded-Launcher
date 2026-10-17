@@ -1,19 +1,15 @@
 ---
-name: Feature request
-about: Propose an XHL capability
-title: "feat: "
+name: Suggest a feature
+about: An improvement that would make hosting easier
+title: "Idea: "
 labels: []
 assignees: []
 ---
 
-## Problem
+## What is frustrating or missing?
 
-## Proposed behavior
+## What would you like the app to do?
 
-## Data/API needed
-Is the requested information actually exposed by Enshrouded or the existing launcher?
+## Why would that help?
 
-## Safety and rollback
-Could this affect a live server or player saves?
-
-## Acceptance criteria
+## Anything else? (optional)
