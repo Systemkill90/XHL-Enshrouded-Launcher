@@ -22,7 +22,7 @@ On 64-bit Windows with the .NET Framework compiler:
 ./launcher-2-preview/Test-Native.ps1
 ```
 
-The build produces `ShroudForge-Launcher.exe`. Latest local validation: 131 fixture/UI checks passed; seven native lifecycle checks passed. See [overhaul notes](launcher-2-preview/OVERHAUL.md) for scope and remaining validation.
+The build produces `ShroudForge-Launcher.exe`. Latest local validation: 146 fixture/UI checks passed; seven native lifecycle checks passed. See [overhaul notes](launcher-2-preview/OVERHAUL.md) for scope and remaining validation.
 
 This is source and a test build, not a signed public installer. CI excludes game binaries, proprietary resources, personal settings, saves and credentials.
 
@@ -35,3 +35,4 @@ This is source and a test build, not a signed public installer. CI excludes game
 - [Roadmap](ROADMAP.md)
 
 Unofficial fan project. Not affiliated with Keen Games, Steam or Valve.
+

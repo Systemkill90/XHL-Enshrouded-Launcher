@@ -73,6 +73,8 @@ static class Checks
         Require(ConfigurationDocument.FriendlyName("playerHealthFactor")=="Player health multiplier"&&ConfigurationDocument.FriendlyName("dayTimeDuration")=="Day length (minutes)"&&fields.Single(f=>f.Key=="playerHealthFactor").Path=="gameSettings.playerHealthFactor","Plain-English setting names preserve the original configuration keys");
         Require(ConfigurationDocument.Choices("tombstoneMode","NoTombstone").Single(c=>c.Value=="NoTombstone").Text=="Keep everything","Readable death-rule choices preserve game enum values");
         Require(Convert.ToDouble(ConfigurationDocument.ConvertValue(new ConfigField{Key="playerHealthFactor",Value=1},"1.5"))==1.5,"Multiplier editor accepts fractional values when original JSON used an integer");
+        foreach(var pair in new[]{new[]{"playerHealthFactor","0.24","4.01"},new[]{"bossDamageFactor","0.19","5.01"},new[]{"fromHungerToStarving","4.99","20.01"},new[]{"flameLevelFogRemoval","-1","21"}}){foreach(string invalid in pair.Skip(1)){bool rejected=false;try{ConfigurationDocument.ConvertValue(new ConfigField{Key=pair[0],Value=1},invalid);}catch{rejected=true;}Require(rejected,pair[0]+" rejects out-of-range value "+invalid);}}
+        Require(ConfigurationDocument.ReadOnlyReason(new ConfigField{Key="saveDirectory"})!=null&&ConfigurationDocument.ReadOnlyReason(new ConfigField{Key="unknownRule"})!=null,"Protected and unknown settings expose read-only reasons");
         string script=Path.Combine(root,"controller.ps1");File.WriteAllText(script,"line one\nline two\n");string scriptHash=InstallationAudit.ScriptHash(script);File.WriteAllText(script,"line one\r\nline two\r\n",new System.Text.UTF8Encoding(true));Require(InstallationAudit.ScriptHash(script)==scriptHash,"Pinned script checks survive Git line-ending and BOM normalization");
         var time=fields.Single(f=>f.Key=="dayTimeDuration");Require(Convert.ToInt64(ConfigurationDocument.ConvertValue(time,"20"))==1200000000000,"Duration editor converts minutes to exact 64-bit nanoseconds");
         string hash=InstallationAudit.Hash(path),json=new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data);
@@ -82,6 +84,12 @@ static class Checks
         Require(ConfigurationDocument.DirectionHint("playerHealthFactor").Contains("Higher: easier")&&ConfigurationDocument.DirectionHint("enemyDamageFactor").Contains("Higher: harder"),"Difficulty arrows distinguish player benefits from stronger enemies");
         Require(ConfigurationDocument.DirectionHint("factoryProductionSpeedFactor").Contains("Higher: harder")&&ConfigurationDocument.DirectionHint("perkUpgradeRecyclingFactor").Contains("Higher: easier"),"Difficulty arrows reflect production time and salvage return semantics");
         Require(!ConfigurationDocument.DirectionHint("dayTimeDuration").Contains("easier")&&!ConfigurationDocument.DirectionHint("slotCount").Contains("harder"),"Neutral settings receive factual directional hints");
+        var invalidGame=(System.Collections.Generic.Dictionary<string,object>)data["gameSettings"];invalidGame["playerHealthFactor"]=5;
+        Require(!Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success&&InstallationAudit.Hash(path)==hash,"Advanced JSON cannot bypass compatible numeric ranges or alter disk on rejection");
+        invalidGame["playerHealthFactor"]=1;invalidGame["weatherFrequency"]="Impossible";
+        Require(!Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Advanced JSON rejects unsupported enum options");invalidGame.Remove("weatherFrequency");
+        data["unknownRule"]=17;
+        Require(!Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Advanced JSON rejects new unverified rules");data.Remove("unknownRule");
         var game=(System.Collections.Generic.Dictionary<string,object>)data["gameSettings"];game["playerHealthFactor"]=1.5;
         Require(Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Full rules document saves atomically with original fields");
         var saved=Maintenance.Config(root);Require(Convert.ToString(saved["gameSettingsPreset"])=="Custom"&&saved.ContainsKey("userGroups")&&Convert.ToInt64(((System.Collections.Generic.Dictionary<string,object>)saved["gameSettings"])["dayTimeDuration"])==1800000000000,"Custom preset activates changed rules and preserves permissions and 64-bit durations");
@@ -253,7 +261,7 @@ static class Checks
                 string before=InstallationAudit.Hash(Path.Combine(server,"enshrouded_server.json"));
                 var number=cards.Controls.Cast<Control>().SelectMany(x=>x.Controls.Cast<Control>()).OfType<NumericUpDown>().FirstOrDefault();
                 Require(number!=null,"Numeric settings use dedicated number controls");
-                if(number!=null)number.Value=number.Value+1;
+                if(number!=null)number.Value=number.Value>number.Minimum?number.Value-1:number.Value+1;
                 Require(before==InstallationAudit.Hash(Path.Combine(server,"enshrouded_server.json")),"Card edits remain unsaved until explicitly saved");
                 form.Navigate("Overview"); form.ClientSize = new Size(1084, 701); form.PerformLayout(); Application.DoEvents();
                 Dump(form);
