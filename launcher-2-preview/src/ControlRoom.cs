@@ -41,7 +41,7 @@ namespace XHLLauncher
         Label stackState, flightState, giftingState, worldDetail;
         MetricCard players, cpu, memory, uptime;
         DataGridView playerGrid;
-        TextBox logBox, auditBox;
+        TextBox logBox, auditBox, inventoryBox;
         TextBox search;
         Button recheck;
         string current = "Overview";
@@ -72,6 +72,7 @@ namespace XHLLauncher
             AddPage("Mods", BuildMods());
             AddPage("Logs", BuildLogs());
             AddPage("Installation", BuildInstallation());
+            AddPage("Files", BuildFiles());
             AddPage("Automation", BuildAutomation());
             AddPage("Phone", BuildPhone());
             Navigate("Overview");
@@ -97,7 +98,7 @@ namespace XHLLauncher
             var sub = TextLabel("ENSHROUDED", 8, Theme.Cyan, true); sub.Location = new Point(26, 89); side.Controls.Add(sub);
             var category = TextLabel("YOUR REALM", 8, Theme.Muted2, true); category.Location = new Point(26, 143); side.Controls.Add(category);
             int y = 178;
-            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Automation", "Phone" })
+            foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone" })
             {
                 var button = Theme.Button(page, Theme.Border);
                 button.TextAlign = ContentAlignment.MiddleLeft; button.Padding = new Padding(16, 0, 0, 0);
@@ -244,6 +245,44 @@ namespace XHLLauncher
             auditBox = new TextBox { Location = new Point(0, 195), Size = new Size(1000, 380), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ReadOnly = true,
                 Multiline = true, ScrollBars = ScrollBars.Both, WordWrap = false, BackColor = Theme.Panel2, ForeColor = Theme.Text, Font = new Font("Consolas", 10), BorderStyle = BorderStyle.FixedSingle, Text = "Checking installation..." };
             page.Controls.Add(auditBox); page.Resize += delegate { auditBox.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 210)); }; return page;
+        }
+        Control BuildFiles()
+        {
+            var page = Page("Files and folders", "Inspect the current server directory before reorganizing it.");
+            var note = TextLabel("Read-only scan. No repairs, moves, renames or cleanup.", 10, Theme.Muted, false);
+            note.Location = new Point(0, 75); note.AutoSize = false; note.Size = new Size(840, 30);
+            page.Controls.Add(note);
+            ActionButton(page, "Scan folders", 0, 120, 160, async delegate { await ScanFilesAsync(); });
+            ActionButton(page, "Copy report", 175, 120, 160, delegate {
+                if (inventoryBox != null && !string.IsNullOrEmpty(inventoryBox.Text))
+                    try { Clipboard.SetText(inventoryBox.Text); }
+                    catch (Exception ex) { MessageBox.Show(ex.Message, "Copy report", MessageBoxButtons.OK, MessageBoxIcon.Warning); }
+            });
+            inventoryBox = new TextBox {
+                Location = new Point(0, 174), Size = new Size(1000, 460),
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                ReadOnly = true, Multiline = true, ScrollBars = ScrollBars.Both, WordWrap = false,
+                BackColor = Theme.Panel2, ForeColor = Theme.Text, Font = new Font("Consolas", 9),
+                BorderStyle = BorderStyle.FixedSingle,
+                Text = "Click Scan folders to inspect the installation without changing it."
+            };
+            page.Controls.Add(inventoryBox);
+            page.Resize += delegate { inventoryBox.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(130, page.ClientSize.Height - 190)); };
+            return page;
+        }
+        async Task ScanFilesAsync()
+        {
+            if (inventoryBox == null || inventoryBox.Tag != null) return;
+            inventoryBox.Tag = "busy";
+            inventoryBox.Text = "Reading file metadata. No changes are being made...";
+            try
+            {
+                string folder = settings.ServerRoot;
+                var report = await Task.Run(delegate { return InstallationInventory.Scan(folder); });
+                if (!IsDisposed) inventoryBox.Text = report.Describe();
+            }
+            catch (Exception ex) { if (!IsDisposed) inventoryBox.Text = "Scan failed: " + ex.Message + "\r\nNo files changed."; }
+            finally { if (!IsDisposed) inventoryBox.Tag = null; }
         }
         Control BuildPhone()
         {

@@ -1,0 +1,28 @@
+name: File inventory preview tests
+on:
+  push:
+    branches:
+      - feature/installation-inventory-v2
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build desktop program
+        shell: pwsh
+        run: |
+          & ./launcher-2-preview/Build.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'companion-build')
+          if ($LASTEXITCODE -ne 0) { throw 'Build failed' }
+      - name: Fixture tests
+        shell: pwsh
+        run: |
+          & ./launcher-2-preview/Test.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'companion-fixtures')
+          if ($LASTEXITCODE -ne 0) { throw 'Fixture checks failed' }
+      - name: Native fixture tests
+        shell: pwsh
+        run: |
+          & ./launcher-2-preview/Test-Native.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'companion-native')
+          if ($LASTEXITCODE -ne 0) { throw 'Native checks failed' }
