@@ -8,6 +8,7 @@ namespace XHLLauncher
     public class LauncherSettings
     {
         public string ServerRoot = "";
+        public string PreferredServerRoot = ""; // Explicit choice for next launch, never changed automatically.
         public string ServerName = "VELARIS";
         public string SteamCmdPath = "";
         public string BackupRoot = ""; // Empty means legacy default, no existing data is moved.

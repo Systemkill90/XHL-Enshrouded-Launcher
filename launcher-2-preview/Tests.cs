@@ -147,6 +147,25 @@ static class Checks
                     "Common ancestor of server and program is rejected");
             Require(!Directory.EnumerateFileSystemEntries(chosenBackups).Any(),
                     "Validating a backup directory does not write into it");
+            string alternateServer = Path.Combine(root, "alternate-server-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(alternateServer);
+            File.WriteAllText(Path.Combine(alternateServer, "enshrouded_server.exe"), "synthetic test-only executable");
+            File.WriteAllText(Path.Combine(alternateServer, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\"}");
+            Require(ServerLocation.Validate(alternateServer) == null, "Existing alternate server folder is accepted");
+            var chosenSettings = new LauncherSettings { ServerRoot = server, PreferredServerRoot = alternateServer };
+            Require(ServerLocation.Resolve(chosenSettings, server) == Path.GetFullPath(alternateServer),
+                "Explicit server choice wins over legacy launch-script argument");
+            Require(chosenSettings.ServerRoot == server, "Resolving a new folder does not modify current-session settings");
+            chosenSettings.PreferredServerRoot = Path.Combine(root, "nonexistent-server");
+            bool unavailableBlocked = false;
+            try { ServerLocation.Resolve(chosenSettings, server); }
+            catch (IOException) { unavailableBlocked = true; }
+            Require(unavailableBlocked, "Missing selected folder is not silently replaced with legacy location");
+            chosenSettings.PreferredServerRoot = "";
+            Require(ServerLocation.Resolve(chosenSettings, alternateServer) == Path.GetFullPath(alternateServer),
+                "Existing launch wrappers retain their old argument behavior without manual selection");
+            Require(ServerLocation.Validate(Path.Combine(root, "no-server")) != null,
+                "Nonexistent folder cannot be selected as a server");
             CheckLifecycle();
             CheckPhone();
             CheckAutomation(server, root, savePath);

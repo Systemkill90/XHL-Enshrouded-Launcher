@@ -47,18 +47,14 @@ namespace XHLLauncher
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
                 LauncherSettings settings = Storage.LoadSettings(baseDir);
 
-                // The bootstrap BAT passes the folder it was launched from. If that
-                // folder contains the dedicated server, prefer it over auto-detection.
+                // A manually selected server location wins over legacy BAT arguments.
+                // Both paths are resolved before the UI and lifecycle objects are created.
                 string serverArgument = args == null ? null : args.FirstOrDefault(a => !a.StartsWith("--", StringComparison.Ordinal));
-                if (!string.IsNullOrEmpty(serverArgument))
+                string resolved = ServerLocation.Resolve(settings, serverArgument);
+                if (!string.Equals(settings.ServerRoot, resolved, StringComparison.OrdinalIgnoreCase))
                 {
-                    string hintedRoot = serverArgument.Trim().Trim('"');
-                    try { hintedRoot = Path.GetFullPath(hintedRoot); } catch { }
-                    if (Directory.Exists(hintedRoot) && File.Exists(Path.Combine(hintedRoot, "enshrouded_server.exe")))
-                    {
-                        settings.ServerRoot = hintedRoot;
-                        Storage.SaveSettings(baseDir, settings);
-                    }
+                    settings.ServerRoot = resolved;
+                    Storage.SaveSettings(baseDir, settings);
                 }
 
                 Application.Run(new ControlRoom(baseDir, settings, true, args == null || !args.Contains("--monitor")));

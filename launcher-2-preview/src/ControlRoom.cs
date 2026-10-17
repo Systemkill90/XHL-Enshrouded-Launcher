@@ -254,6 +254,7 @@ namespace XHLLauncher
             page.Controls.Add(note);
             ActionButton(page, "Scan folders", 0, 120, 160, async delegate { await ScanFilesAsync(); });
             ActionButton(page, "Preview cleanup", 351, 120, 175, async delegate { await PreviewMigrationAsync(); });
+            ActionButton(page, "Use server folder", 542, 120, 175, delegate { ChooseServerLocation(); });
             ActionButton(page, "Copy report", 175, 120, 160, delegate {
                 if (inventoryBox != null && !string.IsNullOrEmpty(inventoryBox.Text))
                     try { Clipboard.SetText(inventoryBox.Text); }
@@ -285,6 +286,37 @@ namespace XHLLauncher
             catch (Exception ex) { if (!IsDisposed) inventoryBox.Text = "Scan failed: " + ex.Message + "\r\nNo files changed."; }
             finally { if (!IsDisposed) inventoryBox.Tag = null; }
         }
+        void ChooseServerLocation()
+        {
+            if (!controlsEnabled || operationBusy || updateBusy || lifecycle.StartupPending) return;
+            string selected;
+            using (var picker = new FolderBrowserDialog {
+                Description = "Choose an existing Enshrouded dedicated server folder. No server files will be moved."
+            })
+            {
+                if (Directory.Exists(settings.ServerRoot)) picker.SelectedPath = settings.ServerRoot;
+                if (picker.ShowDialog() != DialogResult.OK) return;
+                selected = picker.SelectedPath;
+            }
+            string problem = ServerLocation.Validate(selected);
+            if (problem != null)
+            {
+                MessageBox.Show(problem, "Server folder not accepted", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (MessageBox.Show(
+                "Use this existing folder the NEXT time the manager starts?\r\n\r\n" +
+                selected + "\r\n\r\nNo files are moved and the currently running server is unchanged." +
+                "\r\nKeep the present launcher open until your maintenance window.",
+                "Remember server folder for next launch", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            settings.PreferredServerRoot = Path.GetFullPath(selected);
+            Storage.SaveSettings(appBase, settings);
+            if (inventoryBox != null)
+                inventoryBox.Text = "The server folder for NEXT launch is now:\r\n" +
+                    settings.PreferredServerRoot + "\r\n\r\nCurrent-session controls still use:\r\n" +
+                    settings.ServerRoot + "\r\n\r\nClose and reopen the manager when ready. No files were changed.";
+        }
+
         async Task PreviewMigrationAsync()
         {
             if (inventoryBox == null || inventoryBox.Tag != null) return;
@@ -419,7 +451,8 @@ namespace XHLLauncher
             operationBusy = false;
             if (!result.Success) { MessageBox.Show(result.Message, "XHL — Update not activated"); return; }
             settings.AutoRestartOnCrash = false; recovery.Disarm();
-            settings.ServerRoot = candidate; Storage.SaveSettings(appBase, settings);
+            settings.ServerRoot = candidate; settings.PreferredServerRoot = candidate;
+            Storage.SaveSettings(appBase, settings);
             MessageBox.Show(result.Message + "\r\nThe launcher will reopen. Start the selected server when ready.", "XHL — Update ready");
             Application.Restart();
         }
