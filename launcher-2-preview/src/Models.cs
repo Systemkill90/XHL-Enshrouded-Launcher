@@ -10,6 +10,7 @@ namespace XHLLauncher
         public string ServerRoot = "";
         public string ServerName = "VELARIS";
         public string SteamCmdPath = "";
+        public string BackupRoot = ""; // Empty means legacy default, no existing data is moved.
         public bool PublicIpLookup = true;
         public bool AutoRestartOnCrash = false;
         public bool AutoBackup = false;

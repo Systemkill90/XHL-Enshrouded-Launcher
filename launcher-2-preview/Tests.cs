@@ -130,6 +130,23 @@ static class Checks
             Require(!invalidConfig.Complete, "Malformed game configuration prevents migration readiness");
             File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\"}");
             File.Delete(oldArchive);
+            string selected;
+            string appLocation = Path.Combine(root, "preview-app-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(appLocation);
+            string chosenBackups = Path.Combine(root, "user-backups-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(chosenBackups);
+            Require(BackupPathPolicy.Validate(server, appLocation, chosenBackups, out selected) == null &&
+                    selected == chosenBackups, "Custom backup folder outside installation is allowed");
+            Require(BackupPathPolicy.Validate(server, appLocation, Path.Combine(server, "savegame"), out selected) != null,
+                    "World save folder cannot double as backup destination");
+            Require(BackupPathPolicy.Validate(server, appLocation, server, out selected) != null,
+                    "Server root cannot be a backup folder");
+            Require(BackupPathPolicy.Validate(server, appLocation, appLocation, out selected) != null,
+                    "Launcher root cannot be a backup folder");
+            Require(BackupPathPolicy.Validate(server, appLocation, root, out selected) != null,
+                    "Common ancestor of server and program is rejected");
+            Require(!Directory.EnumerateFileSystemEntries(chosenBackups).Any(),
+                    "Validating a backup directory does not write into it");
             CheckLifecycle();
             CheckPhone();
             CheckAutomation(server, root, savePath);
