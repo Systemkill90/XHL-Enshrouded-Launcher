@@ -25,12 +25,12 @@ namespace XHLLauncher
         Label phoneStatus;
         readonly RecoveryPolicy recovery = new RecoveryPolicy();
         DateTime nextBackup = DateTime.UtcNow.AddMinutes(30);
-        Label automationStatus;
+        Label automationStatus, backupPathLabel;
         CheckBox recoveryOption, backupOption;
         DateTime phoneBackupScan = DateTime.MinValue;
         string lastPhoneBackup = "No verified backup found";
         string phoneWorldFiles="Checking", phoneWorldSize="Checking", phoneWorldSaved="Checking";
-        string BackupRoot { get { return Path.Combine(appBase, "World-Backups"); } }
+        string BackupRoot { get { return string.IsNullOrWhiteSpace(settings.BackupRoot) ? Path.Combine(appBase, "World-Backups") : Path.GetFullPath(settings.BackupRoot); } }
         Label operationStatus;
         readonly Dictionary<string, Control> pages = new Dictionary<string, Control>();
         readonly Dictionary<string, Button> navigation = new Dictionary<string, Button>();
@@ -370,10 +370,43 @@ namespace XHLLauncher
             Body(card, "Recovery makes one attempt after an observed running session.\r\nStop turns recovery off. Start still requires all compatibility checks.\r\n\r\nBackups copy the configured server saves and configuration only.\r\nLive copies are byte-checked, but may span multiple game save cycles.\r\nClient-side character saves outside that folder are not included.", 140, 10, Theme.Muted);
             var now = ActionButton(page, "Back up now", 0, 460, 150, async delegate { await BackupNow(); }); now.Enabled = controlsEnabled;
             ActionButton(page, "Backup folder", 166, 460, 150, delegate { Directory.CreateDirectory(BackupRoot); Process.Start("explorer.exe", "\"" + BackupRoot + "\""); });
+            var chooseBackup = ActionButton(page, "Change backup path", 332, 460, 185, delegate { ChooseBackupRoot(); });
+            chooseBackup.Enabled = controlsEnabled;
+            var backupLocation = TextLabel("Backup destination: " + BackupRoot, 9, Theme.Muted, false);
+            backupLocation.Location = new Point(0, 512);
+            backupLocation.AutoSize = false;
+            backupLocation.Size = new Size(780, 45);
+            page.Controls.Add(backupLocation);
+            backupPathLabel = backupLocation;
             automationStatus = TextLabel("Options are off by default. No automatic actions run in monitoring mode.", 10, Theme.Muted, false);
-            automationStatus.Location = new Point(0, 520); automationStatus.MaximumSize = new Size(780, 160); page.Controls.Add(automationStatus);
+            automationStatus.Location = new Point(0, 573); automationStatus.MaximumSize = new Size(780, 160); page.Controls.Add(automationStatus);
             return page;
         }
+        void ChooseBackupRoot()
+        {
+            if (!controlsEnabled || operationBusy || updateBusy || lifecycle.StartupPending) return;
+            string chosen;
+            using (var dialog = new FolderBrowserDialog {
+                Description = "Choose an existing folder OUTSIDE the server and launcher. Existing backups stay where they are."
+            })
+            {
+                if (Directory.Exists(BackupRoot)) dialog.SelectedPath = BackupRoot;
+                if (dialog.ShowDialog() != DialogResult.OK) return;
+                chosen = dialog.SelectedPath;
+            }
+            string normalized;
+            string error = BackupPathPolicy.Validate(settings.ServerRoot, appBase, chosen, out normalized);
+            if (error != null) { MessageBox.Show(error, "Backup folder not accepted", MessageBoxButtons.OK, MessageBoxIcon.Warning); return; }
+            if (MessageBox.Show("Use this folder for FUTURE save copies?\r\n\r\n" + normalized +
+                "\r\n\r\nExisting backups will NOT be moved or removed. Confirm it has enough free space.",
+                "Change backup location", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            settings.BackupRoot = normalized;
+            Storage.SaveSettings(appBase, settings);
+            if (backupPathLabel != null) backupPathLabel.Text = "Backup destination: " + BackupRoot;
+            phoneBackupScan = DateTime.MinValue;
+            if (automationStatus != null) automationStatus.Text = "Future backups will use the selected location. Previous backups remain at their original location.";
+        }
+
         async Task ActivateUpdate()
         {
             if (!controlsEnabled || operationBusy || updateBusy || lifecycle.StartupPending) return;
