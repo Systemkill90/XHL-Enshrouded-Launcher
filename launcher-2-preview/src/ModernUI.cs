@@ -11,18 +11,18 @@ namespace XHLLauncher {
  public sealed partial class ControlRoom {
   Label liveActivity, backupResult;
   DataGridView backupGrid;
+  DashboardTrend cpuTrend, memoryTrend; Label backupOverview; DateTime lastBackupOverview=DateTime.MinValue;
   void ConfigureTray(){
-   var tray=new NotifyIcon{Text="XHL 2.0 • "+settings.ServerName,Icon=Icon,Visible=true};var menu=new ContextMenuStrip();
+   var tray=new NotifyIcon{Text="ShroudForge Launcher 2.0 • "+settings.ServerName,Icon=Icon,Visible=true};var menu=new ContextMenuStrip();
    Action show=delegate{Show();WindowState=FormWindowState.Normal;Activate();};
-   menu.Items.Add("Open XHL",null,delegate{show();});menu.Items.Add("Exit launcher (server stays running)",null,delegate{Close();});tray.ContextMenuStrip=menu;tray.DoubleClick+=delegate{show();};
+   menu.Items.Add("Open ShroudForge Launcher",null,delegate{show();});menu.Items.Add("Exit launcher (server stays running)",null,delegate{Close();});tray.ContextMenuStrip=menu;tray.DoubleClick+=delegate{show();};
    Resize+=delegate{if(WindowState==FormWindowState.Minimized)Hide();};FormClosed+=delegate{tray.Visible=false;tray.Dispose();menu.Dispose();};
   }
   void BuildModernShell() {
    var shell=new TableLayoutPanel {Dock=DockStyle.Fill,ColumnCount=2,RowCount=1,Margin=Padding.Empty};
    shell.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,190));shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));shell.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(shell);
    var side=new Panel{Dock=DockStyle.Fill,BackColor=Theme.Sidebar,Margin=Padding.Empty};shell.Controls.Add(side,0,0);
-   side.Controls.Add(new Sigil{Location=new Point(23,23),Size=new Size(32,40)});
-   var brand=TextLabel("XHL",25,Theme.Text,true);brand.Location=new Point(66,24);side.Controls.Add(brand);
+   side.Controls.Add(new BrandLockup{Location=new Point(19,28),Size=new Size(157,48)});
    var subtitle=TextLabel("REALM COMPANION",7.5f,Theme.Cyan,true);subtitle.Location=new Point(23,78);side.Controls.Add(subtitle);
    var realm=TextLabel("YOUR REALM",7,Theme.Muted2,true);realm.Location=new Point(23,123);side.Controls.Add(realm);
    string[] names={"Overview","Players","World","Mods","Logs","Backups","Automation","Updates","Settings","Installation","Files","Phone"};
@@ -30,7 +30,7 @@ namespace XHLLauncher {
    for(int i=0;i<names.Length;i++){
     string page=names[i];var b=Theme.Button(labels[i],Theme.Border);b.SetBounds(10,151+i*37,170,33);b.TextAlign=ContentAlignment.MiddleLeft;b.Padding=new Padding(12,0,0,0);b.FlatAppearance.BorderSize=0;b.Font=Theme.Font(9,FontStyle.Regular);b.Click+=delegate{Navigate(page);};side.Controls.Add(b);navigation.Add(page,b);
    }
-   side.Controls.Add(new Label{Dock=DockStyle.Bottom,Height=48,Padding=new Padding(23,8,0,0),Text="XHL 2.0  /  VELARIS\r\nYour world, within reach.",ForeColor=Theme.Muted2,Font=Theme.Font(7.5f,FontStyle.Regular)});
+   side.Controls.Add(new Label{Dock=DockStyle.Bottom,Height=48,Padding=new Padding(23,8,0,0),Text="SHROUDFORGE LAUNCHER\r\n2.0  /  VELARIS",ForeColor=Theme.Muted2,Font=Theme.Font(7.5f,FontStyle.Regular)});
    var main=new Panel{Dock=DockStyle.Fill,Margin=Padding.Empty};shell.Controls.Add(main,1,0);
    host=new Panel{Dock=DockStyle.Fill,Padding=new Padding(26,22,26,16)};main.Controls.Add(host);
    var top=new Panel{Dock=DockStyle.Top,Height=72,BackColor=Theme.Sidebar};main.Controls.Add(top);
@@ -41,30 +41,38 @@ namespace XHLLauncher {
   }
   Control BuildModernOverview() {
    var page=new Panel{AutoScroll=true};
-   var hero=(RoundedPanel)Theme.Card();hero.SetBounds(0,0,1000,208);hero.BackgroundArt=Theme.LoadAsset(appBase,"realm.png");hero.BackgroundOverlayAlpha=75;page.Controls.Add(hero);
-   var eyebrow=TextLabel("VELARIS  /  REALM OVERVIEW",8,Theme.Cyan,true);eyebrow.Location=new Point(24,20);hero.Controls.Add(eyebrow);
-   state=Body(hero,"Observing your realm",52,27,Theme.Text);state.Left=24;state.Height=48;state.Font=new Font("Georgia",27);
-   statusDetail=Body(hero,"Connecting to the existing installation",104,9,Theme.Muted);statusDetail.Left=26;statusDetail.Height=28;
-   startServer=ActionButton(hero,"Start server",24,150,136,async delegate{await RunOperation("Start");});startServer.BackColor=Color.FromArgb(49,74,69);
-   restartServer=ActionButton(hero,"Restart",172,150,110,async delegate{await RunOperation("Restart");});
-   stopServer=ActionButton(hero,"Stop",294,150,92,async delegate{await RunOperation("Stop");});
+   var hero=(RoundedPanel)Theme.Card();hero.SetBounds(0,0,1000,150);hero.BackgroundArt=Theme.LoadAsset(appBase,"realm.png");hero.BackgroundOverlayAlpha=75;page.Controls.Add(hero);
+   var eyebrow=TextLabel("VELARIS  /  REALM OVERVIEW",8,Theme.Cyan,true);eyebrow.Location=new Point(24,12);hero.Controls.Add(eyebrow);
+   state=Body(hero,"Observing your realm",33,24,Theme.Text);state.Left=24;state.Height=40;state.Font=new Font("Georgia",24);
+   statusDetail=Body(hero,"Connecting to the existing installation",75,9,Theme.Muted);statusDetail.Left=26;statusDetail.Height=28;
+   startServer=ActionButton(hero,"Start server",24,107,136,async delegate{await RunOperation("Start");});startServer.BackColor=Color.FromArgb(49,74,69);
+   restartServer=ActionButton(hero,"Restart",172,107,110,async delegate{await RunOperation("Restart");});
+   stopServer=ActionButton(hero,"Stop",294,107,92,async delegate{await RunOperation("Stop");});
    startServer.Visible=restartServer.Visible=stopServer.Visible=controlsEnabled;
-   operationStatus=TextLabel("Checking the existing installation…",8,Theme.Muted,false);operationStatus.SetBounds(0,220,1000,36);operationStatus.AutoSize=false;page.Controls.Add(operationStatus);
-   var stats=new TableLayoutPanel{Location=new Point(0,264),Size=new Size(1000,96),ColumnCount=4,RowCount=1,Margin=Padding.Empty};stats.RowStyles.Add(new RowStyle(SizeType.Percent,100));page.Controls.Add(stats);
+   operationStatus=TextLabel("Checking the existing installation…",8,Theme.Muted,false);operationStatus.SetBounds(0,158,1000,28);operationStatus.AutoSize=false;page.Controls.Add(operationStatus);
+   var stats=new TableLayoutPanel{Location=new Point(0,194),Size=new Size(1000,84),ColumnCount=4,RowCount=1,Margin=Padding.Empty};stats.RowStyles.Add(new RowStyle(SizeType.Percent,100));page.Controls.Add(stats);
    players=new MetricCard("Players",Theme.Teal);cpu=new MetricCard("CPU",Theme.Teal);memory=new MetricCard("Memory",Theme.Cyan);uptime=new MetricCard("Uptime",Theme.Cyan);
+   cpu.Chart.Visible=false;memory.Chart.Visible=false;players.Chart.Visible=false;uptime.Chart.Visible=false;
    MetricCard[] cards={players,cpu,memory,uptime};for(int i=0;i<4;i++){stats.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25));cards[i].Dock=DockStyle.Fill;cards[i].Margin=new Padding(i==0?0:6,0,i==3?0:6,0);stats.Controls.Add(cards[i],i,0);}
-   var modHead=TextLabel("BALANCED MODS",8,Theme.Muted,true);modHead.Location=new Point(1,384);page.Controls.Add(modHead);
-   var mods=new TableLayoutPanel{Location=new Point(0,412),Size=new Size(1000,134),ColumnCount=3,RowCount=1};mods.RowStyles.Add(new RowStyle(SizeType.Percent,100));page.Controls.Add(mods);
-   Label[] values=new Label[3];string[] titles={"01   STACKING","02   GIFTING","03   FLIGHT & PITCH HOLD"};for(int i=0;i<3;i++){mods.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100f/3));var c=Card(mods,titles[i],0,0,310,134);c.Dock=DockStyle.Fill;c.Margin=new Padding(i==0?0:6,0,i==2?0:6,0);mods.SetCellPosition(c,new TableLayoutPanelCellPosition(i,0));values[i]=Body(c,"Checking compatibility",46,10,Theme.Text);}
-   stackState=values[0];giftingState=values[1];flightState=values[2];
-   var world=Card(page,"WORLD RECORD",0,562,490,110);saveSummary=Body(world,"Reading save metadata",43,10,Theme.Text);
-   var health=Card(page,"INSTALLATION",506,562,494,110);auditSummary=Body(health,"Checking",40,11,Theme.Text);auditSummary.Height=25;auditDetail=Body(health,"",70,8,Theme.Muted);auditDetail.Height=28;
-   liveActivity=TextLabel("Waiting for live telemetry",9,Theme.Muted,false);liveActivity.SetBounds(0,692,1000,46);liveActivity.AutoSize=false;page.Controls.Add(liveActivity);
-   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=mods.Width=operationStatus.Width=liveActivity.Width=w;int half=(w-16)/2;world.Width=half;health.Left=half+16;health.Width=w-half-16;};
+   stackState=new Label();giftingState=new Label();flightState=new Label();
+   var activity=new TableLayoutPanel{Location=new Point(0,294),Size=new Size(1000,176),ColumnCount=2,RowCount=1,Margin=Padding.Empty};activity.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));activity.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));activity.RowStyles.Add(new RowStyle(SizeType.Percent,100));page.Controls.Add(activity);
+   cpuTrend=new DashboardTrend("PROCESSOR LOAD", "%",Theme.Teal,100);memoryTrend=new DashboardTrend("SERVER MEMORY", "GB",Theme.Cyan,0);
+   cpuTrend.Dock=memoryTrend.Dock=DockStyle.Fill;cpuTrend.Margin=new Padding(0,0,7,0);memoryTrend.Margin=new Padding(7,0,0,0);activity.Controls.Add(cpuTrend,0,0);activity.Controls.Add(memoryTrend,1,0);
+   var world=Card(page,"WORLD & SAVES",0,486,320,138);saveSummary=Body(world,"Reading save metadata",42,9,Theme.Text);saveSummary.Height=52;
+   ActionButton(world,"View world",18,100,116,delegate{Navigate("World");});
+   var backup=Card(page,"BACKUP COVERAGE",334,486,320,138);backupOverview=Body(backup,"Reading backup history",42,9,Theme.Text);backupOverview.Height=52;
+   ActionButton(backup,"Backups",18,100,116,delegate{Navigate("Backups");});
+   var health=Card(page,"INSTALLATION & MODS",668,486,332,138);auditSummary=Body(health,"Checking",40,9,Theme.Text);auditSummary.Height=25;auditDetail=Body(health,"",68,8,Theme.Muted);auditDetail.Height=30;
+   ActionButton(health,"Review checks",18,100,128,delegate{Navigate("Installation");});ActionButton(health,"Mods",154,100,78,delegate{Navigate("Mods");});
+   liveActivity=TextLabel("Waiting for live telemetry",8,Theme.Muted,false);liveActivity.SetBounds(0,638,1000,30);liveActivity.AutoSize=false;page.Controls.Add(liveActivity);
+   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;};
    return page;
   }
   void UpdateModernDetails() {
-   if(liveActivity!=null){var h=telemetry.GetHost();liveActivity.Text=h.ServerRunning?"LIVE  /  Observing PID "+h.Pid+"     •     World saves remain in their configured folder":"Ready when you are. Start uses the existing verified backup and mod routine.";}
+   if(liveActivity!=null){var h=telemetry.GetHost();cpuTrend.UpdateSamples(telemetry.CpuHistory,h.ServerRunning);memoryTrend.UpdateSamples(telemetry.RamHistory,h.ServerRunning);liveActivity.Text=h.ServerRunning?"LIVE  /  PID "+h.Pid+"  •  Trends show actual process samples from this launcher session":"OFFLINE  /  Live trends unavailable. Saved world and backup records remain available.";
+    if((DateTime.Now-lastBackupOverview).TotalSeconds<10)return;lastBackupOverview=DateTime.Now;
+    try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>d.CreationTimeUtc).ToArray():new DirectoryInfo[0];backupOverview.Text=snapshots.Length+" verified snapshots"+(snapshots.Length>0?"\r\nLatest  "+snapshots[0].CreationTime.ToString("MMM d, h:mm tt"):"\r\nNo verified snapshot found")+"\r\nAutomatic backups  "+(settings.AutoBackup?"Every "+settings.BackupIntervalMinutes+" min":"Off");}catch{backupOverview.Text="Backup history unavailable";}
+   }
   }
   Control BuildBackups() {
    var page=Page("Backups & restore","Verified world copies, with your previous world retained on restore.");
@@ -84,5 +92,23 @@ namespace XHLLauncher {
   Control BuildSettings(){ return BuildFullSettings(); }
   Control BuildUpdates(){var page=Page("Safe updates","Download separately. Check all three mods before selecting an update.");var c=Card(page,"A PROTECTED UPDATE PATH",0,78,780,220);Body(c,"1   Select the official SteamCMD application.\r\n2   Download to a separate staging folder.\r\n3   Verify the exact game build and mod compatibility.\r\n4   Stop, copy and verify current saves, then switch.\r\n\r\nUnknown game builds stay blocked. Your current installation remains available.",48,11,Theme.Text);ActionButton(page,"Download update",0,320,180,async delegate{await DownloadUpdate();});ActionButton(page,"Use verified update",195,320,190,async delegate{await ActivateUpdate();});ActionButton(page,"System checks",400,320,155,delegate{Navigate("Installation");});return page;}
  }
+ public sealed class DashboardTrend : RoundedPanel {
+  readonly string title,unit;readonly Color line;readonly double fixedMaximum;double[] samples=new double[0];bool online;
+  public DashboardTrend(string title,string unit,Color line,double maximum){this.title=title;this.unit=unit;this.line=line;fixedMaximum=maximum;DoubleBuffered=true;BackColor=Theme.Panel;}
+  public void UpdateSamples(double[] values,bool running){samples=values.Skip(Math.Max(0,values.Length-120)).ToArray();online=running;Invalidate();}
+  protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);var g=e.Graphics;g.SmoothingMode=System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+   using(var font=Theme.Font(8,FontStyle.Bold))using(var brush=new SolidBrush(Theme.Muted))g.DrawString(title,font,brush,18,15);
+   string value=online&&samples.Length>0?samples[samples.Length-1].ToString("0.0")+" "+unit:"—";
+   using(var font=Theme.Font(23,FontStyle.Regular))using(var brush=new SolidBrush(Theme.Text))g.DrawString(value,font,brush,16,35);
+   var area=new RectangleF(18,91,Math.Max(1,Width-36),Math.Max(1,Height-121));
+   double max=fixedMaximum>0?fixedMaximum:Math.Max(1,samples.Length==0?1:samples.Max()*1.15);
+   using(var pen=new Pen(Theme.Border)){for(int i=0;i<3;i++){float y=area.Top+i*area.Height/2;g.DrawLine(pen,area.Left,y,area.Right,y);}}
+   string caption=!online?"Server offline · no live data":samples.Length<2?"Collecting process samples…":"Recent "+samples.Length+" samples  ·  "+(fixedMaximum>0?"0–100%":"0–"+max.ToString("0.0")+" GB");
+   if(online&&samples.Length>=2){var points=samples.Select((v,i)=>new PointF(area.Left+i*area.Width/(samples.Length-1),area.Bottom-(float)(Math.Min(max,Math.Max(0,v))/max)*area.Height)).ToArray();var fill=points.Concat(new[]{new PointF(area.Right,area.Bottom),new PointF(area.Left,area.Bottom)}).ToArray();using(var brush=new SolidBrush(Color.FromArgb(24,line)))g.FillPolygon(brush,fill);using(var pen=new Pen(line,2))g.DrawLines(pen,points);using(var brush=new SolidBrush(line)){var last=points[points.Length-1];g.FillEllipse(brush,last.X-3,last.Y-3,6,6);}}
+   using(var font=Theme.Font(7.5f,FontStyle.Regular))using(var brush=new SolidBrush(Theme.Muted))g.DrawString(caption,font,brush,18,Height-24);
+  }
+ }
+
 }
+
 

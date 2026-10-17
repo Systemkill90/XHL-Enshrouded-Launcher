@@ -430,5 +430,19 @@ namespace XHLLauncher
             }
         }
     }
+    public sealed class BrandLockup : Control {
+        public BrandLockup(){SetStyle(ControlStyles.SupportsTransparentBackColor|ControlStyles.UserPaint|ControlStyles.OptimizedDoubleBuffer|ControlStyles.AllPaintingInWmPaint,true);BackColor=Color.Transparent;}
+        protected override void OnPaint(PaintEventArgs e){base.OnPaint(e);var g=e.Graphics;g.SmoothingMode=SmoothingMode.AntiAlias;var state=g.Save();float scale=Math.Min(Width/180f,Height/52f);g.ScaleTransform(scale,scale);DrawMark(g,new RectangleF(0,0,48,48));
+            using(var font=new Font("Georgia",18,FontStyle.Regular,GraphicsUnit.Pixel))using(var brush=new SolidBrush(Theme.Text))g.DrawString("ShroudForge",font,brush,55,8);
+            using(var font=new Font("Segoe UI",8,FontStyle.Bold,GraphicsUnit.Pixel))using(var brush=new SolidBrush(Theme.Muted))g.DrawString("L A U N C H E R",font,brush,58,32);g.Restore(state);
+        }
+        public static void DrawMark(Graphics g,RectangleF box){var state=g.Save();g.TranslateTransform(box.X,box.Y);g.ScaleTransform(box.Width/48f,box.Height/48f);g.SmoothingMode=SmoothingMode.AntiAlias;
+            using(var fill=new SolidBrush(Color.FromArgb(22,39,42)))g.FillPolygon(fill,new[]{new PointF(24,2),new PointF(44,13),new PointF(44,35),new PointF(24,46),new PointF(4,35),new PointF(4,13)});
+            using(var pen=new Pen(Theme.Amber,1.6f))g.DrawLines(pen,new[]{new PointF(24,2),new PointF(44,13),new PointF(44,35),new PointF(24,46),new PointF(4,35),new PointF(4,13),new PointF(24,2)});
+            using(var pen=new Pen(Theme.Cyan,2.2f)){g.DrawArc(pen,14,11,20,20,180,180);g.DrawLine(pen,14,21,14,35);g.DrawLine(pen,34,21,34,35);g.DrawLine(pen,11,35,37,35);}
+            using(var brush=new SolidBrush(Theme.Amber))g.FillPolygon(brush,new[]{new PointF(25,17),new PointF(20,26),new PointF(24,31),new PointF(29,26)});g.Restore(state);
+        }
+    }
+
 }
 

@@ -32,9 +32,9 @@ namespace XHLLauncher
             Application.ThreadException += delegate(object sender, System.Threading.ThreadExceptionEventArgs e)
             {
                 LogException("UI thread", e.Exception);
-                MessageBox.Show("XHL Launcher encountered an unexpected UI error.\r\n\r\n" + e.Exception.Message +
+                MessageBox.Show("ShroudForge Launcher encountered an unexpected UI error.\r\n\r\n" + e.Exception.Message +
                     "\r\n\r\nDetails were written to XHL-LAUNCHER-ERRORS.log.",
-                    "XHL Launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "ShroudForge Launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
             };
 
             AppDomain.CurrentDomain.UnhandledException += delegate(object sender, UnhandledExceptionEventArgs e)
@@ -49,7 +49,7 @@ namespace XHLLauncher
                 bool firstRun = !File.Exists(Path.Combine(baseDir,"Manager Data","settings.xml")) && !File.Exists(Path.Combine(baseDir,"XHL-Launcher-Data","settings.xml"));
                 LauncherSettings settings = Storage.LoadSettings(baseDir);
                 if(firstRun) {
-                    using(var folder=new FolderBrowserDialog {Description="Welcome to XHL 2.0. Choose your EXISTING Enshrouded dedicated server folder. Your world will remain in place.",SelectedPath=settings.ServerRoot}) {
+                    using(var folder=new FolderBrowserDialog {Description="Welcome to ShroudForge Launcher 2.0. Choose your EXISTING Enshrouded dedicated server folder. Your world will remain in place.",SelectedPath=settings.ServerRoot}) {
                         if(folder.ShowDialog()!=DialogResult.OK)return;
                         string error=ServerLocation.Validate(folder.SelectedPath);if(error!=null)throw new IOException(error);
                         settings.PreferredServerRoot=settings.ServerRoot=folder.SelectedPath;Storage.SaveSettings(baseDir,settings);
@@ -77,16 +77,16 @@ namespace XHLLauncher
                 string identity;
                 using(var sha=System.Security.Cryptography.SHA256.Create())identity=BitConverter.ToString(sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(settings.ServerRoot.ToLowerInvariant()))).Replace("-","");
                 bool created;instance=new System.Threading.Mutex(true,"Local\\XHL.Realm."+identity,out created);
-                if(!created){MessageBox.Show("XHL is already running for this realm. Open it from the system tray.","XHL 2.0");return;}
+                if(!created){MessageBox.Show("ShroudForge Launcher is already running for this realm. Open it from the system tray.","ShroudForge Launcher 2.0");return;}
                 if(args == null || !args.Contains("--no-splash")) { using(var splash = new LaunchSplash(baseDir, settings.ServerRoot)) Application.Run(splash); }
                 Application.Run(new ControlRoom(baseDir, settings, true, args == null || !args.Contains("--monitor")));
             }
             catch (Exception ex)
             {
                 LogException("Startup", ex);
-                MessageBox.Show("XHL Launcher could not start.\r\n\r\n" + ex.Message +
+                MessageBox.Show("ShroudForge Launcher could not start.\r\n\r\n" + ex.Message +
                     "\r\n\r\nDetails were written to:\r\n" + ErrorLogPath,
-                    "XHL Launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    "ShroudForge Launcher", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }

@@ -59,7 +59,7 @@ namespace XHLLauncher
             // Recovery is opt-in and requires an observed running session.
             settings.PublicIpLookup = false;
             telemetry = new TelemetryService(appBase, settings);
-            Text = "XHL Realm Companion 2.0 — " + settings.ServerName;
+            Text = "ShroudForge Launcher 2.0 — " + settings.ServerName;
             BackColor = Theme.Bg; ForeColor = Theme.Text; Font = Theme.Font(10, FontStyle.Regular);
             AutoScaleMode = AutoScaleMode.Dpi;
             MinimumSize = new Size(1060, 720); Size = new Size(1320, 900);
@@ -82,7 +82,7 @@ namespace XHLLauncher
             refresh.Interval = 1000;
             refresh.Tick += async delegate { frames++; UpdateState(); if(frames % 5 == 0) PublishPhone(); await TickAutomation(); if (current == "Logs" && !paused && frames % 3 == 0) ReadLogs(); };
             if (startMonitoring) { ConfigureTray(); telemetry.Start(); refresh.Start(); Shown += async delegate { await InspectAsync(); if (settings.PhoneViewEnabled) StartPhone(); }; }
-            FormClosing += delegate(object sender, FormClosingEventArgs e) { if (operationBusy) { e.Cancel = true; MessageBox.Show("Wait for the current server operation to finish.", "XHL"); } };
+            FormClosing += delegate(object sender, FormClosingEventArgs e) { if (operationBusy) { e.Cancel = true; MessageBox.Show("Wait for the current server operation to finish.", "ShroudForge Launcher"); } };
             FormClosed += delegate { refresh.Stop(); refresh.Dispose(); telemetry.Dispose(); if(phone!=null)phone.Dispose(); };
             UpdateState();
         }
@@ -357,15 +357,15 @@ namespace XHLLauncher
             string candidate;
             using (var dialog = new FolderBrowserDialog { Description = "Choose a fully prepared server under Staged-Updates" })
             { if (dialog.ShowDialog() != DialogResult.OK) return; candidate = dialog.SelectedPath; }
-            if (MessageBox.Show("Switch to this verified installation using a fresh copy of your saves? The existing installation will remain intact. Progress afterward belongs to the selected installation.", "XHL — Use update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            if (MessageBox.Show("Switch to this verified installation using a fresh copy of your saves? The existing installation will remain intact. Progress afterward belongs to the selected installation.", "ShroudForge Launcher — Use update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             operationBusy = true;
             var result = await Task.Run(delegate { return UpdateActivation.Prepare(settings.ServerRoot, candidate, appBase, delegate { return Process.GetProcessesByName("enshrouded_server").Length != 0; }); });
             operationBusy = false;
-            if (!result.Success) { MessageBox.Show(result.Message, "XHL — Update not activated"); return; }
+            if (!result.Success) { MessageBox.Show(result.Message, "ShroudForge Launcher — Update not activated"); return; }
             settings.AutoRestartOnCrash = false; recovery.Disarm();
             settings.ServerRoot = candidate; settings.PreferredServerRoot = candidate;
             Storage.SaveSettings(appBase, settings);
-            MessageBox.Show(result.Message + "\r\nThe launcher will reopen. Start the selected server when ready.", "XHL — Update ready");
+            MessageBox.Show(result.Message + "\r\nThe launcher will reopen. Start the selected server when ready.", "ShroudForge Launcher — Update ready");
             Application.Restart();
         }
         async Task DownloadUpdate()
@@ -377,12 +377,12 @@ namespace XHLLauncher
                 using (var dialog = new OpenFileDialog { Title = "Choose official SteamCMD (download is staged separately)", Filter = "SteamCMD|steamcmd.exe", CheckFileExists = true })
                 { if (dialog.ShowDialog() != DialogResult.OK) return; client = dialog.FileName; }
             }
-            if (MessageBox.Show("Download a separate server installation for compatibility testing? This may use several GB. It will not replace the live server.", "XHL — Staged update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
+            if (MessageBox.Show("Download a separate server installation for compatibility testing? This may use several GB. It will not replace the live server.", "ShroudForge Launcher — Staged update", MessageBoxButtons.YesNo) != DialogResult.Yes) return;
             settings.SteamCmdPath = client; Storage.SaveSettings(appBase, settings);
             updateBusy = true; automationStatus.Text = "Downloading isolated update. Server controls remain available.";
             var result = await Task.Run(delegate { return StagedUpdate.Download(client, appBase, settings.ServerRoot); });
             updateBusy = false;
-            if (!IsDisposed) { automationStatus.Text = result.Message; MessageBox.Show(result.Message, "XHL — Staged update"); }
+            if (!IsDisposed) { automationStatus.Text = result.Message; MessageBox.Show(result.Message, "ShroudForge Launcher — Staged update"); }
         }
         async Task BackupNow()
         {
@@ -421,13 +421,13 @@ namespace XHLLauncher
         {
             if (!controlsEnabled || operationBusy) return;
             string detail = operation == "Start" ? "Start using the existing safe-start wrapper?" : operation == "Stop" ? "Request a graceful server shutdown? Connected players will be disconnected. The server will not be force-killed." : "Restart the server? Compatibility is checked before stopping. Connected players will be disconnected.";
-            if (!fromPhone && MessageBox.Show(detail, "XHL — " + operation, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+            if (!fromPhone && MessageBox.Show(detail, "ShroudForge Launcher — " + operation, MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
             if (operation == "Stop") { settings.AutoRestartOnCrash = false; recovery.Disarm(); if (recoveryOption != null) recoveryOption.Checked = false; Storage.SaveSettings(appBase, settings); }
             operationBusy = true; UpdateState(); operationStatus.Text = operation + " requested…";
             ActionResult result = await Task.Run(delegate { return lifecycle.Execute(operation); });
             if (IsDisposed) return;
             operationBusy = false; operationStatus.Text = result.Message;
-            if (!fromPhone) MessageBox.Show(result.Message, "XHL — " + operation, MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
+            if (!fromPhone) MessageBox.Show(result.Message, "ShroudForge Launcher — " + operation, MessageBoxButtons.OK, result.Success ? MessageBoxIcon.Information : MessageBoxIcon.Warning);
             UpdateState(); PublishPhone();
         }
         void UpdateState(){ UpdateStateCore(); if(state!=null)UpdateRichState(); }
@@ -464,6 +464,7 @@ namespace XHLLauncher
                 stopServer.Enabled = !operationBusy && !pending && h.ServerRunning;
                 if (!operationBusy && audit != null && !audit.CanStart) operationStatus.Text = "Start / restart blocked: installation checks need attention. Your existing files are unchanged.";
                 else if (!operationBusy && !string.IsNullOrEmpty(lifecycle.StartupStatus)) operationStatus.Text = lifecycle.StartupStatus;
+                else if(!operationBusy && (operationStatus.Text=="Checking the existing installation…"||operationStatus.Text.StartsWith("Ready •")||operationStatus.Text.StartsWith("Monitoring the running realm"))) operationStatus.Text=h.ServerRunning?"Monitoring the running realm • Server controls are ready":"Ready • Start uses the verified existing installation";
             }
             if (current == "Players" && playerGrid != null)
             {
