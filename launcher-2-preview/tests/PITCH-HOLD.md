@@ -1,0 +1,9 @@
+# Build 1269579 pitch hold
+
+The absolute glider pitch branch at RVA 0x7CD8B used current input as an absolute target; zero input returned its target toward zero. Replace `66 44 0F 6E C2` with `EB 0E 90 90 90` to use the game's existing incremental path at 0x7CD9B for that mode. It adds input scaled by the configured rate and time step to the current per-entity pitch. Modes 0 and 2+ and the existing clamps remain unchanged. No shared pitch variable is introduced.
+
+Validation: 181 tests executed the actual executable's x64 target, clamp, and smoothing instructions with Unicorn 2.1.4 and pefile 2024.8.26. Tests cover release at seven pitches and three frame rates, positive and negative input, bounds, unchanged other modes, and alternating entity pitches. Eleven separate disposable Windows process checks covered apply/read-back/idempotence/restoration/signature rejection. Live owner-host application and read-back passed; the same server process remained alive. In-game input, client prediction, landing/relaunch and multiplayer validation remain outstanding; do not call gameplay verified.
+
+Run the instruction tests with Python plus `pefile==2024.8.26` and `unicorn==2.1.4`: `python test-pitch-hold.py --exe PATH_TO_PINNED_SERVER_EXE`. No game files are distributed here.
+
+The controller verifies the full executable hash and surrounding instructions, pauses process threads for the write, rejects a thread at the overwritten instruction, reads back the write, restores code-page protection, and supports exact Disable restoration. Enable/Disable/Status are called by the existing flight controller. Both scripts must be installed together. Staged-update packaging must also include the new script before preparing another installation; that packaging path has not been validated by this patch.
