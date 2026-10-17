@@ -1,7 +1,28 @@
-# Files and folders: implementation 1
+# Files and folders — migration planning
 
-New Files page in the Windows 2.0 preview: scan and copy a report of the existing directory. It is intentionally READ ONLY. The scanner recognizes known game files, configured saves, logs, backups, scripts, possible mods and unknown leftovers. Linked entries are not traversed; external save locations are noted but never scanned. Large or inaccessible directories produce partial-inventory warnings.
+This stage adds a second action to the existing **Files** page:
 
-There is no cleanup, migration or deletion action in this version. Categories are not proof that files can safely move. Preserve the owner's October 16 working installation.
+- **Scan folders:** read-only inventory of all files and likely purpose.
+- **Preview cleanup:** read-only proposed folder organization, warnings and SHA-256 fingerprints for small recognized legacy launcher archive ZIPs.
+- **Copy report:** copies either report for later discussion and review.
 
-Next: capture a path manifest and dry-run relocation plan, detect path references in server config and scripts, require backups and stopped processes, then introduce individually approved changes with complete rollback. Never impose a pretty layout over game-required file adjacency.
+No file is moved, renamed, deleted, overwritten, copied or created by either feature.
+
+## Behavior and boundaries
+
+- Preserves the dedicated-server executable and required adjacent resources, world saves, server configuration, mods, loader DLLs, startup scripts, backups and unknown files.
+- Does not traverse junctions or symbolic links. Reports partial/incomplete scans; 12,000 filesystem entries and depth 16 are the traversal limits.
+- Notes when the configured save folder is outside the selected installation, but **never visits it**.
+- Recognizes only root-level historical launcher ZIP naming patterns as possible archive candidates. Even these are review-only.
+- Computes a SHA-256 fingerprint for candidate files no larger than 32 MiB. Larger or changing files are marked blocked.
+- Marks proposals blocked if a destination already exists or matching references are found in root-level startup/configuration scripts. No automatic global text replacement.
+- Reports whether a game process is visible on the host, but creating a preview never shuts it down.
+- Refuses to describe a malformed or missing server JSON configuration as ready for migration.
+
+## Later: when the desktop is connected
+
+The actual user-host implementation needs source manifest snapshots, a complete path reference graph, reliable disk-space checks, a verified independent recovery copy, an explicit stopped-server check, staged/atomic file operations, an operation journal and full rollback fixture tests. Do not enable relocation before these gates pass.
+
+The last known-working October 16 server must remain available for rollback. Neither a successful preview nor passing simulated CI checks proves safe migration of that live installation.
+
+The desktop preview is a planning tool you can use before the later restart window; the server should be stopped **before** any actual relocation, whenever that feature is added and validated.

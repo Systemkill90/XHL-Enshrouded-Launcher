@@ -253,6 +253,7 @@ namespace XHLLauncher
             note.Location = new Point(0, 75); note.AutoSize = false; note.Size = new Size(840, 30);
             page.Controls.Add(note);
             ActionButton(page, "Scan folders", 0, 120, 160, async delegate { await ScanFilesAsync(); });
+            ActionButton(page, "Preview cleanup", 351, 120, 175, async delegate { await PreviewMigrationAsync(); });
             ActionButton(page, "Copy report", 175, 120, 160, delegate {
                 if (inventoryBox != null && !string.IsNullOrEmpty(inventoryBox.Text))
                     try { Clipboard.SetText(inventoryBox.Text); }
@@ -282,6 +283,23 @@ namespace XHLLauncher
                 if (!IsDisposed) inventoryBox.Text = report.Describe();
             }
             catch (Exception ex) { if (!IsDisposed) inventoryBox.Text = "Scan failed: " + ex.Message + "\r\nNo files changed."; }
+            finally { if (!IsDisposed) inventoryBox.Tag = null; }
+        }
+        async Task PreviewMigrationAsync()
+        {
+            if (inventoryBox == null || inventoryBox.Tag != null) return;
+            inventoryBox.Tag = "preview";
+            inventoryBox.Text = "Preparing a read-only organization preview. No server files will be changed...";
+            try
+            {
+                string folder = settings.ServerRoot;
+                var result = await Task.Run(delegate { return MigrationPlanner.Create(folder); });
+                if (!IsDisposed) inventoryBox.Text = result.Describe();
+            }
+            catch (Exception ex)
+            {
+                if (!IsDisposed) inventoryBox.Text = "Preview failed: " + ex.Message + "\r\nNothing was changed.";
+            }
             finally { if (!IsDisposed) inventoryBox.Tag = null; }
         }
         Control BuildPhone()
