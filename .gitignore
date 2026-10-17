@@ -24,3 +24,10 @@ launcher-2-preview/compatibility/resources/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Generated Windows builds and local fixture outputs
+*.exe
+*.pdb
+**/test-results/
+**/native-test-results/
+**/artifacts/

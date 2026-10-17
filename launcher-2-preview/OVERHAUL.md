@@ -1,8 +1,12 @@
-# XHL Realm Companion 2.0
+# ShroudForge Launcher 2.0
 
 The Windows control room now includes a restrained dark-fantasy dashboard, an informative animated startup splash, a dedicated icon, tray access, player history, world details, settings, verified backups and guarded offline restore, archive organization, update staging, and private LAN phone controls.
 
-The launcher attaches to the existing server path and configured world. Starting and restarting retain the established safety wrapper and its verified backup/mod checks. Closing XHL leaves the server running; phone access and scheduled copies require the manager to remain open or in the tray. One manager instance per selected server path is enforced.
+The launcher attaches to the existing server path and configured world. Starting and restarting retain the established safety wrapper and its verified backup/mod checks. Closing ShroudForge Launcher leaves the server running; phone access and scheduled copies require the manager to remain open or in the tray. One manager instance per selected server path is enforced.
+
+## Current interface
+
+The ShroudForge name and gateway/ember emblem appear in the sidebar, splash, app icon, tray and phone interface. Velaris remains the server name. The dashboard combines a compact status banner, player/process metrics, real CPU and memory history, world save records, verified snapshot counts, backup schedule and direct navigation. Offline charts explicitly report unavailable live data. Server rules use category navigation and individual setting cards instead of a primary editable grid. Unsaved card edits do not touch disk.
 
 ## Safety and data
 
@@ -16,7 +20,7 @@ The launcher attaches to the existing server path and configured world. Starting
 
 ## Validation on October 17, 2026
 
-127 fixture/UI checks passed, covering all 12 pages, narrow dashboard bounds, lifecycle guards, phone authentication, full configuration, friendly rule names, offline save and rotated-log history, settings preservation, corrupt/running/live-snapshot restore rejection, exact successful restore, old-world retention, and conservative archive organization. Seven native lifecycle checks passed. The final application passed exact-build compatibility checks on the owner's installation; its authenticated phone endpoint returned the live realm and accepted a real backup request. Existing Flight and pitch-hold memory Status remained ACTIVE. Game executable/resource hashes were unchanged.
+131 fixture/UI checks passed, covering all 12 pages, narrow dashboard bounds, lifecycle guards, phone authentication, full configuration, friendly rule names, offline save and rotated-log history, settings preservation, corrupt/running/live-snapshot restore rejection, exact successful restore, old-world retention, and conservative archive organization. Seven native lifecycle checks passed. The final application passed exact-build compatibility checks on the owner's installation; its authenticated phone endpoint returned the live realm and accepted a real backup request. Existing Flight and pitch-hold memory Status remained ACTIVE. Game executable/resource hashes were unchanged.
 
 The app window was discovered under its production name. Native screenshot capture timed out; visual review used the actual application controls rendered by fixture tests. Artwork is shared by the splash and dashboard. The splash appears during startup and checks the selected folder, configuration and pinned mods; its steps do not start the game.
 

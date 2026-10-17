@@ -1,27 +1,37 @@
-# XHL Enshrouded Launcher
+# ShroudForge Launcher
 
-**Windows launcher and planned server, player, and save-management suite for Enshrouded.**
+Windows launcher and control room for Enshrouded dedicated servers, formerly XHL Enshrouded Launcher.
 
-> **Status:** Initial public project setup. The previously discussed v1.0.1 reliability patch has **not yet been imported or verified**. No downloadable build is currently published.
+The current source lives in [launcher-2-preview](launcher-2-preview). The existing folder and repository names are retained for compatibility.
 
-## Project goals
-- Reliable startup and clear Steam/game dependency checks
-- First-launch detection and controlled cleanup of an existing installation directory
-- Human-readable directory structure, distinct shortcut icon, and informative animated splash screen
-- Visible server/player event console with supported location and activity information
-- Character details, inventory inspection and editing where technically supported
-- Save management, validation, backups and restoration
+## Current features
 
-## Current state
-This repository currently contains project documentation and planning only. Existing launcher source and binaries must be inspected before being published. Planned features are not claims of working functionality.
+- Dense dashboard with process CPU/memory trends, player count, uptime, world save records and backup coverage.
+- Grouped server settings with friendly names, toggles, dropdowns, numeric controls and search.
+- Saved world and player history available while the server is offline.
+- Verified backups, guarded offline restore, pinned-build mod checks and the established startup path.
+- Splash screen, app icon, tray access and authenticated private-LAN phone controls.
+
+## Build and validation
+
+On 64-bit Windows with the .NET Framework compiler:
+
+```powershell
+./launcher-2-preview/Build.ps1
+./launcher-2-preview/Test.ps1
+./launcher-2-preview/Test-Native.ps1
+```
+
+The build produces `ShroudForge-Launcher.exe`. Latest local validation: 131 fixture/UI checks passed; seven native lifecycle checks passed. See [overhaul notes](launcher-2-preview/OVERHAUL.md) for scope and remaining validation.
+
+This is source and a test build, not a signed public installer. CI excludes game binaries, proprietary resources, personal settings, saves and credentials.
 
 ## Documentation
-- [Roadmap](ROADMAP.md)
+
+- [Overhaul notes](launcher-2-preview/OVERHAUL.md)
+- [Preview technical notes](launcher-2-preview/README-PREVIEW.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
+- [Roadmap](ROADMAP.md)
 
-## Releases
-No verified release has been uploaded yet. When the existing archive is available, it can be audited, organized, built and published as a tagged release.
-
-## Disclaimer
 Unofficial fan project. Not affiliated with Keen Games, Steam or Valve.
