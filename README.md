@@ -1,38 +1,64 @@
-# XHL Enshrouded Launcher
+# Enshrouded Server Companion
 
-An **unofficial Windows launcher and planned administration suite** for dedicated [Enshrouded](https://enshrouded.com/) servers.
+**An easier way to run and manage a dedicated Enshrouded server on Windows.**
 
-> **Repository status (17 October 2026): documentation-only on `main`; active unmerged 2.0 source preview.** [Pull request #1](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) contains a newer `launcher-2-preview/` prototype, tests and verification notes on its own branch. It is **not yet merged or released**. Separately, recoverable v1.0.5 WinForms and early 2.0 PowerShell archives exist outside the repository. **No downloadable, verified release has been published.**
+Start your server, see what's happening, protect your world saves, and handle updates and supported mods without constantly digging through folders, commands, and configuration files.
 
-## Direction
+This project is for people who **want to host and play Enshrouded**, not learn server administration just to keep their game running.
 
-XHL is intended to provide server lifecycle controls, SteamCMD updates, logs and player telemetry, safe save backups/restores, mod status, and a restrained dark-fantasy desktop experience. Some of these capabilities exist in a *recovered source snapshot*; the broader 2.0 administration suite is a plan, not a shipped feature.
+> **Development status — October 17, 2026:** A working installation has been reported on the project owner's Windows host. Today's 2.0 improvements are under development. The [current 2.0 source and testing notes](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) are on a separate review branch, not yet a public release. **There is no downloadable installer here yet.**
 
-## Current snapshot and source provenance
+## What can it do?
 
-The recovered **v1.0.5 Complete Drop-In** archive contains 11 C# WinForms source files, a Windows .NET Framework compiler batch script, an application icon, image assets and release notes. The archive's own notes explicitly warn that it has **not** been compiled or integration-tested as a release. The separate **2.0 foundation** contains an experimental PowerShell entry point. **Neither recovered archive is present on `main`.** The [2.0 preview PR](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) contains *different, more recent* source and verification notes; it must be reviewed separately, not overwritten by an older source ZIP.
+| Feature | In plain English | Where it stands |
+| --- | --- | --- |
+| Server controls | Start, stop, and restart your Enshrouded world from one window | Demonstrated on the owner's host; public release pending |
+| Live dashboard | See whether the server is up, how long it has been running, and its activity | In the current 2.0 preview |
+| Save backups | Make separate backup copies so a mistake or update doesn't wipe your world | Implemented and tested in the preview; longer-term restore testing remains |
+| Mods | Help manage the current, game-version-specific flight, gifting-distance, and item-stacking changes | Reported working on the owner's server; compatibility varies by game update |
+| Updates | Prepare an updated server separately before switching to it | Staging tested; full online update test outstanding |
+| Phone controls | View status and use basic controls on your home network | Host endpoint tested; real-phone check outstanding |
 
-See [Recovery inventory](docs/RECOVERY-INVENTORY.md) for exact file inventory and archive hashes. Do **not** assume files present in a local running installation match either archive.
+**All controls are intended for an Enshrouded *dedicated server*, not the normal game client.** The server must run on a Windows PC. Enshrouded itself, Steam, and third-party game files are not included.
 
-## Repo map
+## Who is this for?
 
-- [2.0 Preview PR #1](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) — newer source and tests, **awaiting review/operator checks**.
-- [Roadmap](ROADMAP.md) — prioritized, honestly marked work.
-- [Development and build notes](docs/DEVELOPMENT.md) — prerequisites, expected folder layout, and validation.
-- [Server safety](docs/SERVER-SAFETY.md) — backup, rollback and live-server precautions.
-- [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md).
+- **You host for friends:** one place to check whether your world is online and restart when needed.
+- **You care about your world:** keep separate backups and avoid risky in-place update experiments.
+- **You like a customized server:** keep compatible gameplay tweaks organized without treating every update like a guessing game.
 
-When the **legacy v1.0.5** source is imported, the original launcher folder layout will be preserved initially (`src/`, `assets/`, launch and build batch files, icon and manifest). Restructuring comes **after** a reproducible build and tests, not before.
+You should not have to understand programming to use the finished app. More complicated technical details are separated into the [developer information](docs/FOR-DEVELOPERS.md).
 
-## Build and run (after source import)
+## How do I get it?
 
-Target: Windows 10/11 with .NET Framework 4.8 and its C# compiler available at the traditional .NET Framework `csc.exe` path. The archived `BUILD-XHL-LAUNCHER.bat` compiles C# WinForms source to `%LOCALAPPDATA%\XHL Enshrouded Launcher\XHL-Launcher.exe`. The archived `RUN-XHL-LAUNCHER.bat` launches/rebuilds from the original source layout.
+**A public installer has not been released yet.** The working build on the owner's PC and the source in the development branch are not the same thing as a downloadable, supported version for everyone.
 
-**These commands cannot run from the documentation-only `main` branch.** The 2.0 preview PR uses its own distinct build instructions and should be reviewed on its branch; do not mix the two build systems. Verify imported files and build on Windows before attempting any live-server action.
+When a tested package is ready, it will appear under [Releases](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/releases) with simple setup instructions, supported game version, and known limitations. Don't download random "server manager" builds from other websites assuming they belong to this project.
 
-## Safe working rules
+[Read the setup and release guide](docs/GETTING-STARTED.md) · [Feature details](docs/FEATURES.md) · [Current status](docs/STATUS.md)
 
-- Do not run experimental builds over an operating public server. Back up and test in a separate folder first.
-- Never commit server credentials, configuration containing passwords, players' data, saves, logs, third-party DLLs or the dedicated-server executable.
-- Distinguish *source recovered*, *compiles*, *tested against a disposable server*, and *production validated*. They are different states.
-- No official affiliation with Keen Games, Valve or Steam.
+## What we're working on for 2.0
+
+A cleaner desktop interface, safer updates and backups, a better player/activity view, server settings, and refinements to the game-version-specific mods. Features such as character inventory editing or exact player locations will only be advertised after we confirm the game provides reliable access to that data.
+
+[See the roadmap](ROADMAP.md) · [Follow the development build](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) · [Report a problem or idea](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues)
+
+## Frequently asked questions
+
+**Will it change or delete my current world?**  
+Simply viewing this repository changes nothing on your PC. The app is being designed to preserve existing installs and world saves, with separate update folders and backups. No software can promise zero risk: use a verified backup before switching installations.
+
+**Do I need to know how to code?**  
+The intended answer is no. A friendly installer and first-run setup are part of the release work.
+
+**Can I manage it from my phone?**  
+The current preview includes local-network phone controls, but access from an actual phone still needs confirmation. It is not intended to be exposed directly to the public internet.
+
+**Will it work with every Enshrouded update and every mod?**  
+No. Supported mods may require changes after the game updates. This project deliberately blocks unverified game builds rather than pretending everything will work.
+
+More answers: [Getting started](docs/GETTING-STARTED.md).
+
+---
+
+**Independent fan project.** Not affiliated with or endorsed by Keen Games, Enshrouded, Steam, or Valve. Game names belong to their respective owners. No proprietary game assets or personal server files are distributed here.

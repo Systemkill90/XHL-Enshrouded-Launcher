@@ -1,12 +1,15 @@
-# Security policy
+# Security and privacy
 
-XHL is experimental and **is not a hardened remote-admin solution**. The open 2.0 preview PR contains LAN/phone controls: keep any such endpoint private to a trusted local network, validate authentication/authorization and command protections, and never expose it by router port forwarding without a separate security review. There is no production-support or guaranteed patch SLA.
+Enshrouded Server Companion can manage a game server and its world saves, so treating sensitive files carefully matters. This project is experimental and **not a hardened public remote-administration service**.
 
-## Reporting
-For suspected vulnerabilities, **do not publish exploit details, credentials, tokens, identifiable player logs, or save data in public issues**. Contact the repository owner privately through a channel you already trust. A private vulnerability-reporting channel has not been configured for this project.
+## What to keep private
 
-## Sensitive files not to publish
-Keep private server configs, saves, player data, local paths, keys, Steam credentials, runtime logs, dump files, and third-party/modified game binaries out of this public repository. Audit every import for secrets and distribution rights.
+Never post server passwords, Steam tokens, personal logs, player-identifying information, save files or machine-specific configuration in a public issue or commit.
 
-## High-risk operations
-Update, restore, file migration and mod installation must offer backups, path validation, confirmations, rollback, and never silently manipulate a live server. Test on disposable copies first.
+## Report a security problem
+
+Please don't publish exploitation steps or sensitive data in a public issue. Contact the repository owner privately through a channel you already trust. A dedicated private reporting channel has not yet been configured.
+
+## Safety expectations
+
+Backups, updates and restores should be reversible and should not silently replace a working game server. The development preview includes home-network phone controls; **do not make those controls publicly accessible via port forwarding** without a separate security review. Back up first, and test updates in a separate installation.

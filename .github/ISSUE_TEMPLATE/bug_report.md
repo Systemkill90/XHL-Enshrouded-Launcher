@@ -1,27 +1,25 @@
 ---
-name: Bug report
-about: Report a reproducible launcher or server-management bug
-title: "bug: "
+name: Something isn't working
+about: Report a problem with the server companion
+title: "Bug: "
 labels: []
 assignees: []
 ---
 
-## Version and environment
-Launcher version:
-Windows version:
-Enshrouded dedicated-server version:
-Running from source or a verified release?
+## What were you trying to do?
 
-## Reproduction steps
+## What happened instead?
+
+## How can we reproduce it?
 1.
 2.
 3.
 
-## Expected vs actual
+## Your setup (if known)
+Windows version:
+Program version:
+Enshrouded server version:
 
-## Relevant redacted log snippet
+## Screenshot or error message (optional)
 
-## Safety
-Does this affect active players, saves, updates, or production startup?
-
-> Remove passwords, tokens, player identifiers, IP addresses, and local personal paths before posting.
+**Privacy:** remove passwords, private IPs, player details, and personal file paths.
