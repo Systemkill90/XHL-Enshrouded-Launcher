@@ -30,7 +30,7 @@ namespace XHLLauncher {
    for(int i=0;i<names.Length;i++){
     string page=names[i];var b=Theme.Button(labels[i],Theme.Border);b.SetBounds(10,151+i*37,170,33);b.TextAlign=ContentAlignment.MiddleLeft;b.Padding=new Padding(12,0,0,0);b.FlatAppearance.BorderSize=0;b.Font=Theme.Font(9,FontStyle.Regular);b.Click+=delegate{Navigate(page);};side.Controls.Add(b);navigation.Add(page,b);
    }
-   side.Controls.Add(new Label{Dock=DockStyle.Bottom,Height=48,Padding=new Padding(23,8,0,0),Text="SHROUDFORGE LAUNCHER\r\n2.0  /  VELARIS",ForeColor=Theme.Muted2,Font=Theme.Font(7.5f,FontStyle.Regular)});
+   side.Controls.Add(new Label{Dock=DockStyle.Bottom,Height=48,Padding=new Padding(23,8,0,0),Text="SHROUDFORGE LAUNCHER\r\n2.0  /  VELARIS\r\nCreated by SystemKill",ForeColor=Theme.Muted2,Font=Theme.Font(7.5f,FontStyle.Regular)});
    var main=new Panel{Dock=DockStyle.Fill,Margin=Padding.Empty};shell.Controls.Add(main,1,0);
    host=new Panel{Dock=DockStyle.Fill,Padding=new Padding(26,22,26,16)};main.Controls.Add(host);
    var top=new Panel{Dock=DockStyle.Top,Height=72,BackColor=Theme.Sidebar};main.Controls.Add(top);
@@ -110,5 +110,8 @@ namespace XHLLauncher {
  }
 
 }
+
+
+
 
 
