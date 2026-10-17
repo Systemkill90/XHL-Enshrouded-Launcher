@@ -228,6 +228,7 @@ static class Checks
             bool invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x41,0});}catch(IOException){invalid=true;}Require(invalid,"Unsupported roster response is unavailable, never zero");
             invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x44,1,0,65});}catch(IOException){invalid=true;}Require(invalid,"Truncated roster cannot clear online players");
             string sentinelHash = InstallationAudit.Hash(savePath);
+            File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\",\"slotCount\":16}");
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
             using (var form = new ControlRoom(root, settings, false))
             {
@@ -240,6 +241,17 @@ static class Checks
                     using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, page + ".png"), ImageFormat.Png); }
                     Require(form.Controls.Count > 0 && form.Width > 1000, page + " constructs and renders (visual review also required)");
                 }
+                form.Navigate("Settings"); Application.DoEvents();
+                var binding=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+                var categories=(ListBox)typeof(ControlRoom).GetField("settingCategories",binding).GetValue(form);
+                var cards=(FlowLayoutPanel)typeof(ControlRoom).GetField("settingCards",binding).GetValue(form);
+                Require(categories.Items.Cast<object>().Any(x=>Convert.ToString(x)=="Server & chat"),"Settings expose friendly category navigation");
+                Require(!cards.Controls.Cast<Control>().Any(x=>x is DataGridView),"Primary settings surface uses cards instead of an editable grid");
+                string before=InstallationAudit.Hash(Path.Combine(server,"enshrouded_server.json"));
+                var number=cards.Controls.Cast<Control>().SelectMany(x=>x.Controls.Cast<Control>()).OfType<NumericUpDown>().FirstOrDefault();
+                Require(number!=null,"Numeric settings use dedicated number controls");
+                if(number!=null)number.Value=number.Value+1;
+                Require(before==InstallationAudit.Hash(Path.Combine(server,"enshrouded_server.json")),"Card edits remain unsaved until explicitly saved");
                 form.Navigate("Overview"); form.ClientSize = new Size(1084, 701); form.PerformLayout(); Application.DoEvents();
                 Dump(form);
                 using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, "Overview-small.png"), ImageFormat.Png); }
@@ -307,3 +319,4 @@ static class Checks
         Require(reentrant.Execute("Start").Success && rejected, "Concurrent operation is rejected while preflight is in progress");
     }
 }
+
