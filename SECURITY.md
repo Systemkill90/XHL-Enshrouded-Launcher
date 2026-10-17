@@ -1,7 +1,12 @@
-# Security
+# Security policy
 
-Do not post credentials, Steam tokens, server passwords, private configuration, or personal save data in public issues or commits.
+XHL is experimental and **is not a hardened remote-admin solution**. There is no production-support or guaranteed patch SLA.
 
-Before publishing the existing launcher archive, inspect it for secrets, machine-specific configuration, private data, and third-party licensing constraints.
+## Reporting
+For suspected vulnerabilities, **do not publish exploit details, credentials, tokens, identifiable player logs, or save data in public issues**. Contact the repository owner privately through a channel you already trust. A private vulnerability-reporting channel has not been configured for this project.
 
-Directory migration, save editing and cleanup should always have confirmation, backups and recovery procedures.
+## Sensitive files not to publish
+Keep private server configs, saves, player data, local paths, keys, Steam credentials, runtime logs, dump files, and third-party/modified game binaries out of this public repository. Audit every import for secrets and distribution rights.
+
+## High-risk operations
+Update, restore, file migration and mod installation must offer backups, path validation, confirmations, rollback, and never silently manipulate a live server. Test on disposable copies first.

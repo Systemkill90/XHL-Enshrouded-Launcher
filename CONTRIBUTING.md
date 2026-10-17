@@ -1,7 +1,9 @@
-# Contributing
+# Contributing to XHL
 
-This project is in its initial import stage. Bug reports and suggestions are welcome via GitHub Issues.
+This is an **early-stage project**. Please start with a GitHub issue describing the bug or proposed feature. Avoid PRs that simultaneously change the server runtime, mods and UI: separate concerns so they can be reviewed and rolled back.
 
-For bug reports, include launcher version, Windows version, expected behavior, actual behavior and reproduction steps. Remove credentials, private server details and personal paths from logs before posting.
+For a bug report, include the launcher version, Windows version, game-server version, steps to reproduce, expected vs actual behavior, and a **redacted** diagnostic snippet. Never include IP addresses that identify individuals, Steam credentials/tokens, server passwords, player identifiers, or raw save files.
 
-Do not submit proprietary game assets, Steam credentials, player saves or third-party code without appropriate permission.
+Before proposing source changes: reproduce a build on Windows, document which configurations were tested, and ensure save changes are reversible. Avoid publishing compiled injectors, game binaries, third-party proprietary assets or mods without distribution rights.
+
+See [Development](docs/DEVELOPMENT.md), [Server safety](docs/SERVER-SAFETY.md), and [Security](SECURITY.md).
