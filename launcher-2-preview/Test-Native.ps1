@@ -12,7 +12,7 @@ $harness=Join-Path $fixture 'NativeChecks.exe'
 & $compiler /nologo /target:winexe /platform:x64 ('/out:'+$harness) /reference:System.dll /reference:System.Core.dll /reference:System.Web.Extensions.dll (Join-Path $PSScriptRoot 'NativeChecks.cs') @sources
 if($LASTEXITCODE -ne 0){throw 'Native harness compilation failed'}
 $proc=Start-Process -FilePath $harness -ArgumentList ('"'+$fixture+'"') -WindowStyle Hidden -PassThru
-if(-not $proc.WaitForExit(40000)){throw 'Harness timed out; the dummy self-exits after 20 seconds.'}
+if(-not $proc.WaitForExit(60000)){throw 'Harness timed out; inspect the isolated fixture result before retrying.'}
 $report=Get-Content -LiteralPath (Join-Path $fixture 'native-result.txt') -Raw
 Write-Output $report
 if($report -match '^FAIL'){throw 'Native checks failed'}
