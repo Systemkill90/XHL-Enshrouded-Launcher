@@ -54,6 +54,13 @@ namespace XHLLauncher {
    var array=kv.Value as IList;if(array!=null){if(array.Count==0)fields.Add(new ConfigField{Path=path,Section=group,Key=key,Value="[]",Description="JSON list. Edit the full list in Advanced JSON.",Set=null});for(int i=0;i<array.Count;i++){var obj=array[i] as Dictionary<string,object>;if(obj!=null){object name;string label=obj.TryGetValue("name",out name)?Convert.ToString(name):"Entry "+(i+1);Walk(obj,path+"["+i+"].",group+" / "+label,fields);}else{int idx=i;var list=array;fields.Add(new ConfigField{Path=path+"["+i+"]",Section=group,Key=key+" "+(i+1),Value=array[i],Description="List entry",Set=v=>list[idx]=v});}}continue;}
    var owner=data;fields.Add(new ConfigField{Path=path,Section=section,Key=key,Value=kv.Value,Description=Help(key),Set=v=>owner[key]=v});
   }}
+  public static string DirectionHint(string key){
+   if(new[]{"playerHealthFactor","playerManaFactor","playerStaminaFactor","playerBodyHeatFactor","playerDivingTimeFactor","foodBuffDurationFactor","fromHungerToStarving","shroudTimeFactor","miningDamageFactor","plantGrowthSpeedFactor","resourceDropStackAmountFactor","perkUpgradeRecyclingFactor","experienceCombatFactor","experienceMiningFactor","experienceExplorationQuestsFactor"}.Contains(key))return "↓ Lower: harder\r\n↑ Higher: easier";
+   if(new[]{"enemyDamageFactor","enemyHealthFactor","enemyStaminaFactor","enemyPerceptionRangeFactor","bossDamageFactor","bossHealthFactor","threatBonus","perkCostFactor","factoryProductionSpeedFactor","flameLevelFogRemoval"}.Contains(key))return "↓ Lower: easier\r\n↑ Higher: harder";
+   if(key=="dayTimeDuration"||key=="nightTimeDuration")return "↓ Shorter duration\r\n↑ Longer duration";
+   if(key=="slotCount"||key=="reservedSlots")return "↓ Fewer player slots\r\n↑ More player slots";
+   return "↓ Lower value\r\n↑ Higher value";
+  }
   public static string Help(string key){switch(key){
    case "dayTimeDuration":case "nightTimeDuration":case "fromHungerToStarving":return "Minutes (converted automatically to the game's stored time unit).";
    case "saveDirectory":return "Protected world path. Changing it could create a different world.";
@@ -66,7 +73,7 @@ namespace XHLLauncher {
    case "enableStarvingDebuff":return "Enable or disable the starvation penalty.";
    case "pacifyAllEnemies":return "When enabled, enemies do not normally initiate combat.";
    case "plantGrowthSpeedFactor":return "Higher values make crops grow faster. 1 = normal speed.";
-   case "factoryProductionSpeedFactor":return "Higher values make crafting stations produce items faster.";
+   case "factoryProductionSpeedFactor":return "Higher values increase workshop production times; lower values shorten them.";
    case "resourceDropStackAmountFactor":return "Adjust how many resources are received when gathering.";
    case "name":return "The server name in the browser, or this permission group's name.";
    case "ip":return "0.0.0.0 listens on all available network interfaces.";
@@ -137,7 +144,8 @@ namespace XHLLauncher {
     else if(f.Value is ValueType){bool minutes=f.Key=="dayTimeDuration"||f.Key=="nightTimeDuration"||f.Key=="fromHungerToStarving";decimal value=Convert.ToDecimal(f.Value);if(minutes)value/=60000000000m;bool fraction=minutes||f.Key.EndsWith("Factor")||f.Key=="threatBonus"||f.Value is decimal||f.Value is double||f.Value is float;
      var numeric=new NumericUpDown{Minimum=0,Maximum=Math.Max(1000000m,value),DecimalPlaces=fraction?2:0,Increment=minutes?1m:fraction?0.25m:1m,Value=Math.Max(0,value),BackColor=Theme.Panel2,ForeColor=Theme.Text,Font=Theme.Font(11,FontStyle.Regular),BorderStyle=BorderStyle.FixedSingle,ThousandsSeparator=true};numeric.ValueChanged+=delegate{SetCardValue(f,numeric.Value,card);};input=numeric;
     }else{var choices=ConfigurationDocument.Choices(f.Key,Convert.ToString(f.Value));if(choices!=null){var drop=new ComboBox{DropDownStyle=ComboBoxStyle.DropDownList,DataSource=choices,DisplayMember="Text",ValueMember="Value",SelectedValue=f.Value,FlatStyle=FlatStyle.Flat,BackColor=Theme.Panel2,ForeColor=Theme.Text};drop.SelectedValueChanged+=delegate{if(drop.SelectedValue is string)SetCardValue(f,drop.SelectedValue,card);};input=drop;}else{var text=new TextBox{Text=Convert.ToString(f.Value),ReadOnly=f.Key=="saveDirectory"||f.Key=="logDirectory"};Theme.StyleTextBox(text);text.TextChanged+=delegate{if(!text.ReadOnly)SetCardValue(f,text.Text,card);};input=text;}}
-    input.SetBounds(card.Width-174,35,156,34);input.Anchor=AnchorStyles.Top|AnchorStyles.Right;input.AccessibleName=f.Label;card.Controls.Add(input);
+    input.SetBounds(card.Width-174,input is NumericUpDown?23:35,156,34);input.Anchor=AnchorStyles.Top|AnchorStyles.Right;input.AccessibleName=f.Label;card.Controls.Add(input);
+    if(input is NumericUpDown){var direction=TextLabel(ConfigurationDocument.DirectionHint(f.Key),7.8f,Theme.Cyan,false);direction.AutoSize=false;direction.SetBounds(card.Width-174,59,156,38);direction.Anchor=AnchorStyles.Top|AnchorStyles.Right;direction.TextAlign=ContentAlignment.MiddleLeft;card.Controls.Add(direction);}
    }if(items.Length==0){var empty=TextLabel("No settings match your search.",10,Theme.Muted,false);settingCards.Controls.Add(empty);}settingCards.ResumeLayout();
   }
   void SetCardValue(ConfigField field,object value,RoundedPanel card){if(configLoading||field.Set==null)return;try{object converted=ConfigurationDocument.ConvertValue(field,value);field.Set(converted);field.Value=converted;settingErrors.Remove(field.Path);card.BorderColor=Theme.Border;configDirty=true;SyncConfigurationJson();configResult.Text="Unsaved changes • Save configuration when the server is stopped.";}catch(Exception ex){settingErrors.Add(field.Path);card.BorderColor=Theme.Red;configResult.Text=ex.Message;}card.Invalidate();}

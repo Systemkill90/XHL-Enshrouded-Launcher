@@ -79,6 +79,9 @@ static class Checks
         Require(!Maintenance.SaveConfiguration(root,json,hash,delegate{return true;}).Success,"Full configuration save refuses running server");
         Require(!Maintenance.SaveConfiguration(root,json,"stale-hash",delegate{return false;}).Success,"Configuration save rejects stale disk version");
         Require(!Maintenance.SaveConfiguration(root,json.Replace("./saves","./different-world"),hash,delegate{return false;}).Success,"Full JSON editor cannot redirect the existing world");
+        Require(ConfigurationDocument.DirectionHint("playerHealthFactor").Contains("Higher: easier")&&ConfigurationDocument.DirectionHint("enemyDamageFactor").Contains("Higher: harder"),"Difficulty arrows distinguish player benefits from stronger enemies");
+        Require(ConfigurationDocument.DirectionHint("factoryProductionSpeedFactor").Contains("Higher: harder")&&ConfigurationDocument.DirectionHint("perkUpgradeRecyclingFactor").Contains("Higher: easier"),"Difficulty arrows reflect production time and salvage return semantics");
+        Require(!ConfigurationDocument.DirectionHint("dayTimeDuration").Contains("easier")&&!ConfigurationDocument.DirectionHint("slotCount").Contains("harder"),"Neutral settings receive factual directional hints");
         var game=(System.Collections.Generic.Dictionary<string,object>)data["gameSettings"];game["playerHealthFactor"]=1.5;
         Require(Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Full rules document saves atomically with original fields");
         var saved=Maintenance.Config(root);Require(Convert.ToString(saved["gameSettingsPreset"])=="Custom"&&saved.ContainsKey("userGroups")&&Convert.ToInt64(((System.Collections.Generic.Dictionary<string,object>)saved["gameSettings"])["dayTimeDuration"])==1800000000000,"Custom preset activates changed rules and preserves permissions and 64-bit durations");
