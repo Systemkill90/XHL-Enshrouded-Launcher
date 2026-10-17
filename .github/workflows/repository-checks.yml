@@ -1,0 +1,28 @@
+name: Repository checks
+on:
+  push:
+  pull_request:
+
+jobs:
+  docs-and-source-layout:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate essential documentation
+        shell: pwsh
+        run: |
+          $required = @('README.md', 'ROADMAP.md', 'SECURITY.md', 'docs/RECOVERY-INVENTORY.md', 'docs/DEVELOPMENT.md', 'docs/SERVER-SAFETY.md')
+          $missing = @($required | Where-Object { -not (Test-Path $_ -PathType Leaf) })
+          if ($missing.Count) { throw "Missing documentation: $($missing -join ', ')" }
+          Write-Host 'Documentation files exist.'
+      - name: Check original source layout, if imported
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'src/Program.cs')) {
+            Write-Host 'SOURCE NOT IMPORTED: no Windows compile attempted; this is not a passing build verification.'
+            exit 0
+          }
+          $files = @('src/Program.cs','src/Theme.cs','src/Models.cs','src/Storage.cs','src/Telemetry.cs','src/ServerControl.cs','src/BackupManager.cs','src/Mods.cs','src/ConfigEditorForm.cs','src/UIControls.cs','src/MainForm.cs','XHL-Launcher.ico','XHL-Launcher.exe.manifest','VERSION.txt','BUILD-XHL-LAUNCHER.bat')
+          $missing = @($files | Where-Object { -not (Test-Path $_ -PathType Leaf) })
+          if ($missing.Count) { throw "Incomplete source import: $($missing -join ', ')" }
+          Write-Host 'Original build input layout exists. Separate compilation/runtime verification is still required.'
