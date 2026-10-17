@@ -114,3 +114,6 @@ public static class XhlGliderFlight1269579 {
 '@
 Add-Type -TypeDefinition $src -ErrorAction Stop
 [XhlGliderFlight1269579]::Control($TargetProcessId,[long]$p.MainModule.BaseAddress.ToInt64(),$Action)
+
+# Exact-build pitch hold: retain each player's current pitch on release.
+& (Join-Path $root 'XHL-Pitch-Hold.ps1') -TargetProcessId $TargetProcessId -Action $Action -ErrorAction Stop
