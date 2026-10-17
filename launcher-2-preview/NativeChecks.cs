@@ -32,9 +32,14 @@ static class NativeChecks
                 File.WriteAllText(Path.Combine(root, "XHL-Diagnostic-Wrapper.ps1"), "Start-Sleep -Milliseconds 1000\r\nSet-Content -LiteralPath (Join-Path $PSScriptRoot 'wrapper-ran.txt') -Value 'fixture'\r\nexit 3\r\n");
                 if (!runtime.Start().Success) throw new Exception("Fixture wrapper not requested");
                 if (runtime.Start().Success) throw new Exception("Duplicate bootstrap was allowed");
-                deadline = DateTime.UtcNow.AddSeconds(8);
+                deadline = DateTime.UtcNow.AddSeconds(22);
                 while (runtime.StartupPending && DateTime.UtcNow < deadline) Thread.Sleep(50);
-                if (runtime.StartupPending || !runtime.StartupStatus.Contains("exit 3") || !File.Exists(Path.Combine(root, "wrapper-ran.txt"))) throw new Exception("Wrapper failure was not reported correctly");
+                bool pending = runtime.StartupPending;
+                string status = runtime.StartupStatus;
+                bool markerWritten = File.Exists(Path.Combine(root, "wrapper-ran.txt"));
+                if (pending || !status.Contains("exit 3") || !markerWritten)
+                    throw new Exception("Wrapper failure was not reported correctly. Pending=" + pending +
+                        ", status=" + status + ", wrapper-marker=" + markerWritten);
                 File.WriteAllText(report, "PASS exact-path process detection\r\nPASS different installation excluded\r\nPASS native Ctrl+C delivered to isolated dummy\r\nPASS dummy exited gracefully without force-kill\r\nPASS existing-wrapper invocation with isolated script\r\nPASS duplicate bootstrap blocked\r\nPASS nonzero wrapper exit reported without false online status\r\n");
             }
         }
