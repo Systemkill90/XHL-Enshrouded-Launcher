@@ -1,6 +1,6 @@
 # Security policy
 
-XHL is experimental and **is not a hardened remote-admin solution**. There is no production-support or guaranteed patch SLA.
+XHL is experimental and **is not a hardened remote-admin solution**. The open 2.0 preview PR contains LAN/phone controls: keep any such endpoint private to a trusted local network, validate authentication/authorization and command protections, and never expose it by router port forwarding without a separate security review. There is no production-support or guaranteed patch SLA.
 
 ## Reporting
 For suspected vulnerabilities, **do not publish exploit details, credentials, tokens, identifiable player logs, or save data in public issues**. Contact the repository owner privately through a channel you already trust. A private vulnerability-reporting channel has not been configured for this project.

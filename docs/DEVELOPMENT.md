@@ -2,7 +2,7 @@
 
 ## Baseline
 
-The recovered v1.0.5 source is a traditional **C# WinForms/.NET Framework** project compiled by batch script and the .NET Framework `csc.exe`, rather than a modern .NET SDK project. Do not introduce a new toolchain or claim the version changed until a Windows build and smoke test succeed.
+The recovered **legacy v1.0.5** source is a traditional **C# WinForms/.NET Framework** project compiled by batch script and the .NET Framework `csc.exe`, rather than a modern .NET SDK project. **The newer 2.0 preview code is already in [PR #1](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1)** under `launcher-2-preview/` and has its own `Build.ps1`, `Test.ps1`, `Test-Native.ps1`, and `VERIFICATION.md`. Review those artifacts and their remaining operator checks before a merge; do not assume they describe v1.0.5. Do not introduce a new toolchain or claim the version changed until a Windows build and smoke test succeed.
 
 ## Expected source layout after import
 

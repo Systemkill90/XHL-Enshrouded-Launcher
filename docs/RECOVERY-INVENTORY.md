@@ -1,6 +1,6 @@
 # Recovered-source inventory
 
-**Documented:** 2026-10-17. These archives were found in the project's earlier ChatGPT file library, **not** in this GitHub repository.
+**Documented:** 2026-10-17. These archives were found in the project's earlier ChatGPT file library, **not** in this GitHub repository. Separately, the repository already has a newer, **unmerged [2.0 preview source branch / PR #1](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1)**; it is a different codebase and must not be replaced by these older archives.
 
 | Archive | Size | SHA-256 | Contents |
 | --- | ---: | --- | --- |
@@ -20,7 +20,7 @@ The archive's `README-FIRST.txt` warns that its **v1.0.5 source-only package was
 ## Import checklist
 
 1. Verify the archive SHA-256; inspect extracted files for secrets, licensing and malware.
-2. Import original plain-text source and permitted assets on a review branch. Exclude server EXEs, saves, player data, private configuration, runtime logs and unlicensed third-party DLLs.
+2. If a historical reference is needed, import original plain-text v1.0.5 source and permitted assets on a **separate legacy review branch**; never overlay the newer 2.0 preview. Exclude server EXEs, saves, player data, private configuration, runtime logs and unlicensed third-party DLLs.
 3. Compile on Windows, compare behavior against the actual running installation, and record test results.
 4. Only then prepare a tagged binary release. Do not publish either source ZIP as a validated release.
 

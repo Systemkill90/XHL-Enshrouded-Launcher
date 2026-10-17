@@ -6,7 +6,8 @@
 - [x] Recover and inventory v1.0.5 source-only and 2.0 foundation archives.
 - [x] Document source provenance, build expectations and live-server precautions.
 - [ ] Audit complete sources/assets for secrets, ownership, dependencies and safety before publication.
-- [ ] Import v1.0.5 source, assets, scripts and manifest in original runnable layout.
+- [ ] Review the existing [2.0 source preview PR #1](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) and its verification claims; preserve it unmerged pending checks.
+- [ ] Import v1.0.5 source, assets, scripts and manifest into a **separate legacy/reference path or branch** only if still needed; do not overwrite the newer 2.0 preview.
 - [ ] Build on Windows and record compiler output; confirm clean launch without touching a live server.
 - [ ] Compare the imported snapshot with the currently working local installation and preserve rollback copy.
 
