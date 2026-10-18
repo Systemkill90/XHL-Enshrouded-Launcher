@@ -17,11 +17,11 @@ Date: 2026-10-17
 - [ ] Verify that a disposable Windows preview compiles and tests successfully.
 - [ ] Record exact last-known-good desktop binary/package and hashes **when host access is explicitly granted**; not obtainable through this GitHub-only pass.
 
-### Stage 1 — Read-only daily operations (start now)
-- [ ] Replace guesswork with a filtered **parsed event view** alongside unchanged raw logs. Clear provenance; no invented gameplay actions.
-- [ ] Add a one-click **privacy-safe troubleshooting summary**, built from explicitly whitelisted health/installation/backup fields, copied to the clipboard; no paths, IP addresses, tokens, passwords, player identities or raw logs.
-- [ ] Add a compact **health/readiness digest** based on observed process, backup completion-marker presence, pinned-build checks and disk free space. It must distinguish unknown from healthy.
-- [ ] Add focused unit/fixture tests for filtering, redaction and unknown/stale status.
+### Stage 1 — Read-only daily operations (source committed; verification pending)
+- [x] Replace guesswork with a filtered **parsed event view** alongside unchanged raw logs. Clear provenance; no invented gameplay actions.
+- [x] Add a one-click **privacy-safe troubleshooting summary**, built from explicitly whitelisted health/installation/backup fields, copied to the clipboard; no paths, IP addresses, tokens, passwords, player identities or raw logs.
+- [x] Add a compact **health/readiness digest** based on observed process, backup completion-marker presence, pinned-build checks and disk free space. It must distinguish unknown from healthy.
+- [x] Add focused unit/fixture tests for filtering, redaction and unknown/stale status (**committed; Windows execution still pending**).
 - Gate: pure read-only functionality; no server operations or file modifications during view/report.
 
 ### Stage 2 — Safe notifications, then controlled restart
