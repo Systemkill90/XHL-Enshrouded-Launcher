@@ -7,16 +7,16 @@ using System.Web.Script.Serialization;
 namespace XHLLauncher
 {
     // A standalone road router. It does not touch game processes, network clients or saves.
-    internal sealed class NavNodeData
+    public sealed class NavNodeData
     {
         public string Id, Name;
         public double X, Y;
     }
-    internal sealed class NavLinkData
+    public sealed class NavLinkData
     {
         public string From, To, Proof, RoadName;
     }
-    internal sealed class NavDocument
+    public sealed class NavDocument
     {
         public string Format, CoordinateSystem, SourceNote;
         public List<NavNodeData> Nodes;
