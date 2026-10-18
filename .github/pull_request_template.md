@@ -1,22 +1,22 @@
-## What is changing?
-Explain the improvement in plain English and link the related issue.
+## In plain English
+What does this improve, and where can people find it?
 
-## What have you checked?
-- [ ] Windows build (include GitHub Actions link)
-- [ ] Fixture/native tests (include run, if relevant)
-- [ ] Local disposable-server check (or say **not done**)
-- [ ] Tested rollback and backup handling, if files/saves/updates are affected (or **not applicable**)
-- [ ] Confirmed game/mod build compatibility, if relevant (or **not tested**)
+## What changed
+What source files or documentation changed? Link an issue if relevant.
 
-## User-visible changes and limitations
-Describe what works, what is still experimental, and any changes to player experience.
+## Evidence and limitations
+- [ ] Source build/test results recorded (or marked **not run**)
+- [ ] Target Enshrouded game version specified when relevant
+- [ ] In-game testing demonstrated, or explicitly **not verified**
+- [ ] No proprietary game assets, credentials, private logs or player saves
+- [ ] No new client requirement hidden behind a “server-only” claim
 
-## Safety and privacy
-- [ ] No real world saves, private player details, passwords, tokens, host identifiers, logs or personal configuration
-- [ ] No proprietary Enshrouded/Steam binaries or assets
-- [ ] No unexpected live-server file replacement, update, restart or migration
-- [ ] No destructive action without reviewable plan, verified recovery backup and rollback
+## Public-server safety
+- [ ] No automatic deployment or restart
+- [ ] Affected file list and loader dependencies documented
+- [ ] Original files, backup approach and rollback considered
+- [ ] Explicit owner approval required before applying to public Velaris
 
-## Release impact
-- Does this need a new version, documentation update, or release note?
-- Is this safe to merge now, or should it remain a draft pending owner verification?
+**A merged PR is not an approval to install or restart the server.**
+
+[Developer guide](docs/developers/README.md) · [Server safety](docs/operate/README.md)
