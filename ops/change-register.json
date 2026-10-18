@@ -35,11 +35,12 @@
       "playerVisible": true,
       "clientDependency": "none-planned",
       "gameCompatibility": "historical-pinned-build-1269579",
-      "dependencies": [
-        "flight-controller"
-      ],
+      "dependencies": [],
       "decision": "review-on-host",
-      "notes": "Pitch hold may already be active on live host; observe actual version before proposing changes. Never reinstall blindly."
+      "notes": "Pitch hold may already be active on live host; observe actual version before proposing changes. Never reinstall blindly.",
+      "runtimeDependencies": [
+        "existing-installed-flight-controller (verify on host; no separate PR assumed)"
+      ]
     },
     {
       "id": "launcher-2-overhaul-18",
