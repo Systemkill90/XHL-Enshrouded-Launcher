@@ -1,15 +1,19 @@
-# Security and privacy
+# Security and player privacy
 
-Enshrouded Server Companion can manage a game server and its world saves, so treating sensitive files carefully matters. This project is experimental and **not a hardened public remote-administration service**.
+ShroudForge can manage a dedicated server and world saves. The project is in development and **is not a hardened public internet administration service**.
 
-## What to keep private
+## Keep private information out of GitHub
 
-Never post server passwords, Steam tokens, personal logs, player-identifying information, save files or machine-specific configuration in a public issue or commit.
+Please never post passwords, access tokens, Steam credentials, private endpoint URLs, raw logs containing player identifiers, machine-specific paths, world saves or unlicensed game assets.
 
-## Report a security problem
+## Protect the live world
 
-Please don't publish exploitation steps or sensitive data in a public issue. Contact the repository owner privately through a channel you already trust. A dedicated private reporting channel has not yet been configured.
+Velaris is publicly played. Code reviews and builds happen separately from live deployment; any new mod, file edit, launcher replacement or restart requires the owner's explicit authorization. Backup verification does not always mean a live save copy is consistent, and rolling back a world can erase progress made since the backup.
 
-## Safety expectations
+**Don't expose phone management controls to the public internet** without independent authentication/security review. Keep them on a trusted private network.
 
-Backups, updates and restores should be reversible and should not silently replace a working game server. The development preview includes home-network phone controls; **do not make those controls publicly accessible via port forwarding** without a separate security review. Back up first, and test updates in a separate installation.
+## Report a security issue
+
+Contact the repository owner privately through a trusted channel rather than posting exploit steps or sensitive data in an issue. A private security reporting channel hasn't been configured yet.
+
+[Server safety explained](docs/operate/README.md) · [Project status](docs/project/README.md) · [Home](README.md)
