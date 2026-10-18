@@ -1,0 +1,85 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShroudNav | Quest & Journal Guide</title>
+<style>
+:root{color-scheme:dark;--bg:#101619;--surface:#1b2426;--raised:#202d2f;--border:#354548;--ink:#e9e9e0;--soft:#a9b7b4;--accent:#d0b57e;--teal:#95c9c8;--danger:#e6ae7b}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,sans-serif}
+header{padding:20px 25px;background:#172124;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:20px}
+h1{font:28px Georgia,serif;letter-spacing:.015em;margin:0}h2{font:22px Georgia,serif;margin:5px 0 7px}h3{font:17px Georgia,serif;margin:4px 0}
+small,.muted{color:var(--soft)}.gold{color:var(--accent)}.eyebrow{color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+main{display:grid;grid-template-columns:295px minmax(320px,1fr);min-height:calc(100vh - 86px)}
+aside{background:#172124;border-right:1px solid var(--border);padding:19px;max-height:calc(100vh - 86px);overflow:auto}
+article{padding:24px;max-width:1050px;width:100%;margin:auto}.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:19px;margin:15px 0}
+input[type=search],select,button{font:inherit;background:var(--raised);color:var(--ink);border:1px solid var(--border);border-radius:7px;padding:10px}
+input[type=search],select{width:100%}button{cursor:pointer}button:hover{border-color:var(--accent)}button.active{background:#34443d;border-color:#7b9f91;color:#f0f0e7}
+button:disabled{opacity:.45;cursor:default}.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.space{justify-content:space-between}
+.nav{display:flex;gap:8px;margin:12px 0}.nav button{flex:1}.quest-link{display:block;width:100%;text-align:left;background:transparent;margin:7px 0;padding:12px;border:1px solid var(--border)}
+.quest-link span{display:block;color:var(--soft);font-size:12px;margin-top:4px}.quest-link.selected{border-color:#a4aa81;background:#25322f}
+.step{border-left:3px solid var(--border);padding:12px 15px;background:#1c282a;margin:10px 0;border-radius:2px 9px 9px 2px}
+.step.current{border-color:var(--accent)}.step.done{opacity:.66}.step p{margin:6px 0}.step label{cursor:pointer}
+.clue{border-left:3px solid #7da9a7;background:#202b2d;border-radius:2px 9px 9px 2px;padding:12px 15px;margin:12px 0}
+.clue p{margin:5px 0}.clue button{font-size:12px;padding:6px 10px}.tag{font-size:11px;color:var(--accent);border:1px solid #685d45;border-radius:20px;padding:3px 9px;display:inline-block;margin:3px 3px 3px 0}
+a{color:#9fd2d2;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.notice{border:1px solid #67583f;color:#d8c6a3;background:#29271e;border-radius:9px;padding:12px;font-size:13px;margin:13px 0}
+.progress{height:7px;background:#354445;border-radius:15px;overflow:hidden;margin:9px 0}.progress div{height:100%;background:#98b8a2;width:0}
+#clueSearch{margin-top:10px}.hr{border:0;border-top:1px solid var(--border);margin:18px 0}
+@media(max-width:850px){main{display:block}aside{max-height:none;border-right:0;border-bottom:1px solid var(--border)}article{padding:16px}header{padding:17px}h1{font-size:23px}}
+</style></head><body>
+<header><div><div class="eyebrow">ShroudNav / Quest Companion</div><h1>Quest & Journal Guide</h1></div><small>No installs · Manual progress · No live tracking</small></header>
+<main><aside><div class="eyebrow">Find a quest or note</div>
+<input id="search" type="search" placeholder="Quest, journal, landmark, clue…" aria-label="Search quests and journal clues">
+<label for="region">Region</label><select id="region"><option value="">Every region</option></select>
+<div id="count" class="muted"></div><div id="roster"></div>
+<div class="notice">This does not read your game account or quest journal. Step progress is stored only in this browser. Routes are landmark directions, not automatic GPS.</div>
+</aside><article>
+<div id="empty" class="card" hidden>No matching guide. Clear search or choose another region.</div>
+<div id="guide">
+<div class="eyebrow" id="meta"></div><h2 id="title"></h2><p id="summary" class="muted"></p>
+<div class="row space"><div class="row"><span class="tag" id="giver"></span><span class="tag" id="confidence"></span></div><small id="progressLabel"></small></div>
+<div class="progress"><div id="progressFill"></div></div>
+<div class="nav"><button id="stepsTab" class="active">Route & steps</button><button id="cluesTab">Clues & journals</button></div>
+<div id="stepsView"><div class="card"><div class="eyebrow">Before leaving</div><ul id="requirements"></ul></div>
+<div class="row space"><h3>Walkthrough steps</h3><button id="next" type="button">Jump to next unfinished</button></div><div id="steps"></div></div>
+<div id="cluesView" hidden><div class="notice">Required and optional journal entries are separated. Notes reveal practical locations and next steps; this is a guide, not a copy of the in-game lore.</div>
+<input id="clueSearch" type="search" placeholder="Find a clue in this quest…" aria-label="Filter journal notes"><div id="clues"></div></div>
+<div class="card"><div class="eyebrow">Sources & known gaps</div><div id="warnings"></div><div id="sources"></div></div>
+</div></article></main>
+<script type="application/json" id="quest-data">__QUEST_DATA__</script>
+<script>
+"use strict";
+const data=JSON.parse(document.getElementById("quest-data").textContent),$=id=>document.getElementById(id);
+const all=data.quests;let selected=all[0]?.id||"",tab="steps";const progressKey="shroudnav-quest-guide-progress-v1";
+let completed={};try{const stored=JSON.parse(localStorage.getItem(progressKey)||"{}");if(stored&&typeof stored==="object")completed=stored}catch{}
+function save(){try{localStorage.setItem(progressKey,JSON.stringify(completed))}catch{}} 
+function el(tag,klass,text){const n=document.createElement(tag);if(klass)n.className=klass;if(text!==undefined)n.textContent=text;return n}
+function clear(id){$(id).replaceChildren()}
+function sourceLinks(quest){clear("sources");const label=el("p","muted","Sources (open in new tab):");$("sources").append(label);quest.sources.forEach((url,i)=>{
+try{const u=new URL(url);if(u.protocol!=="https:")return;const a=el("a","",u.hostname+" · source "+(i+1));a.href=u.href;a.target="_blank";a.rel="noopener noreferrer";$("sources").append(a,el("span","",i+1<quest.sources.length?" · ":""))}catch{}})}
+function regions(){const options=[...new Set(all.flatMap(q=>q.region.split(/\s*\/\s*/)))].sort();options.forEach(r=>{const opt=el("option","",r);opt.value=r;$("region").append(opt)})}
+function matching(q,needle){return JSON.stringify([q.title,q.region,q.giver,q.summary,q.steps.map(s=>[s.heading,s.location,s.direction]),q.clues.map(c=>[c.entry,c.foundAt,c.whatItMeans,c.easyToMiss])]).toLowerCase().includes(needle)}
+function roster(){clear("roster");let term=$("search").value.trim().toLowerCase(),region=$("region").value;const matches=all.filter(q=>(!region||q.region.includes(region))&&(!term||matching(q,term)));$("count").textContent=matches.length+" of "+all.length+" researched quest guides";matches.forEach(q=>{const b=el("button","quest-link"+(q.id===selected?" selected":""),q.title);b.type="button";const sub=el("span","",q.region+" · "+q.clues.length+" journal clues");b.append(sub);b.onclick=()=>{selected=q.id;roster();render()};$("roster").append(b)});$("empty").hidden=!!matches.length;$("guide").hidden=!matches.length;if(matches.length&&!matches.find(q=>q.id===selected)){selected=matches[0].id;render()}}
+function switchTab(next){tab=next;$("stepsView").hidden=next!=="steps";$("cluesView").hidden=next!=="clues";$("stepsTab").classList.toggle("active",next==="steps");$("cluesTab").classList.toggle("active",next==="clues")}
+function render(){const q=all.find(x=>x.id===selected);if(!q)return;
+$("title").textContent=q.title;$("meta").textContent=q.region+" / "+q.type;$("summary").textContent=q.summary;
+$("giver").textContent="From: "+q.giver;$("confidence").textContent="Source-backed · Not live GPS";
+clear("requirements");q.requirements.forEach(r=>$("requirements").append(el("li","",r)));
+renderSteps(q);renderClues(q);clear("warnings");q.dataWarnings.forEach(w=>$("warnings").append(el("p","muted","• "+w)));sourceLinks(q);
+}
+function updateProgress(q){let total=q.steps.length,done=q.steps.filter(x=>completed[q.id+"::"+x.id]).length;$("progressLabel").textContent=done+" / "+total+" steps checked";$("progressFill").style.width=(total?Math.round(done*100/total):0)+"%"}
+function renderSteps(q){clear("steps");q.steps.forEach((s,i)=>{const id=q.id+"::"+s.id,checked=!!completed[id];const card=el("div","step"+(checked?" done":""));card.id="step-"+s.id;
+const label=el("label");const box=document.createElement("input");box.type="checkbox";box.checked=checked;box.addEventListener("change",()=>{completed[id]=box.checked;save();renderSteps(q)});
+label.append(box,el("strong","", " "+(i+1)+". "+s.heading));card.append(label,el("p","",s.direction));
+card.append(el("p","muted","Where: "+s.location+"  ·  Travel: "+s.movement));
+card.append(el("p","muted","Finish when: "+s.completion));if(s.hazards.length)card.append(el("p","gold","Watch for: "+s.hazards.join(", ")));
+const linked=q.clues.filter(c=>c.stepId===s.id);if(linked.length){const b=el("button","","Journal clues ("+linked.length+")");b.onclick=()=>{switchTab("clues");$("clueSearch").value="";renderClues(q);$("clue-"+linked[0].id)?.scrollIntoView({block:"center",behavior:"smooth"})};card.append(b)}
+$("steps").append(card)});updateProgress(q)}
+function renderClues(q){clear("clues");let term=$("clueSearch").value.trim().toLowerCase();let items=q.clues.filter(c=>!term||JSON.stringify(c).toLowerCase().includes(term));
+if(!items.length)$("clues").append(el("p","muted","No matching journal entries."));
+items.forEach(c=>{const card=el("div","clue");card.id="clue-"+c.id;card.append(el("div","eyebrow",c.category+" · "+(c.importance==="required"?"Required":c.importance==="optional"?"Optional":"Quest-chain lead")),el("h3","",c.entry));
+for(const [label,value] of [["Find it",c.foundAt],["What the clue means",c.whatItMeans],["What to do next",c.nextAction],["Easy to miss",c.easyToMiss]]){const p=el("p");p.append(el("strong","",label+": "),document.createTextNode(value));card.append(p)}
+if(c.confidence!=="source-backed")card.append(el("p","gold","Specific note title/location not independently confirmed."));
+const btn=el("button","","Show linked quest step");btn.onclick=()=>{switchTab("steps");$("step-"+c.stepId)?.scrollIntoView({block:"center",behavior:"smooth"})};card.append(btn);$("clues").append(card)})}
+$("search").addEventListener("input",()=>{roster()});$("region").addEventListener("change",roster);$("clueSearch").addEventListener("input",()=>{const q=all.find(x=>x.id===selected);if(q)renderClues(q)});
+$("stepsTab").onclick=()=>switchTab("steps");$("cluesTab").onclick=()=>switchTab("clues");
+$("next").onclick=()=>{const q=all.find(x=>x.id===selected),next=q?.steps.find(s=>!completed[q.id+"::"+s.id]);if(next)$("step-"+next.id)?.scrollIntoView({block:"center",behavior:"smooth"})};
+regions();roster();render();
+</script></body></html>
