@@ -13,6 +13,7 @@ from calibrate import validate, apply, CalibrationError
 from build_graph import build, MapDataError, node_key
 from mask_to_candidates import trace_skeleton, make_geojson, thin
 from poi_index import index_pois
+from verify_road_evidence import verify_references, EvidenceError
 
 
 def feature(pts, proof="verified", source="owner-manual", level="surface", road_id="r1"):
@@ -187,6 +188,33 @@ class NavigationDataTests(unittest.TestCase):
         data["features"][0]["properties"]["sourceId"] = "enshrouded-database-map"
         with self.assertRaisesRegex(MapDataError, "redistribution approval"):
             index_pois(graph, data, catalog, max_snap=4)
+
+    def test_published_landmark_evidence_remains_non_navigable(self):
+        controls=json.loads((HERE/"research"/"legacy-landmark-control-points.json").read_text(encoding="utf-8"))
+        observations=json.loads((HERE/"research"/"road-topology-evidence.json").read_text(encoding="utf-8"))
+        assessment=verify_references(controls,observations)
+        self.assertEqual(8,assessment["legacyPublishedLandmarks"])
+        self.assertEqual(0,assessment["verifiedWorldPolylines"])
+        self.assertEqual("reference_topology_only_not_navigable",assessment["status"])
+        self.assertEqual(1,sum(x["class"]=="multi_source_topology" for x in assessment["qualitativeRoutes"]))
+
+    def test_no_legacy_landmark_may_claim_1_0_world_alignment(self):
+        controls=json.loads((HERE/"research"/"legacy-landmark-control-points.json").read_text(encoding="utf-8"))
+        observations=json.loads((HERE/"research"/"road-topology-evidence.json").read_text(encoding="utf-8"))
+        controls["landmarks"][0]["independent1_0Match"] = [12,99]
+        with self.assertRaises(EvidenceError):
+            verify_references(controls,observations)
+
+    def test_routes_cannot_fabricate_verified_polyline_or_single_source_independence(self):
+        controls=json.loads((HERE/"research"/"legacy-landmark-control-points.json").read_text(encoding="utf-8"))
+        observations=json.loads((HERE/"research"/"road-topology-evidence.json").read_text(encoding="utf-8"))
+        observations["observations"][0]["verifiedPolyline"] = True
+        with self.assertRaises(EvidenceError):
+            verify_references(controls,observations)
+        observations["observations"][0]["verifiedPolyline"] = False
+        observations["observations"][0]["sources"] = observations["observations"][0]["sources"][:1]
+        with self.assertRaises(EvidenceError):
+            verify_references(controls,observations)
 
     def test_cli_blocks_publish_when_no_world_road_data(self):
         command = [sys.executable, str(HERE / "tools" / "build_graph.py"), "--publish",
