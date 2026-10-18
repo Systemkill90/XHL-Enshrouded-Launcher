@@ -13,7 +13,11 @@
 | `roads/verified.geojson` | Road segments with confirmed provenance and manual review |
 | `roads/obstacles.geojson` | Closures, cliffs, missing bridges and disallowed segments |
 | `poi/markers.geojson` | Curated POIs and quest destinations, initially empty |
-| `tools/build_graph.py` | Offline GeoJSON to ShroudNav roadgraph converter + validation |
+| `tools/build_graph.py` | Offline GeoJSON to ShroudNav roadgraph converter + provenance/topology validation |
+| `tools/calibrate.py` | Affine pixel-to-world projection tested against independent holdout landmarks |
+| `tools/topology.py` | Fail-closed review of at-grade road crossings, bridges and tunnels |
+| `tools/mask_to_candidates.py` | Optional road-mask skeletonization for CV-assisted road candidates |
+| `tools/poi_index.py` | Link reviewed quest/POI points to reachable road nodes using a bounded snap radius |
 | `tools/trace-roads.html` | No-upload, local-browser road tracing workspace |
 | `tests/test_map_data.py` | Synthetic topology, coordinate, safety and importer checks |
 | `reports/` | Generated statistics and review reports (never mislabelled as verified world data) |
@@ -36,8 +40,34 @@
 1. Establish a legally reusable source raster; copy it **locally** (do not commit without rights).
 2. Open `tools/trace-roads.html` in a browser, select the raster locally, and trace road candidates. Export candidate GeoJSON.
 3. Collect at least three *non-collinear*, independent pixel/world control-point pairs from the same map; record them in `calibration/calibrations.json`, keeping status pending until measured.
-4. Run `python map-data/tools/build_graph.py --check` for validation and coverage. It refuses to publish when the map lacks a calibrated reference and verified roads.
+4. Run `python map-data/tools/build_graph.py --check` for validation and coverage. The builder refuses publication without approved provenance, verified segments and a complete crossing audit.
 5. Review bridge/cliff/trail topology and move owner-approved segments to verified GeoJSON with reviewer name/date. Then run `--publish` to generate a compatible roadgraph.
 6. Validate in disposable Windows fixtures before ever integrating into the launcher UI.
 
 See `integrations/providers.json` and `sources/catalog.json` for research candidates and evidence limits.
+
+## Commands for offline map authoring
+
+From the repository root (using Python 3.11 or newer):
+
+```bash
+# Tests — Python standard library only
+python -m unittest discover -s map-data/tests -p 'test_*.py' -v
+
+# Check the current empty repository datasets; prints an explicitly blocked status
+python map-data/tools/build_graph.py --check
+
+# Optional computer-vision-assisted step: only if you have created a lawful white-road / black-background mask
+# pip install Pillow  # map authoring computer only, NOT required by server or player
+python map-data/tools/mask_to_candidates.py --mask /path/to/road-mask.png --source-image-id my-own-map-v1 --source-id owner-manual --output my-roads.candidate.geojson
+
+# After collecting actual reviewed roads, inspect topology and publish an offline route graph
+python map-data/tools/build_graph.py --publish --output map-data/reports/roadgraph.json
+
+# POI anchoring requires a real reviewed graph and explicitly chosen snap limit in map-coordinate units
+python map-data/tools/poi_index.py --graph map-data/reports/roadgraph.json --max-snap 15 --output map-data/reports/poi-index.json
+```
+
+**Do not run the last two commands against empty/unreviewed data expecting a usable map.** Candidate roads and AI segmentation may contain broken connections; crossings on different heights must be assigned different layers and manually reviewed. No automatic real-time route, ETA, client minimap or quest selection is claimed.
+
+GitHub Actions workflow: `.github/workflows/map-data-validation.yml`.
