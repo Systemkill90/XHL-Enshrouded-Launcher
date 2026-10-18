@@ -1,5 +1,8 @@
 # Map Data & Integrations
 
+> **Project gate — paused:** A server-only, **in-game** custom minimap/quest GPS is not demonstrated on unmodified Enshrouded 1.0 clients. The road-data tools below are research artifacts, not a near-ready player feature. Stop extending them until the [Go/No-Go decision](research/GO-NO-GO.md) is satisfied or the owner explicitly approves a separate browser map.
+
+
 **ShroudNav's dedicated repository section.** Versioned spatial data, road tracing, integration research, calibration, validation and exports live here. This is source/data development only; it does **not** touch the live Velaris server or install anything on game clients.
 
 ## Directory map
