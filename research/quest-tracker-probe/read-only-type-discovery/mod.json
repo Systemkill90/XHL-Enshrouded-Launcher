@@ -1,0 +1,12 @@
+{
+  "id": "shroudnav_quest_type_discovery",
+  "name": "ShroudNav Read-Only Quest Type Discovery",
+  "version": "0.1.0",
+  "capabilities": [
+    "export"
+  ],
+  "authors": [
+    "ShroudForge research"
+  ],
+  "description": "Read-only game resource type-name discovery for an isolated owned installation"
+}
