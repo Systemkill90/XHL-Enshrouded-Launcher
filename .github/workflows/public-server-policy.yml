@@ -1,0 +1,58 @@
+name: Public server source safety gates
+
+on:
+  push:
+    branches:
+      - ops/public-velaris-release-gates
+    paths:
+      - 'ops/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'ROADMAP.md'
+      - 'CONTRIBUTING.md'
+      - 'SECURITY.md'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/workflows/public-server-policy.yml'
+  pull_request:
+    branches:
+      - feat/launcher-2-overhaul
+      - main
+    paths:
+      - 'ops/**'
+      - 'docs/**'
+      - 'README.md'
+      - 'ROADMAP.md'
+      - 'CONTRIBUTING.md'
+      - 'SECURITY.md'
+      - '.github/PULL_REQUEST_TEMPLATE.md'
+      - '.github/workflows/public-server-policy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  policy-fixtures:
+    name: Verify release holds and public-server handoff documents
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate no-auto-deployment source register
+        run: python ops/validate_release_register.py
+      - name: Run source-only policy tests
+        run: python -m unittest discover -s ops/tests -p 'test_*.py' -v
+      - name: Static-check read-only PowerShell preflight (do not execute it)
+        shell: pwsh
+        run: |
+          $tokens=$null; $errors=$null
+          $ast=[System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path 'ops/Read-Only-Host-Preflight.ps1').Path,[ref]$tokens,[ref]$errors)
+          if ($errors.Count -gt 0) { throw ($errors | Out-String) }
+          $commands=$ast.FindAll({param($n) $n -is [System.Management.Automation.Language.CommandAst]},$true)
+          $used=@($commands | ForEach-Object {$_.GetCommandName()})
+          $blocked=@('Stop-Process','Start-Process','Restart-Computer','Stop-Computer','Set-Content','Out-File','New-Item','Remove-Item','Move-Item','Copy-Item','Rename-Item','Invoke-WebRequest','Invoke-RestMethod','Invoke-Expression','Set-Item','Set-ItemProperty','Start-Service','Stop-Service','Set-Service')
+          foreach($name in $blocked) { if($used -contains $name) { throw "Unsafe command in read-only preflight: $name" } }
+          Write-Host 'PowerShell preflight is parseable; no prohibited mutation commands found.'
