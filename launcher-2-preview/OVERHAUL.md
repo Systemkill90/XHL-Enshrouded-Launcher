@@ -18,6 +18,14 @@ The ShroudForge name and gateway/ember emblem appear in the sidebar, splash, app
 - Player counts distinguish valid zero replies from unavailable or malformed roster responses. Historical identities are not claimed to be independently editable player saves. Client character inventories cannot be safely edited by this manager.
 - New data goes in `Manager Data`; legacy settings are copied forward without removing their original.
 
+## Mobile companion and 3D map (October 18, 2026)
+
+The same private-LAN phone URL now has Overview and 3D Map tabs sized for iPhone touch interaction. The overview includes observed per-player ping, jitter, packet loss, connection state and last issue, plus recent recorded server activity and verified backup counts. Player values must not be mistaken for a real-time location feed or access to the character's private inventory.
+
+The 3D Map tab offers an opt-in embedded frame for the external [GameVault Embervale map](https://enshrouded.gamevault.in/map), with map-provider credit and an Open full map escape hatch. It does **not** copy the third party's models, terrain, or game assets into this repository; the viewer requires internet. On the page, tap **Load interactive map**, then use the map provider's own 3D controls. The frame intentionally omits its src until tapped, and uses a no-referrer policy to avoid leaking the launcher link and key. No ShroudForge player or save data is posted to GameVault. Browser frame-policy compatibility and physical iPhone behaviour must be checked against the upstream site; a blocked frame will require the external-link fallback or the provider's permission to embed.
+
+All server lifecycle and backup commands retain their existing authenticated private-network handler and safety checks. No map feature calls the server lifecycle. The development source has not been deployed to the owner's server automatically.
+
 ## Validation on October 17, 2026
 
 146 fixture/UI checks passed, covering all 12 pages, narrow dashboard bounds, lifecycle guards, phone authentication, full configuration, friendly rule names, offline save and rotated-log history, settings preservation, corrupt/running/live-snapshot restore rejection, exact successful restore, old-world retention, and conservative archive organization. Seven native lifecycle checks passed. The final application passed exact-build compatibility checks on the owner's installation; its authenticated phone endpoint returned the live realm and accepted a real backup request. Existing Flight and pitch-hold memory Status remained ACTIVE. Game executable/resource hashes were unchanged.
