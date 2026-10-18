@@ -15,7 +15,7 @@ Purpose: inspect Velaris's actual current installation, compare it with the GitH
 
 ## Candidate review order — not a deployment queue
 
-| Topic | GitHub reference | Status ahead of host inspection | Allowed tomorrow without owner approval |
+| Topic | GitHub reference | Status ahead of host inspection | Allowed today without owner approval |
 |---|---|---|---|
 | Existing Velaris working game, 3 mods, pitch hold | **Host only**; compare original game build | Observed baseline; authoritative source is host | Read-only observation |
 | ShroudForge 2.0 manager overhaul | PR #18 | Draft source; does not prove host installed version | Source review only |
