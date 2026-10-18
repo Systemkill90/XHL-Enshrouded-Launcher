@@ -141,15 +141,15 @@
       "name": "45° flat Flame Altar rotation and inscribed diamond base design",
       "pr": 28,
       "kind": "game-mod-research",
-      "phase": "research",
+      "phase": "hold",
       "risk": "high",
       "requiresRestart": true,
       "playerVisible": true,
       "clientDependency": "none-required",
       "gameCompatibility": "unverified-1.0-client-placement-and-server-protection",
       "dependencies": [],
-      "decision": "offline-geometry-only-no-deployment",
-      "notes": "Eight yaw steps, zero pitch/roll, normal voxel grid. Offline inscribed diamond conservatively uses half vanilla square area, but game placement controls and server-side persistent boundaries are unverified. Do not install anything on live Velaris before genuine vanilla-client proof and approved rollback."
+      "decision": "owner-cancelled-too-much-build-area-lost",
+      "notes": "Owner cancelled the 45-degree inscribed diamond concept because it sacrifices approximately 50% of the original square footprint. Research-only geometry remains in unmerged branch as history; no mod, patch, live deployment or restart authorized."
     }
   ]
 }
