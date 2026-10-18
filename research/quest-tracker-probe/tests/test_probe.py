@@ -26,7 +26,7 @@ FIXTURE = {
 class ProbeTests(unittest.TestCase):
     def test_can_scan_synthetic_export_without_game_connection(self):
         matches = scan(FIXTURE["entries"], ["quest", "journal"])
-        self.assertEqual(["123456", "456789"], [item[0] for item in matches])
+        self.assertEqual(["123456", "456789", "888888"], [item[0] for item in matches])
 
     def test_localization_reader_checks_build_locale_and_decimal_ids(self):
         with tempfile.TemporaryDirectory() as td:
