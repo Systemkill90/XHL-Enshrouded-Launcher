@@ -79,6 +79,21 @@ class NavigationDataTests(unittest.TestCase):
         self.assertEqual(2, report["connectedComponents"])
         self.assertEqual(5, report["exportedNodes"])
 
+    def test_at_grade_crossing_requires_manual_junction_or_layer_review(self):
+        self.write("verified", collection([
+            feature([[0, 0], [10, 10]], road_id="cross-a"),
+            feature([[0, 10], [10, 0]], road_id="cross-b")]))
+        graph, report = self.run_build()
+        self.assertEqual("blocked_topology_review", report["status"])
+        self.assertTrue(report["unjoinedCrossingWarnings"])
+        # Explicit raised bridge layer means these two trails must not be joined.
+        self.write("verified", collection([
+            feature([[0, 0], [10, 10]], road_id="cross-a", level="surface"),
+            feature([[0, 10], [10, 0]], road_id="cross-b", level="bridge")]))
+        graph, report = self.run_build()
+        self.assertEqual("ready_for_review", report["status"])
+        self.assertFalse(report["unjoinedCrossingWarnings"])
+
     def test_candidate_not_trusted_by_default(self):
         self.write("verified", collection([feature([[0, 0], [10, 0]])]))
         self.write("candidates", collection([feature([[10, 0], [20, 0]], proof="candidate", road_id="guess")]))
