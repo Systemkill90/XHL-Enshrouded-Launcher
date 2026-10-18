@@ -1,0 +1,52 @@
+{
+  "format": "shroudnav-calibration-v1",
+  "activeCalibration": null,
+  "coordinateFrames": [
+    {
+      "id": "enshrouded-world-xy-calibrated-v1",
+      "axes": "X east, Y north (ShroudNav normalized internal frame)",
+      "units": "unverified-map-coordinate-units",
+      "status": "awaiting-landmark-calibration"
+    },
+    {
+      "id": "wiki-map-xy-0-8191",
+      "axes": "X east, Y north as wiki documents",
+      "extent": [
+        0,
+        0,
+        8191,
+        8191
+      ],
+      "status": "reference-only"
+    },
+    {
+      "id": "site-world-xz-0-10240",
+      "axes": "X east, Z north as Enshrouded Database documents",
+      "extent": [
+        0,
+        0,
+        10240,
+        10240
+      ],
+      "status": "reference-only"
+    },
+    {
+      "id": "source-image-pixels",
+      "axes": "pixel X right, pixel Y down",
+      "status": "requires-image-specific-affine-transform"
+    }
+  ],
+  "calibrations": [],
+  "exampleControlPoint": {
+    "pixel": [
+      1024,
+      512
+    ],
+    "world": [
+      4100,
+      2800
+    ],
+    "label": "EXAMPLE ONLY — NOT A REAL LANDMARK"
+  },
+  "instructions": "At least 3 noncollinear independently observed landmarks from one exact source image plus one held-out check are needed. Never derive scale just from published coordinate extents. Record transform RMS and validation tolerances."
+}
