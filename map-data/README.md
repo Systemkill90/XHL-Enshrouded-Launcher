@@ -25,6 +25,16 @@
 | `tests/test_map_data.py` | Synthetic topology, coordinate, safety and importer checks |
 | `reports/` | Generated statistics and review reports (never mislabelled as verified world data) |
 
+## Quest & Journal Guide — viable no-install alternative
+
+The [Quest & Journal Companion](quests/README.md) is a separate browser-only guide for players, not the paused in-game minimap/GPS project. It includes source-backed quest directions, required/optional lore pages, practical interpretations of journal clues, searchable locations and manual progression checkboxes.
+
+- [Open the self-contained offline guide source](quests/quest-guide.html) (open/download the HTML file in a browser)
+- [Structured quest and journal data](quests/quest-guide.json)
+- [Quest guide builder](tools/build_quest_guide.py) and automated tests
+
+The guide never pretends to read the player's current quest or location; no client installation and no server login are required.
+
 ## Road-geometry verification evidence
 
 - [Current real-world geometry verification findings](research/GEOMETRY-VERIFICATION.md): what published guides agree on, what roads remain unusable, and the exact numerical gaps.
