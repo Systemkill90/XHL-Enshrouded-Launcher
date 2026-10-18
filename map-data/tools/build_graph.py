@@ -14,6 +14,7 @@ import sys
 from collections import defaultdict
 
 from calibrate import validate as validate_calibration, apply as project_pixel, CalibrationError
+from topology import audit_unjoined_crossings
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 FRAME = "enshrouded-world-xy-calibrated-v1"
@@ -145,6 +146,7 @@ def build(verified_path, candidates_path, obstacles_path, catalog_path, calibrat
         raise MapDataError("Cannot export third-party-derived candidate roads without reuse permission.")
     obstacles = blocked_edges(obstacles_path)
     nodes, links, used_pairs = {}, [], set()
+    segments = []
     applied_obstacles = set()
     evidence = set()
     for road in allowed:
@@ -164,6 +166,7 @@ def build(verified_path, candidates_path, obstacles_path, catalog_path, calibrat
             for key in (ka, kb):
                 if key not in nodes:
                     nodes[key] = {"Id": node_id(key), "X": key[0], "Y": key[1], "Name": ""}
+            segments.append((ka, kb, p["level"], p["roadId"]))
             links.append({"From": nodes[ka]["Id"], "To": nodes[kb]["Id"],
                           "Proof": road["proof"], "RoadName": str(p.get("roadName", ""))[:120]})
             if len(links) > MAX_LINKS or len(nodes) > 30000:
@@ -185,9 +188,16 @@ def build(verified_path, candidates_path, obstacles_path, catalog_path, calibrat
             for next_node in neighbor[queue.pop()] & pending:
                 pending.remove(next_node)
                 queue.append(next_node)
+    crossing_complete, crossings = audit_unjoined_crossings(segments)
+    has_verified = any(x["Proof"] == "verified" for x in links)
+    status = ("blocked_no_verified_roads" if not has_verified else
+              "blocked_topology_review" if (not crossing_complete or crossings) else
+              "ready_for_review")
     report = {
         "format": "shroudnav-coverage-v1",
-        "status": "ready_for_review" if any(x["Proof"] == "verified" for x in links) else "blocked_no_verified_roads",
+        "status": status,
+        "crossingAuditComplete": crossing_complete,
+        "unjoinedCrossingWarnings": crossings,
         "verifiedRoadFeatures": len(verified),
         "candidateRoadFeatures": len(candidate),
         "exportedNodes": len(graph_nodes),
