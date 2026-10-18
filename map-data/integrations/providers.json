@@ -1,0 +1,69 @@
+{
+  "format": "shroudnav-integrations-v1",
+  "lastReviewed": "2026-10-17",
+  "liveEnabled": false,
+  "installedIntegrations": [],
+  "candidates": [
+    {
+      "id": "owner-road-graph",
+      "type": "local",
+      "state": "development",
+      "role": "validated manual routes, POIs and turns",
+      "requiresPlayerInstall": false,
+      "readOnly": true,
+      "notes": "No real verified paths yet."
+    },
+    {
+      "id": "official-wiki",
+      "type": "reference",
+      "state": "unverified-transform",
+      "url": "https://enshrouded.wiki.gg/wiki/Help:Editing/Map/Ingame_coordinates",
+      "role": "coordinate-system cross-check",
+      "requiresPlayerInstall": false,
+      "readOnly": true
+    },
+    {
+      "id": "enshrouded-database",
+      "type": "reference",
+      "state": "permission-needed",
+      "url": "https://enshroudeddatabase.com/map/",
+      "role": "1.0 terrain/POI reference",
+      "requiresPlayerInstall": false,
+      "readOnly": true
+    },
+    {
+      "id": "gamevault-3d",
+      "type": "reference",
+      "state": "permission-needed",
+      "url": "https://enshrouded.gamevault.in/map",
+      "role": "3D bridge/cliff/elevation corroboration",
+      "requiresPlayerInstall": false,
+      "readOnly": true
+    },
+    {
+      "id": "private-web-map",
+      "type": "future-private-service",
+      "state": "not-implemented",
+      "role": "optional browser access, no player software installation; require independent read-only credentials separate from server operations",
+      "requiresPlayerInstall": false,
+      "readOnly": true
+    },
+    {
+      "id": "server-player-coordinates",
+      "type": "research",
+      "state": "not-verified-on-1.0",
+      "role": "real player positions",
+      "requiresPlayerInstall": false,
+      "readOnly": true,
+      "notes": "No existing trusted telemetry feed. Disable until verified against an isolated exact-build server and player privacy reviewed."
+    },
+    {
+      "id": "server-quest-objectives",
+      "type": "research",
+      "state": "not-available",
+      "role": "active quest destination; manual map marker remains fallback",
+      "requiresPlayerInstall": false,
+      "readOnly": true
+    }
+  ]
+}
