@@ -135,6 +135,21 @@
       "dependencies": [],
       "decision": "no-public-deployment-without-separate-approval",
       "notes": "Research toolkit source CI passed, but no proprietary game assets examined here; server-to-client change entirely unverified. Never install another EML loader on live server based solely on CI."
+    },
+    {
+      "id": "flame-altar-diamond-28",
+      "name": "45° flat Flame Altar rotation and inscribed diamond base design",
+      "pr": 28,
+      "kind": "game-mod-research",
+      "phase": "research",
+      "risk": "high",
+      "requiresRestart": true,
+      "playerVisible": true,
+      "clientDependency": "none-required",
+      "gameCompatibility": "unverified-1.0-client-placement-and-server-protection",
+      "dependencies": [],
+      "decision": "offline-geometry-only-no-deployment",
+      "notes": "Eight yaw steps, zero pitch/roll, normal voxel grid. Offline inscribed diamond conservatively uses half vanilla square area, but game placement controls and server-side persistent boundaries are unverified. Do not install anything on live Velaris before genuine vanilla-client proof and approved rollback."
     }
   ]
 }
