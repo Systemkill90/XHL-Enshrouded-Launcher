@@ -123,13 +123,7 @@ namespace XHLLauncher
         }
 
         Control BuildOverview() { return BuildModernOverview(); }
-        Control BuildPlayers()
-        {
-            var page = Page("Players", "Players identified in server logs and queries. Character inventories remain on game clients.");
-            playerGrid = new DataGridView { Location = new Point(0, 78), Size = new Size(1000, 500), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ReadOnly = true };
-            Theme.StyleGrid(playerGrid); foreach (string column in new[] { "Player", "Ping", "Jitter", "Session", "Status" }) playerGrid.Columns.Add(column, column);
-            page.Controls.Add(playerGrid); page.Resize += delegate { playerGrid.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 90)); }; return page;
-        }
+        Control BuildPlayers() { return BuildPlayerProfiles(); }
         Control BuildWorld(){return BuildRichWorld();}
         Control BuildMods(){return BuildRichMods();}
         Control BuildLogs()
@@ -466,11 +460,7 @@ namespace XHLLauncher
                 else if (!operationBusy && !string.IsNullOrEmpty(lifecycle.StartupStatus)) operationStatus.Text = lifecycle.StartupStatus;
                 else if(!operationBusy && (operationStatus.Text=="Checking the existing installation…"||operationStatus.Text.StartsWith("Ready •")||operationStatus.Text.StartsWith("Monitoring the running realm"))) operationStatus.Text=h.ServerRunning?"Monitoring the running realm • Server controls are ready":"Ready • Start uses the verified existing installation";
             }
-            if (current == "Players" && playerGrid != null)
-            {
-                playerGrid.Rows.Clear();
-                foreach (var p in telemetry.GetAllKnownPlayers().Where(p => !string.IsNullOrWhiteSpace(p.Name) && !p.Name.StartsWith("Player ")).OrderByDescending(p=>p.Connected)) playerGrid.Rows.Add(p.Name, p.PingMs < 0 ? "Unknown" : p.PingMs + " ms", p.Jitter.ToString("0") + " ms", p.JoinTime == DateTime.MinValue ? "Unknown" : FormatUtil.Duration(DateTime.Now - p.JoinTime), p.Connected ? p.SessionState : "Previously seen in log");
-            }
+            if (current == "Players") UpdatePlayerProfiles();
         }
         void ReadLogs()
         {
