@@ -1,20 +1,33 @@
 # ShroudForge Launcher
 
-Windows launcher and control room for Enshrouded dedicated servers, formerly XHL Enshrouded Launcher.
+Windows launcher and control room for Enshrouded dedicated servers, formerly XHL Enshrouded Launcher. The historic folder and repository names remain for compatibility. Current source: [launcher-2-preview](launcher-2-preview).
 
-The current source lives in [launcher-2-preview](launcher-2-preview). The existing folder and repository names are retained for compatibility.
+## Production philosophy: one live public server
 
-## Current features
+**Velaris is a real public server with players, and the owner's gameplay testing occurs there.** Treat source development, GitHub CI, operator desktop inspection, and public deployment as distinct stages. This project must never treat the owner's running installation as a disposable sandbox.
 
-- Dense dashboard with process CPU/memory trends, player count, uptime, world save records and backup coverage.
-- Grouped server settings with friendly names, toggles, dropdowns, numeric controls and search.
-- Saved world and player history available while the server is offline.
-- Verified backups, guarded offline restore, pinned-build mod checks and the established startup path.
-- Splash screen, app icon, tray access and authenticated private-LAN phone controls.
+No GitHub push, merged PR, passing CI run, uploaded artifact or day on a calendar authorizes a game update, mod injection, restart, save restoration, directory migration or live change. Owner authorization for the exact change and maintenance window is required. Unknown connected-player counts must not be treated as zero.
 
-## Build and validation
+**Sunday, October 18 desktop handoff:** [Owner's live-server handoff](docs/DESKTOP-HANDOFF-2026-10-18.md). It is staged for a desktop connection later today; **no deployment is scheduled or automatic**.
 
-On 64-bit Windows with the .NET Framework compiler:
+- [Public-server operating model](docs/PUBLIC-SERVER-OPERATING-MODEL.md)
+- [Current staged changes and statuses](ops/change-register.json)
+- [Release/change status definitions](docs/CHANGE-REGISTER.md)
+- [Preflight (read-only; review the script before running)](ops/Read-Only-Host-Preflight.ps1)
+- [Build and artifact policy](docs/BUILD-ARTIFACTS.md)
+
+## Current launcher source features
+
+- Dashboard with observed CPU/memory trends, player count, uptime and world-save records.
+- Grouped settings, source-backed player history and protected installation checks.
+- Backups, guarded offline restores, update staging and private-LAN phone controls.
+- Splash, tray and restrained dark-fantasy interface.
+
+**Scope disclaimer:** A source feature or passing isolated test is not evidence the currently installed manager/server contains that code or that an Enshrouded multiplayer session validated it. For historical isolated test results, see [overhaul notes](launcher-2-preview/OVERHAUL.md). The active public server must be inspected before any new deployment.
+
+## Build and isolated validation
+
+On Windows with the .NET Framework compiler:
 
 ```powershell
 ./launcher-2-preview/Build.ps1
@@ -22,17 +35,24 @@ On 64-bit Windows with the .NET Framework compiler:
 ./launcher-2-preview/Test-Native.ps1
 ```
 
-The build produces `ShroudForge-Launcher.exe`. Latest local validation: 146 fixture/UI checks passed; seven native lifecycle checks passed. See [overhaul notes](launcher-2-preview/OVERHAUL.md) for scope and remaining validation.
+On any machine with Python 3:
 
-This is source and a test build, not a signed public installer. CI excludes game binaries, proprietary resources, personal settings, saves and credentials.
+```bash
+python ops/validate_release_register.py
+python -m unittest discover -s ops/tests -p 'test_*.py' -v
+```
 
-## Documentation
+These commands run source validation and fixture/native tests; none is an authorization to change Velaris. **Do not install test artifacts into the running server just because they compile.** Never commit game files, modded proprietary KFC resources, live world backups, credentials, or unsanitized player data.
 
-- [Overhaul notes](launcher-2-preview/OVERHAUL.md)
-- [Preview technical notes](launcher-2-preview/README-PREVIEW.md)
+## Development branches and release status
+
+Experimental work stays in separate draft branches/PRs. The [change register](ops/change-register.json) tracks launcher overhaul (#18), player sheets (#19), QoL (#20), pitch hold (#17), road/GPS research (#21), rejected browser guide (#22, closed) and vanilla-client quest tracker feasibility (#24). All require owner review and relevant proof before inclusion in a public-server update.
+
+## Further documentation
+
+- [Roadmap](ROADMAP.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security](SECURITY.md)
-- [Roadmap](ROADMAP.md)
+- [Preview technical notes](launcher-2-preview/README-PREVIEW.md)
 
-Unofficial fan project. Not affiliated with Keen Games, Steam or Valve.
-
+Unofficial fan project. Not affiliated with Keen Games, Steam, or Valve.
