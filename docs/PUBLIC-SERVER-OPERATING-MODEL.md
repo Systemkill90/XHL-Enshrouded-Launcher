@@ -19,7 +19,7 @@ Velaris is a publicly accessible Enshrouded dedicated server with players. The o
 | `release-approved` | Owner accepted and chose to retain version in production; recovery documented | **Yes for approved version only** |
 | `hold` | Blocked, rejected, superseded or missing evidence | **No** |
 
-Never equate: Git commit = merged = built = deployed = working. A successful workflow validates its stated tests only. A PR, ZIP, downloadable Actions artifact, or tomorrow's calendar date must not start any deployment.
+Never equate: Git commit = merged = built = deployed = working. A successful workflow validates its stated tests only. A PR, ZIP, downloadable Actions artifact, or today's calendar date must not start any deployment.
 
 ## Approved work sequence
 
@@ -42,6 +42,6 @@ Never equate: Git commit = merged = built = deployed = working. A successful wor
 - A client-facing code path needing client installs cannot silently be redefined as server-only.
 - Rollback must respect player progress. Restoring backed-up world files can erase sessions; obtain explicit owner approval and warn players first.
 
-## What "ready tomorrow" means
+## What "ready today" means
 
-**Ready for desktop examination and a deployment decision, not scheduled to update itself.** The host should remain running unless the owner expressly authorizes a maintenance stop. Use [desktop handoff](TOMORROW-DESKTOP-HANDOFF-2026-10-19.md) and the change register for exact next actions.
+**Ready for desktop examination and a deployment decision, not scheduled to update itself.** The host should remain running unless the owner expressly authorizes a maintenance stop. Use [desktop handoff](DESKTOP-HANDOFF-2026-10-18.md) and the change register for exact next actions.
