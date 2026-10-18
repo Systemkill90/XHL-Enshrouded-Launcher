@@ -1,42 +1,41 @@
-# Windows preview downloads and release policy
+# Build artifacts and public-server release policy
 
-The source of truth is the repository. The owner's **known-working Enshrouded installation** is separately maintained, and GitHub automation must never alter its live game files.
+GitHub is the **source of truth for development**, not proof of which files are running on Velaris. The live public server is owner-operated and is the owner's real multiplayer test target; there is no guaranteed disposable game server.
 
-## Temporary Windows previews
+**Every build and Actions artifact is a candidate for inspection only.** GitHub PR review, merge, passing tests, and artifact publication do not automatically install, update, start, stop, patch, back up, or restart the owner's host. Nothing is scheduled for deployment merely because the current date is Sunday, October 18.
 
-The workflow [Windows preview build and download](../.github/workflows/windows-preview-artifact.yml) builds `launcher-2-preview/Build.ps1` on a clean Windows runner, runs both fixture suites, and uploads a short-lived **Actions artifact** containing:
+## Preview workflow
 
-- `Enshrouded-Server-Companion-2-Preview.exe` (unsigned)
-- `SHA256SUMS.txt` for integrity verification
-- `READ-FIRST.txt` with safety limitations
-- `TECHNICAL-NOTES.md` documenting the preview
+[Windows preview build and download](../.github/workflows/windows-preview-artifact.yml) runs Windows source/build checks and may upload a temporary unsigned application bundle:
 
-Find an artifact under **Actions → Windows preview build and download → a successful run → Artifacts**. Sign-in may be required. Artifacts expire after 14 days. A green workflow means compilation and its included tests passed; it does **not** certify that the server, mods, multiplayer, or file migration works on the owner's actual computer.
+- `ShroudForge-Launcher-Preview.exe` — preview manager executable, not a complete game installation.
+- `SHA256SUMS.txt` — integrity checksum of preview binary.
+- `READ-FIRST.txt` — operating limitations.
+- `TECHNICAL-NOTES.md` — build notes.
+- Bundled launcher artwork and compatibility scripts, **not** proprietary game resources or private config.
 
-This is a test-only application binary, not a full installer or supported package. The game, SteamCMD, third-party proprietary components, private configuration, local mod resources, world saves, and server data are **never bundled**.
+Find artifacts under GitHub **Actions → Windows preview build and download → successful run → Artifacts**. They normally expire after 14 days. A green run means its exact build/tests completed, **not that the mod stack or gameplay works on the public server**. Do not point an unsigned preview at the running server without a planned change/revert review.
 
-## Rules for proper releases
+## Release gates
 
-A GitHub Release will be created only after:
+Before promoting to `trial-candidate`, document the exact supported game build and SHA-256 checksums of affected files, dependency/loading path, original backup, reversibility, player impact, source/fixture tests, expected UI and commands, and failure behavior. A source-only candidate may be checked offline without touching Velaris.
 
-1. A clean Windows build and fixture/native tests pass.
-2. The owner validates a disposable installation with their exact supported game build.
-3. Save backups, restore, rollback, startup/shutdown and the currently supported mods are verified.
-4. All game-related redistributable assets have been reviewed for licensing, malware and private data.
-5. A final release archive or installer, checksum, supported game-build matrix, clear notes, and limitations are ready.
-6. The release is deliberately approved; no push or draft pull request automatically deploys to the owner's PC or publishes binaries as official releases.
+Before `public-trial-approved`, the owner must authorize **the named version**, install actions and relevant downtime. Check player presence; unknown is not empty. A game-version update, loader replacement, native memory patch, shutdown, restart, save edit, directory migration, or world restore needs explicit approval and must preserve a rollback path.
 
-Versioned GitHub Releases should be immutable snapshots when practical. Do not overwrite release archives silently. Never auto-update an actively running game server without staging, backup verification and a rollback path.
+For player-impacting changes, make a coherent backup and confirm restoration strategy. A byte-verified **live** save copy may be internally inconsistent and cannot safely replace newer player progress. New world data following the deploy must not be blindly overwritten during rollback.
 
-## Proposed GitHub workflow
+After the owner tests on the public server, record concrete results and known regressions before `live-validated` and `release-approved`. Reject/hold unsupported builds or failed/unknown preflight steps.
 
-- `main`: stable, documented code; not a claim that the latest live-server build is reproduced.
-- `launcher-2-readonly-preview`: development candidate isolated from the stable branch.
-- Feature branches + pull requests: review specific changes and collect Windows check results.
-- Issues: failures, feature requests, real-world acceptance test findings.
-- Actions artifacts: temporary executable evidence during development.
-- Releases: only verified downloadable versions with checksums and release notes.
+Use the [public-server operating model](PUBLIC-SERVER-OPERATING-MODEL.md), [Sunday Oct 18 desktop handoff](DESKTOP-HANDOFF-2026-10-18.md), and [change register](../ops/change-register.json).
 
-## Caveat: package dependencies
+## Repository lanes
 
-The preview's build output is **not** a self-contained installation of Enshrouded. Some update/mod paths refer to locally prepared, exact-version resources deliberately excluded from public source. A CI artifact cannot replace those resources, and it must not be used to improvise a migration or replace a working server. Consult [preview technical notes](../launcher-2-preview/README-PREVIEW.md).
+- `main`: stable source history; no guarantee it exactly matches the deployed host.
+- `feat/launcher-2-overhaul`: ongoing launcher 2.0 source baseline for review.
+- Other `feature/*`, `research/*`, and `ops/*` branches: separate draft work, not automatically included in a deploy.
+- GitHub Actions: CI/source artifacts; no server credentials or deployment keys.
+- GitHub Releases: explicitly approved downloadable versions with supported build/known limitations, hashes and notes. Never silently replace a published binary.
+
+## Licensing and distribution
+
+The preview is not a self-contained Enshrouded installer. Exclude game binaries, SteamCMD installs, third-party proprietary resources, player identities/logs, private network configuration, credentials, live saves and backups. Unknown compatibility of mods with a future game version remains blocked until verified for the exact build.
