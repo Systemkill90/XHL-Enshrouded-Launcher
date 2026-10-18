@@ -1,6 +1,6 @@
 # Change register and release gates
 
-See [operating model](PUBLIC-SERVER-OPERATING-MODEL.md), [desktop handoff](TOMORROW-DESKTOP-HANDOFF-2026-10-19.md), and [machine-readable register](../ops/change-register.json).
+See [operating model](PUBLIC-SERVER-OPERATING-MODEL.md), [desktop handoff](DESKTOP-HANDOFF-2026-10-18.md), and [machine-readable register](../ops/change-register.json).
 
 Every new mod or manager change gets **one** register entry tied to a source branch/PR, dependency and safety class. IDs must be unique. `phase` is the actual development/release state, not a guess. `risk` is operational impact. A passing GitHub Action is not proof of live gameplay or of the current host installation.
 
