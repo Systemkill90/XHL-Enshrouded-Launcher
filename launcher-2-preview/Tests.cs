@@ -102,6 +102,20 @@ static class Checks
         Require(RealmHistory.Load(output,root).KnownPlayers.Contains("Previous session player"),"Offline player history is recovered from rotated server logs");
     }
     static void CheckPhone() {
+        string overrideFile=Path.Combine(Path.GetTempPath(),"shroudforge-phone-"+Guid.NewGuid().ToString("N")+".html");
+        try {
+            File.WriteAllText(overrideFile,"<html>Mobile test revision A</html>");
+            using(var hot=new PhoneView("hot-ui-test",null,overrideFile)) {
+                hot.Start(System.Net.IPAddress.Loopback,0);
+                using(var client=new System.Net.WebClient()) {
+                    Require(client.DownloadString(hot.Url).Contains("revision A"),"Phone can load editable UI without rebuilding");
+                    File.WriteAllText(overrideFile,"<html>Mobile test revision B</html>");
+                    Require(client.DownloadString(hot.Url).Contains("revision B"),"Phone UI reloads from disk without restarting listener");
+                    File.Delete(overrideFile);
+                    Require(client.DownloadString(hot.Url).Contains("ShroudForge Launcher"),"Phone falls back to compiled page if external UI is missing");
+                }
+            }
+        } finally {if(File.Exists(overrideFile))File.Delete(overrideFile);}
         int calls=0; using(var phone=new PhoneView("test-secret", delegate(string op){calls++;return ActionResult.Ok(op);})) {
             phone.Start(System.Net.IPAddress.Loopback,0);phone.Publish(new {name="Fixture",online=true});
             using(var c=new System.Net.WebClient()) {
