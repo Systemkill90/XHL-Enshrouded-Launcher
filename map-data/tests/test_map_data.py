@@ -12,6 +12,7 @@ sys.path.insert(0, str(HERE / "tools"))
 from calibrate import validate, apply, CalibrationError
 from build_graph import build, MapDataError, node_key
 from mask_to_candidates import trace_skeleton, make_geojson, thin
+from poi_index import index_pois
 
 
 def feature(pts, proof="verified", source="owner-manual", level="surface", road_id="r1"):
@@ -153,6 +154,24 @@ class NavigationDataTests(unittest.TestCase):
         self.assertEqual("source-image-pixels", feature_collection["coordinateSystem"])
         self.assertEqual("candidate", feature_collection["features"][0]["properties"]["proof"])
         self.assertEqual("unverified-cv-candidate", feature_collection["features"][0]["properties"]["reviewStatus"])
+
+    def test_quest_destination_links_only_to_nearby_reviewed_road(self):
+        self.write("verified", collection([feature([[0, 0], [10, 0]])]))
+        graph, report = self.run_build()
+        catalog = json.loads(self.files["catalog"].read_text(encoding="utf-8"))
+        def marker(identifier, x, y, source="owner-manual", status="verified"):
+            return {"type": "Feature", "geometry": {"type": "Point", "coordinates": [x, y]},
+                    "properties": {"id": identifier, "name": identifier, "category": "quest",
+                                   "status": status, "sourceId": source, "reviewedBy": "reviewer"}}
+        data = collection([marker("near", 9, 1), marker("distant", 200, 200)])
+        result = index_pois(graph, data, catalog, max_snap=4)
+        self.assertEqual(1, len(result["Records"]))
+        self.assertEqual("near", result["Records"][0]["id"])
+        self.assertEqual(1, len(result["Unreachable"]))
+        self.assertIn("does not prove walkability", result["Records"][0]["warning"])
+        data["features"][0]["properties"]["sourceId"] = "enshrouded-database-map"
+        with self.assertRaisesRegex(MapDataError, "redistribution approval"):
+            index_pois(graph, data, catalog, max_snap=4)
 
     def test_cli_blocks_publish_when_no_world_road_data(self):
         command = [sys.executable, str(HERE / "tools" / "build_graph.py"), "--publish",
