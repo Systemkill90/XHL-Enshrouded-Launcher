@@ -1,0 +1,357 @@
+{
+  "format": "shroudnav-quest-guide-v1",
+  "builtFor": "Enshrouded 1.0 source-backed manual guide",
+  "created": "2026-10-17",
+  "noLiveTracking": true,
+  "noClientMod": true,
+  "guideScope": "Curated verified-source notes; incomplete coverage. Not a replacement for live journal sync or GPS.",
+  "sourcePolicy": "Original concise paraphrases and locations. Never reproduce game lore text wholesale. Source links retained. Per-user completion is manual, local to browser.",
+  "quests": [
+    {
+      "id": "glimpse-of-eternity",
+      "title": "A Glimpse Of Eternity",
+      "region": "Veilwater Basin / Blackmire",
+      "giver": "Alchemist",
+      "type": "side",
+      "scope": "Enshrouded 1.0 source-backed guide; travel directions are not live GPS",
+      "summary": "Follow a wizard's five connected journal entries through concealed tombs. The lore clues actually identify the next area, but the entrances can be unmarked.",
+      "requirements": [
+        "Alchemist quest unlocked",
+        "Official wiki lists prerequisite Obtaining A Mill, placing the Mill, Flame Altar Level 8; check your current game journal"
+      ],
+      "steps": [
+        {
+          "id": "eternity-1",
+          "heading": "Find first hidden tomb",
+          "direction": "At the marked hidden tomb, clear rubble within the short-pillared ruins; enter underground, take the southern watery passage and reach the lectern.",
+          "location": "Hidden Tomb, cave/ruin",
+          "movement": "mine, swim",
+          "hazards": [
+            "Saw traps",
+            "Low visibility"
+          ],
+          "completion": "Read Experiments Of Eternity at the lectern.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "eternity-2",
+          "heading": "Follow the Darkwater jungle clue",
+          "direction": "Next tomb is an unmarked ruined building across Gateway Outpost Darkwater, near the jungle. Wiki reference coordinates X 5584, Y 4760 (legacy frame only). Dig into the western interior.",
+          "location": "Tomb near Darkwater, Veilwater Basin / jungle",
+          "movement": "dig, swim",
+          "hazards": [
+            "Long underwater passage",
+            "Air supply"
+          ],
+          "completion": "Read Ashes Of Eternity and recover the fireball spell from the submerged sarcophagus.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "eternity-3",
+          "heading": "Search behind the lake tower",
+          "direction": "Find the ruin hidden in rock near Goldrock Saddle, behind the great tower in the lake. Wiki reference X 5040, Y 5905 (legacy frame). Descend to the water-filled lectern chamber.",
+          "location": "Goldrock Saddle lake-tower tomb",
+          "movement": "walk, descend, swim",
+          "hazards": [
+            "Enemies",
+            "Multi-level tomb"
+          ],
+          "completion": "Read The Spell That Betrayed Me and collect the heal-beam spell.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "eternity-4",
+          "heading": "Find the maze tomb by the Mining Rift",
+          "direction": "The next burial tunnel is near Mining Rift heading toward Blackmire. Wiki marks two unverified 1.0 reference entrances: X 3780 Y 6520 or X 3683 Y 6378. The second end has a nearby grave.",
+          "location": "Blackmire / Mining Rift",
+          "movement": "walk, glide, dig",
+          "hazards": [
+            "Underwater tunnel",
+            "Long breath requirement"
+          ],
+          "completion": "Read Fast As Lightning; inspect and dig the grave by the alternate entrance for the lightning spell.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "eternity-5",
+          "heading": "Last tomb near Stillwater Bay",
+          "direction": "Look near the foot of the hills beyond Stillwater Bay. Wiki reference X 3208, Y 7287; not calibrated to 1.0 in-game coordinates. Clear enemies, read the lectern, then investigate submerged sarcophagus.",
+          "location": "Stillwater Bay foot-of-hills tomb",
+          "movement": "walk, swim",
+          "hazards": [
+            "Hollow enemies",
+            "Extended underwater dive"
+          ],
+          "completion": "Read Frozen Eternity and retrieve the ice spell.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "eternity-6",
+          "heading": "Return to the Alchemist",
+          "direction": "Return home and speak with the Alchemist after collecting the tomb findings.",
+          "location": "Home / Alchemist",
+          "movement": "fast-travel",
+          "hazards": [],
+          "completion": "Talk to the Alchemist to finish the quest.",
+          "confidence": "source-backed"
+        }
+      ],
+      "clues": [
+        {
+          "id": "experiments-eternity",
+          "entry": "Experiments Of Eternity",
+          "category": "in-game lore page",
+          "stepId": "eternity-1",
+          "foundAt": "First hidden tomb, underground lectern past southern water area",
+          "whatItMeans": "The wizard is moving across Gateway Outpost Darkwater into dense jungle to continue experiments.",
+          "nextAction": "Use the Darkwater outpost as the next area landmark and look for a ruin that is not automatically marked.",
+          "easyToMiss": "You must read the page to advance; searching only the visible map marker can send you in circles.",
+          "importance": "required",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "ashes-eternity",
+          "entry": "Ashes Of Eternity",
+          "category": "in-game lore page",
+          "stepId": "eternity-2",
+          "foundAt": "Second tomb: lectern after digging down through a ruined building",
+          "whatItMeans": "The next tomb is hidden close to Goldrock Saddle behind the large tower in the lake.",
+          "nextAction": "Locate the rocky arching ruin near the lake and descend into the tomb.",
+          "easyToMiss": "Do not confuse the lore note's position with the unmarked tomb entrance.",
+          "importance": "required",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "spell-betrayed",
+          "entry": "The Spell That Betrayed Me",
+          "category": "in-game lore page",
+          "stepId": "eternity-3",
+          "foundAt": "Third tomb, lectern close to the water-filled chamber",
+          "whatItMeans": "The wizard went to a maze-like tomb near the Mining Rift on the route toward Blackmire.",
+          "nextAction": "Search the Mining Rift passage and account for separate tunnel entrances.",
+          "easyToMiss": "The actual spell pickup is in the water, not simply the lore book.",
+          "importance": "required",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "fast-lightning",
+          "entry": "Fast As Lightning",
+          "category": "in-game lore page",
+          "stepId": "eternity-4",
+          "foundAt": "Fourth area by the tomb exit and grave near Blackmire",
+          "whatItMeans": "The final test took place at a hidden tomb near Stillwater Bay, close to the base of the hills.",
+          "nextAction": "Search the Stillwater Bay foothills for the last lectern.",
+          "easyToMiss": "Inspect the nearby grave for the lightning spell; don't assume you must swim the full tunnel.",
+          "importance": "required",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "frozen-eternity",
+          "entry": "Frozen Eternity",
+          "category": "in-game lore page",
+          "stepId": "eternity-5",
+          "foundAt": "Fifth tomb lectern, beyond Hollow enemies",
+          "whatItMeans": "The wizard believed freezing himself might preserve his life. The journal trail ends here.",
+          "nextAction": "Recover the ice spell from the underwater sarcophagus and return to the Alchemist.",
+          "easyToMiss": "Reading the book and finding the sarcophagus are distinct actions.",
+          "importance": "required",
+          "confidence": "source-backed"
+        }
+      ],
+      "sources": [
+        "https://enshrouded.wiki.gg/wiki/Quests/A_Glimpse_Of_Eternity",
+        "https://enshrouded.wiki.gg/wiki/Lore/A_Glimpse_Of_Eternity",
+        "https://allthings.how/how-to-get-eternal-spells-in-enshrouded-1-0-all-41-recipes-and-stations/"
+      ],
+      "dataWarnings": [
+        "Any listed X/Y pairs originate from the wiki's own coordinate context; they are not calibrated world graph coordinates or verified Enshrouded 1.0 GPS positions.",
+        "The source guide is detailed but full route traversal and exact spell names/rewards should be checked against the game build."
+      ]
+    },
+    {
+      "id": "hunters-hand-spindle-westcott",
+      "title": "The Hunter's Hand Spindle — Explore Westcott",
+      "region": "Westcott / Revelwood",
+      "giver": "Hunter",
+      "type": "main",
+      "scope": "1.0-era walkthrough",
+      "summary": "The map sends you to search Westcott, but the required diary is inside a particular damaged two-story stone house.",
+      "requirements": [
+        "Talk to the Hunter about the lost spindle after prior Hunter progression",
+        "Check Shroud resistance before entering the valley on the suggested route"
+      ],
+      "steps": [
+        {
+          "id": "westcott-1",
+          "heading": "Approach Westcott",
+          "direction": "A reported route starts at the Springlands Ancient Spire, glides northwest, passes the Elixir Well ruins and exits the Shroud up rocky slopes toward Westcott.",
+          "location": "Westcott settlement",
+          "movement": "glide, walk, climb",
+          "hazards": [
+            "Shroud",
+            "Rocky slopes"
+          ],
+          "completion": "Reach Westcott; the game changes to a search-area objective.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "westcott-2",
+          "heading": "Find the damaged stone house",
+          "direction": "Look for the two-story stone building near Westcott's entry side, recognizable by its blown-open roof. Enter and break the internal wooden barricades.",
+          "location": "Two-story stone house, Westcott",
+          "movement": "walk, break barricades",
+          "hazards": [
+            "Blocked doorways"
+          ],
+          "completion": "Reach the upper terrace.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "westcott-3",
+          "heading": "Read the required diary",
+          "direction": "On the upper terrace, read the glowing red diary scroll on the wooden table. There is a second diary entry below in the kitchen.",
+          "location": "Upper terrace, Westcott house",
+          "movement": "interact",
+          "hazards": [],
+          "completion": "First diary entry advances the objective; the game points toward Athalan Skree's trail.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "westcott-4",
+          "heading": "Follow up at the hunter's camp",
+          "direction": "Search the abandoned hunter's camp north-northwest of Westcott and read the note there to continue the Hand Spindle trail.",
+          "location": "Abandoned Hunter's Camp",
+          "movement": "walk, interact",
+          "hazards": [],
+          "completion": "Continue toward the spindle using the new objective.",
+          "confidence": "source-backed"
+        }
+      ],
+      "clues": [
+        {
+          "id": "martha-diary-first",
+          "entry": "Martha's Diary — First Entry of Midyear, 503 D.A.",
+          "category": "in-game diary",
+          "stepId": "westcott-3",
+          "foundAt": "Open upper floor / terrace of the two-story stone house near Westcott's entrance, on a wooden table",
+          "whatItMeans": "Reading the diary is the real search objective and reveals the next lead in the Hunter's trail.",
+          "nextAction": "Continue the quest toward the abandoned hunter camp north-northwest of town.",
+          "easyToMiss": "The quest marker is a broad search area; the required scroll is upstairs behind breakable internal barricades.",
+          "importance": "required",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "martha-diary-second",
+          "entry": "Martha's other diary entry",
+          "category": "in-game diary",
+          "stepId": "westcott-3",
+          "foundAt": "Kitchen on the first floor of the same house",
+          "whatItMeans": "Additional story context; the guide indicates this one is not required to clear the Westcott search objective.",
+          "nextAction": "Read it for lore if desired, then make sure the upstairs first diary was read.",
+          "easyToMiss": "The downstairs note can be mistaken for the objective note.",
+          "importance": "optional",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "hunter-camp-note",
+          "entry": "Hunter-camp note (title not confirmed)",
+          "category": "in-game note",
+          "stepId": "westcott-4",
+          "foundAt": "Abandoned camp to the north-northwest of Westcott",
+          "whatItMeans": "Progresses the trail toward retrieving the Hand Spindle.",
+          "nextAction": "Read the camp note before searching farther.",
+          "easyToMiss": "The camp is less conspicuous than large marked ruins. Exact note title needs in-game verification.",
+          "importance": "required",
+          "confidence": "guide_only"
+        }
+      ],
+      "sources": [
+        "https://allthings.how/enshrouded-explore-westcott-walkthrough-the-hunter-s-hand-spindle/"
+      ],
+      "dataWarnings": [
+        "Route is practical guidance, not a verified graph or live tracking.",
+        "Exact camp note title and final spindle pickup need direct game verification."
+      ]
+    },
+    {
+      "id": "vukah-rituals-uncovered",
+      "title": "Vukah Rituals Uncovered",
+      "region": "Fort Kelvin / Revelwood",
+      "giver": "Marianne Reed",
+      "type": "side",
+      "scope": "1.0-era walkthrough",
+      "summary": "The objective lies below Fort Kelvin's cliffs; collect a ritual dagger and a newspaper clipping, then report back.",
+      "requirements": [
+        "Recruit Marianne Reed and have her settled at base"
+      ],
+      "steps": [
+        {
+          "id": "vukah-1",
+          "heading": "Find the pit below Fort Kelvin",
+          "direction": "Head to the foot of Fort Kelvin's cliffs and search for Sacrificial Vukah Pit. The objective isn't at the top of the fortress.",
+          "location": "Sacrificial Vukah Pit, below Fort Kelvin",
+          "movement": "descend, walk",
+          "hazards": [
+            "Cliff fall"
+          ],
+          "completion": "Enter pit until the location-reached notice appears.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "vukah-2",
+          "heading": "Collect the dagger and newspaper",
+          "direction": "Search the pit for the Sacrificial Vukah Dagger and Ramone Jones's writing; both are worth collecting on the same visit.",
+          "location": "Sacrificial Vukah Pit",
+          "movement": "interact",
+          "hazards": [
+            "Vukah area"
+          ],
+          "completion": "Collect the dagger and newspaper clipping.",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "vukah-3",
+          "heading": "Report to Marianne",
+          "direction": "Return to the home base, talk to Marianne Reed and report the findings.",
+          "location": "Home / Marianne Reed",
+          "movement": "fast-travel",
+          "hazards": [],
+          "completion": "Dialogue ends Vukah Rituals Uncovered.",
+          "confidence": "source-backed"
+        }
+      ],
+      "clues": [
+        {
+          "id": "ramone-writing",
+          "entry": "Ramone Jones's newspaper writing",
+          "category": "in-game writing / quest lead",
+          "stepId": "vukah-2",
+          "foundAt": "Sacrificial Vukah Pit at the base of Fort Kelvin cliffs",
+          "whatItMeans": "Clipping points toward Ramone's separate investigation and triggers the Ramone's Writing follow-up.",
+          "nextAction": "After reporting to Marianne, search for Ramone's hiding place in a concealed cellar below a house at Shanty Shacks.",
+          "easyToMiss": "The pit is at cliff level BELOW the fort; the clipping matters separately from the dagger.",
+          "importance": "quest-chain",
+          "confidence": "source-backed"
+        },
+        {
+          "id": "vukah-journal-briefing",
+          "entry": "Marianne Reed's quest journal briefing",
+          "category": "in-game quest journal",
+          "stepId": "vukah-1",
+          "foundAt": "Journal entry when Vukah Rituals Uncovered is assigned",
+          "whatItMeans": "References residents being pushed from the Fort Kelvin cliffs; the destination is the sacrificial pit down below, not the fort's upper rooms.",
+          "nextAction": "Find a safe descent to the bottom of the cliffs.",
+          "easyToMiss": "The map marker can feel vertically ambiguous.",
+          "importance": "required",
+          "confidence": "source-backed"
+        }
+      ],
+      "sources": [
+        "https://allthings.how/enshrouded-1-0-vukah-rituals-uncovered-quest-walkthrough/"
+      ],
+      "dataWarnings": [
+        "The guide documents a route and journal lead, not a game API or coordinates."
+      ]
+    }
+  ]
+}
