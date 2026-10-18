@@ -241,6 +241,28 @@ static class Checks
             string sentinelHash = InstallationAudit.Hash(savePath);
             File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\",\"slotCount\":16}");
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
+            var profileNow=DateTime.Now;
+            var observed=new PlayerState { Name="Fixture player", SteamId="76561198000000000", Peer="4(2)", MachineIndex=5, Handle="4(2)",
+                Connected=true, JoinTime=profileNow.AddMinutes(-18), PingMs=62, Jitter=4.2, OneMinuteAverage=60, OneMinutePeak=79,
+                FiveMinutePeak=103, HealthScore=91, HealthReason="Stable", LostTotal=3, TimeoutCount=1, CharacterSaveBytes=1024 };
+            var completed=new PlayerSession { Player="Fixture player", Joined=profileNow.AddHours(-2), Left=profileNow.AddHours(-1),
+                DurationSeconds=3600 };
+            var joined=new ActivityItem(profileNow.AddMinutes(-18),"Player","Fixture player connected");
+            var sheet=PlayerSheet.Create("Fixture player",observed,new[]{completed},new[]{joined},true,profileNow);
+            Require(sheet.Status.StartsWith("ONLINE") && sheet.Identity.Contains(observed.SteamId) && sheet.Identity.Contains("1 KB"),
+                "Player profile shows observed identity and save-transfer evidence, without reading inventory");
+            Require(sheet.Sessions.Contains("1h") && sheet.Sessions.Contains("18m") && sheet.Connection.Contains("62 ms"),
+                "Player profile shows completed visits, current session and ping");
+            Require(sheet.Incidents.Contains("1 observed") && sheet.Activity.Contains("Fixture player connected"),
+                "Player profile includes recorded connection issues and exact-name events");
+            Require(sheet.Limitations.Contains("inventory") && sheet.Limitations.Contains("matched by display name"),
+                "Player profile states unsupported character data and identity-matching limits");
+            var oldSheet=PlayerSheet.Create("Offline player",null,new[]{new PlayerSession { Player="Offline player",
+                Joined=profileNow.AddDays(-1),Left=profileNow.AddDays(-1).AddMinutes(25),DurationSeconds=1500 }},
+                new[]{new ActivityItem(profileNow,"Player","Offline player2 connected")},false,profileNow);
+            Require(oldSheet.Status.StartsWith("OFFLINE") && oldSheet.Identity.Contains("Not recorded")
+                && oldSheet.Activity.Contains("No matching") && oldSheet.Sessions.Contains("25m"),
+                "Offline player sheet uses historical visits, omits unknown fields and rejects prefix-name events");
             using (var form = new ControlRoom(root, settings, false))
             {
                 form.ClientSize = new Size(1384, 870);
