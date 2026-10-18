@@ -9,9 +9,9 @@ using System.Collections.Generic;
 
 namespace XHLLauncher {
  public sealed partial class ControlRoom {
-  Label liveActivity, backupResult;
+  Label liveActivity, backupResult, readinessInfo;
   DataGridView backupGrid;
-  DashboardTrend cpuTrend, memoryTrend; Label backupOverview; DateTime lastBackupOverview=DateTime.MinValue;
+  DashboardTrend cpuTrend, memoryTrend; Label backupOverview; DateTime lastBackupOverview=DateTime.MinValue; int markedBackupCount=-1;
   void ConfigureTray(){
    var tray=new NotifyIcon{Text="ShroudForge Launcher 2.0 • "+settings.ServerName,Icon=Icon,Visible=true};var menu=new ContextMenuStrip();
    Action show=delegate{Show();WindowState=FormWindowState.Normal;Activate();};
@@ -65,13 +65,15 @@ namespace XHLLauncher {
    var health=Card(page,"INSTALLATION & MODS",668,486,332,138);auditSummary=Body(health,"Checking",40,9,Theme.Text);auditSummary.Height=25;auditDetail=Body(health,"",68,8,Theme.Muted);auditDetail.Height=30;
    ActionButton(health,"Review checks",18,100,128,delegate{Navigate("Installation");});ActionButton(health,"Mods",154,100,78,delegate{Navigate("Mods");});
    liveActivity=TextLabel("Waiting for live telemetry",8,Theme.Muted,false);liveActivity.SetBounds(0,638,1000,30);liveActivity.AutoSize=false;page.Controls.Add(liveActivity);
-   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;};
+   readinessInfo=TextLabel("READINESS / Checking pinned files and backup markers",8,Theme.Muted,false);readinessInfo.SetBounds(0,674,1000,28);readinessInfo.AutoSize=false;page.Controls.Add(readinessInfo);
+   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=readinessInfo.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;};
    return page;
   }
   void UpdateModernDetails() {
    if(liveActivity!=null){var h=telemetry.GetHost();cpuTrend.UpdateSamples(telemetry.CpuHistory,h.ServerRunning);memoryTrend.UpdateSamples(telemetry.RamHistory,h.ServerRunning);liveActivity.Text=h.ServerRunning?"LIVE  /  PID "+h.Pid+"  •  Trends show actual process samples from this launcher session":"OFFLINE  /  Live trends unavailable. Saved world and backup records remain available.";
+    readinessInfo.Text="READINESS / "+SafeSupportReport.Readiness(h,audit,markedBackupCount);
     if((DateTime.Now-lastBackupOverview).TotalSeconds<10)return;lastBackupOverview=DateTime.Now;
-    try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>d.CreationTimeUtc).ToArray():new DirectoryInfo[0];backupOverview.Text=snapshots.Length+" verified snapshots"+(snapshots.Length>0?"\r\nLatest  "+snapshots[0].CreationTime.ToString("MMM d, h:mm tt"):"\r\nNo verified snapshot found")+"\r\nAutomatic backups  "+(settings.AutoBackup?"Every "+settings.BackupIntervalMinutes+" min":"Off");}catch{backupOverview.Text="Backup history unavailable";}
+    try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>d.CreationTimeUtc).ToArray():new DirectoryInfo[0];markedBackupCount=snapshots.Length;backupOverview.Text=snapshots.Length+" verified snapshots"+(snapshots.Length>0?"\r\nLatest  "+snapshots[0].CreationTime.ToString("MMM d, h:mm tt"):"\r\nNo verified snapshot found")+"\r\nAutomatic backups  "+(settings.AutoBackup?"Every "+settings.BackupIntervalMinutes+" min":"Off");}catch{backupOverview.Text="Backup history unavailable";}
    }
   }
   Control BuildBackups() {
