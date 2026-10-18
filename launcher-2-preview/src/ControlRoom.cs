@@ -29,6 +29,7 @@ namespace XHLLauncher
         CheckBox recoveryOption, backupOption;
         DateTime phoneBackupScan = DateTime.MinValue;
         string lastPhoneBackup = "No verified backup found";
+        int phoneBackupCount = -1;
         string phoneWorldFiles="Checking", phoneWorldSize="Checking", phoneWorldSaved="Checking";
         string BackupRoot { get { return string.IsNullOrWhiteSpace(settings.BackupRoot) ? Path.Combine(appBase, "World-Backups") : Path.GetFullPath(settings.BackupRoot); } }
         Label operationStatus;
@@ -268,8 +269,9 @@ namespace XHLLauncher
             if(phone==null)return;var h=telemetry.GetHost();
             if(DateTime.UtcNow >= phoneBackupScan) {
                 try {var markers=Directory.Exists(BackupRoot)?Directory.GetFiles(BackupRoot,"VERIFIED.txt",SearchOption.AllDirectories):new string[0];
+                    phoneBackupCount=markers.Length;
                     lastPhoneBackup=markers.Length==0?"No verified backup found":markers.Select(File.GetLastWriteTime).Max().ToString("MMM d, h:mm tt");
-                } catch {lastPhoneBackup="Backup history unavailable";}
+                } catch {lastPhoneBackup="Backup history unavailable";phoneBackupCount=-1;}
                 try {var cfg=ConfigReader.Read(settings.ServerRoot);var dir=Path.GetFullPath(Path.Combine(settings.ServerRoot,cfg.SaveDirectory));var files=new DirectoryInfo(dir).GetFiles();phoneWorldFiles=string.Join(", ",files.Select(f=>f.Name));phoneWorldSize=FormatUtil.Bytes(files.Sum(f=>f.Length));phoneWorldSaved=files.Length==0?"No save files found":files.Max(f=>f.LastWriteTime).ToString("MMM d, h:mm tt");}catch{phoneWorldFiles="Unavailable";phoneWorldSize="Unavailable";phoneWorldSaved="Unavailable";}
                 phoneBackupScan=DateTime.UtcNow.AddSeconds(30);
             }
@@ -278,7 +280,37 @@ namespace XHLLauncher
             foreach(var session in Storage.ReadSessions(settings.ServerRoot)) if(!known.Any(p=>p.name==session.Player))known.Add(new {name=session.Player,evidence="Recorded session history"});
             var world=telemetry.GetWorld();
             if(lastRealm!=null)foreach(string name in lastRealm.KnownPlayers)if(!known.Any(p=>p.name==name))known.Add(new {name=name,evidence="Previous server session / saved history"});
-            phone.Publish(new {worldFiles=phoneWorldFiles,worldSize=phoneWorldSize,worldSaved=phoneWorldSaved,bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString(),knownPlayers=known.OrderBy(p=>p.name).ToArray(),name=settings.ServerName,online=h.ServerRunning,players=h.ServerRunning?telemetry.PlayerCountText:"—",playerEvidence=telemetry.PlayerCountEvidence,roster=list.Select(p=>new {name=p.Name,session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed"}).ToArray(),uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",cpu=h.CpuPercent.ToString("0.0"),memory=FormatUtil.Bytes(h.RamBytes),updated=DateTime.Now.ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text,lastBackup=lastPhoneBackup,backupStatus=automationStatus==null?"":automationStatus.Text,autoBackup=settings.AutoBackup,recovery=settings.AutoRestartOnCrash,backupMinutes=settings.BackupIntervalMinutes,nextBackup=nextBackup.ToLocalTime().ToString("h:mm tt")});
+            phone.Publish(new {
+                worldFiles=phoneWorldFiles, worldSize=phoneWorldSize, worldSaved=phoneWorldSaved,
+                bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString(),
+                knownPlayers=known.OrderBy(p=>p.name).Take(100).ToArray(),
+                name=settings.ServerName, online=h.ServerRunning,
+                players=h.ServerRunning?telemetry.PlayerCountText:"—", playerEvidence=telemetry.PlayerCountEvidence,
+                roster=list.Select(p=>new {
+                    name=p.Name,
+                    session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed",
+                    ping=p.PingMs>=0?p.PingMs.ToString()+" ms":"Not observed",
+                    health=p.HealthScore, healthReason=p.HealthReason,
+                    jitter=p.PingMs>=0?p.Jitter.ToString("0.0")+" ms":"Not observed",
+                    droppedPackets=p.LostTotal,
+                    connection=p.SessionState,
+                    lastIssue=p.LastIssue
+                }).ToArray(),
+                activity=telemetry.GetActivity(16).Select(e=>new {
+                    time=e.Time.ToString("h:mm tt"), level=e.Level, message=e.Text
+                }).ToArray(),
+                uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",
+                cpu=h.ServerRunning?h.CpuPercent.ToString("0.0"):"—",
+                memory=h.ServerRunning?FormatUtil.Bytes(h.RamBytes):"—",
+                updated=DateTime.Now.ToString("h:mm:ss tt"), sampledAt=DateTime.UtcNow.Ticks,
+                controls=controlsEnabled, busy=operationBusy||updateBusy||lifecycle.StartupPending,
+                operation=operationStatus==null?"":operationStatus.Text,
+                lastBackup=lastPhoneBackup, backupCount=phoneBackupCount,
+                backupStatus=automationStatus==null?"":automationStatus.Text,
+                autoBackup=settings.AutoBackup, recovery=settings.AutoRestartOnCrash,
+                backupMinutes=settings.BackupIntervalMinutes,
+                nextBackup=nextBackup.ToLocalTime().ToString("h:mm tt")
+            });
         }
 
         ActionResult PhoneCommand(string operation)
