@@ -166,7 +166,9 @@
       "dataWarnings": [
         "Any listed X/Y pairs originate from the wiki's own coordinate context; they are not calibrated world graph coordinates or verified Enshrouded 1.0 GPS positions.",
         "The source guide is detailed but full route traversal and exact spell names/rewards should be checked against the game build."
-      ]
+      ],
+      "liveTracking": false,
+      "geometryVerified": false
     },
     {
       "id": "hunters-hand-spindle-westcott",
@@ -271,7 +273,9 @@
       "dataWarnings": [
         "Route is practical guidance, not a verified graph or live tracking.",
         "Exact camp note title and final spindle pickup need direct game verification."
-      ]
+      ],
+      "liveTracking": false,
+      "geometryVerified": false
     },
     {
       "id": "vukah-rituals-uncovered",
@@ -351,7 +355,9 @@
       ],
       "dataWarnings": [
         "The guide documents a route and journal lead, not a game API or coordinates."
-      ]
+      ],
+      "liveTracking": false,
+      "geometryVerified": false
     }
   ]
 }
