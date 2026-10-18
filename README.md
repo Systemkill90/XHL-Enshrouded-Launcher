@@ -26,6 +26,12 @@ The build produces `ShroudForge-Launcher.exe`. Latest local validation: 146 fixt
 
 This is source and a test build, not a signed public installer. CI excludes game binaries, proprietary resources, personal settings, saves and credentials.
 
+## Map Data & Integrations (ShroudNav)
+
+The [dedicated map-data workspace](map-data/README.md) contains source registries, coordinate calibration, computer-vision road candidates, manually verified roads, obstacles, quest/POI anchors, road-graph conversion and independent map-data tests.
+
+The navigation prototype does **not** yet contain real verified Embervale road geometry or a verified live-player coordinate feed. It is not deployed and requires no player-side software. The live server and approved flight controls remain unchanged.
+
 ## Documentation
 
 - [Overhaul notes](launcher-2-preview/OVERHAUL.md)
