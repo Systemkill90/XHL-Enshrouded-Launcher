@@ -11,6 +11,7 @@ HERE = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(HERE / "tools"))
 from calibrate import validate, apply, CalibrationError
 from build_graph import build, MapDataError, node_key
+from mask_to_candidates import trace_skeleton, make_geojson, thin
 
 
 def feature(pts, proof="verified", source="owner-manual", level="surface", road_id="r1"):
@@ -142,6 +143,16 @@ class NavigationDataTests(unittest.TestCase):
                                            "source-image-pixels", image="wrong-map"))
         with self.assertRaisesRegex(MapDataError, "exact traced source"):
             self.run_build()
+
+    def test_mask_extraction_produces_only_unverified_geojson_candidates(self):
+        road = {(x, 3) for x in range(15)}
+        skeleton = thin(road)
+        polylines = trace_skeleton(skeleton, min_length=8)
+        self.assertEqual(1, len(polylines))
+        feature_collection = make_geojson(polylines, "synthetic-mask", "owner-manual")
+        self.assertEqual("source-image-pixels", feature_collection["coordinateSystem"])
+        self.assertEqual("candidate", feature_collection["features"][0]["properties"]["proof"])
+        self.assertEqual("unverified-cv-candidate", feature_collection["features"][0]["properties"]["reviewStatus"])
 
     def test_cli_blocks_publish_when_no_world_road_data(self):
         command = [sys.executable, str(HERE / "tools" / "build_graph.py"), "--publish",
