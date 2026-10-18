@@ -1,0 +1,12 @@
+{
+  "id": "shroudforge_altar_readonly_schema_probe",
+  "name": "ShroudForge Read-only Altar Resource Schema Discovery",
+  "version": "0.1.0",
+  "capabilities": [
+    "export"
+  ],
+  "authors": [
+    "ShroudForge research"
+  ],
+  "description": "Export only game resource type names relevant to altar placement and territory; isolated legal game copy only."
+}
