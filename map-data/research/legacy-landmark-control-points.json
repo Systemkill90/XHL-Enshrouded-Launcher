@@ -1,0 +1,99 @@
+{
+  "format": "shroudnav-landmark-references-v1",
+  "dateReviewed": "2026-10-17",
+  "coordinateFrame": "wiki-map-xy-0-8191",
+  "coordinateSource": "https://enshrouded.wiki.gg/wiki/Help:Editing/Map/Ingame_coordinates",
+  "sourceCoordinatesMeaning": "Wiki X,Y are horizontal and Z is height. These are published legacy reference coordinates after teleporting; do not directly use as 1.0 X/Z game meters.",
+  "sourceLicenseNote": "Reference to historical published coordinates and short landmark names, not redistributing game artwork or wiki map. Wiki textual contributions have attribution/noncommercial/sharealike terms; verify permissions before aggregating or republishing elsewhere.",
+  "versionEvidence": "These waypoint coordinates are not independently measured on a 1.0 game server or cross-calibrated to the new 10240 X/Z map.",
+  "landmarks": [
+    {
+      "id": "cinder-vault",
+      "name": "Cinder Vault",
+      "x": 2671,
+      "y": 192,
+      "altitude": 902,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "springlands-spire",
+      "name": "Ancient Spire — Springlands",
+      "x": 2483,
+      "y": 957,
+      "altitude": 1037,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "low-meadows-spire",
+      "name": "Ancient Spire — Low Meadows",
+      "x": 3886,
+      "y": 603,
+      "altitude": 862,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "revelwood-spire",
+      "name": "Ancient Spire — Revelwood",
+      "x": 2782,
+      "y": 2620,
+      "altitude": 975,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "highlands-spire",
+      "name": "Ancient Spire — Nomad Highlands",
+      "x": 5743,
+      "y": 2763,
+      "altitude": 989,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "kindlewastes-spire",
+      "name": "Ancient Spire — Kindlewastes",
+      "x": 7377,
+      "y": 1468,
+      "altitude": 1059,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "rose-shell-burrow",
+      "name": "Rose Shell Burrow",
+      "x": 7382,
+      "y": 2149,
+      "altitude": 864,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    },
+    {
+      "id": "sunsimmer-souterrain",
+      "name": "Sunsimmer Souterrain",
+      "x": 6018,
+      "y": 1336,
+      "altitude": 781,
+      "sourceId": "enshrouded-wiki-coordinates",
+      "reviewStatus": "reference_only_not_1_0_verified",
+      "independent1_0Match": null,
+      "visibleInNewMap": "unconfirmed"
+    }
+  ]
+}
