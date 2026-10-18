@@ -6,6 +6,7 @@ on:
       - launcher-2-readonly-preview
       - ci/windows-preview-artifacts
       - feat/launcher-2-overhaul
+      - feature/v2-qol-safety-pass-1
   pull_request:
     branches:
       - launcher-2-readonly-preview
