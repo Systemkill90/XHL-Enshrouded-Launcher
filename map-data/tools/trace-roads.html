@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShroudNav Road Tracer</title><style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#11191c;color:#e6e8df;font:14px system-ui}
+header{padding:18px 22px;background:#182327;border-bottom:1px solid #42504c}h1{font:26px Georgia;margin:0}small{color:#9caaa8}
+main{display:grid;grid-template-columns:290px minmax(350px,1fr)}aside{background:#1a2629;padding:16px;border-right:1px solid #42504c}
+section{padding:16px}h2{font-size:13px;color:#cbb27e;margin:22px 0 8px;text-transform:uppercase}
+label{display:block;margin:12px 0 5px;color:#b3c2bf}
+input,select,button{background:#132024;color:#eee;border:1px solid #455551;border-radius:6px;padding:10px;width:100%;font:inherit}
+input[type=checkbox]{width:auto}button{cursor:pointer;margin:5px 0}button:hover{border-color:#cbb27e}button.primary{background:#45543e}
+button:disabled{opacity:.4;cursor:default}#board{display:block;max-width:100%;border:1px solid #455551;background:#141b1e;touch-action:none}
+#status{color:#d6c18c;min-height:45px}.hint{border:1px solid #42504c;color:#abbab9;border-radius:7px;padding:12px;line-height:1.5;font-size:12px}
+.muted{color:#a7b5b3;padding:8px 0}.buttons{display:flex;gap:6px}.buttons button{flex:1}
+@media(max-width:850px){main{grid-template-columns:1fr}}
+</style></head><body>
+<header><h1>ShroudNav / Road Tracing</h1><small>Offline image-to-GeoJSON workspace · no game connection or uploads</small></header>
+<main><aside>
+<div class="hint">Choose a locally owned/licensed map image. It never leaves your browser. Road traces are provisional and use image pixels, not world coordinates. Only export derived geometry when permitted.</div>
+<h2>Source</h2>
+<label>Map image file</label><input id="image" type="file" accept="image/png,image/jpeg,image/webp">
+<label>Unique image ID</label><input id="imageId" placeholder="my-own-map-v1">
+<label>Catalog source ID</label><input id="sourceId" placeholder="owner-manual">
+<h2>Road properties</h2>
+<label>Name (optional)</label><input id="roadName" placeholder="Northern trail">
+<label>Road type</label><select id="roadType"><option>road</option><option>trail</option><option>path</option><option>bridge</option><option>stairs</option><option>tunnel</option></select>
+<label>Elevation layer</label><select id="level"><option>surface</option><option>bridge</option><option>tunnel</option><option>cave</option><option>upper</option><option>lower</option></select>
+<h2>Trace</h2>
+<button class="primary" id="finish">Finish road (Enter)</button><button id="undo">Undo point (Backspace)</button><button id="remove">Delete last saved road</button>
+<div class="buttons"><button id="zoomIn">Zoom +</button><button id="zoomOut">Zoom -</button><button id="fit">Fit</button></div>
+<h2>Export candidates</h2>
+<label><input id="rights" type="checkbox"> I have rights to create and export map-derived road data</label>
+<button class="primary" id="export">Export candidate GeoJSON</button>
+<p id="status" role="status"></p>
+<div class="hint">Click to place vertices, Shift + drag to pan and mouse wheel to zoom. Crossings are not silently joined. To route, independently calibrate image pixels against in-game landmarks and review each segment.</div>
+</aside><section><p class="muted" id="summary">No map loaded.</p>
+<canvas width="1100" height="760" id="board" aria-label="Local map tracing canvas"></canvas>
+<p class="muted">Gold dashed: saved candidate roads · Cyan: current uncommitted road · All coordinates shown here are image pixels.</p>
+</section></main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id), board=$("board"),c=board.getContext("2d");
+let img=null,url=null,scale=1,ox=0,oy=0,roads=[],points=[],moving=null,hover=null,id=0;
+function note(s){$("status").textContent=s}
+function update(){
+ $("finish").disabled=points.length<2;$("undo").disabled=!points.length;$("remove").disabled=!roads.length;
+ $("export").disabled=!img||!roads.length||!$("rights").checked;
+ $("summary").textContent=img?(img.naturalWidth+" x "+img.naturalHeight+" pixels; "+roads.length+" candidate roads; "+points.length+" active vertices"):"No map loaded.";
+ draw();
+}
+function fit(){if(!img)return;scale=.97*Math.min(board.width/img.naturalWidth,board.height/img.naturalHeight);ox=(board.width-img.naturalWidth*scale)/2;oy=(board.height-img.naturalHeight*scale)/2;update()}
+function coord(e){const r=board.getBoundingClientRect();const x=(e.clientX-r.left)*board.width/r.width,y=(e.clientY-r.top)*board.height/r.height;return [(x-ox)/scale,(y-oy)/scale]}
+function line(ps,color,dash){
+ if(!ps.length)return;c.strokeStyle=color;c.lineWidth=3;c.setLineDash(dash?[8,6]:[]);c.beginPath();
+ ps.forEach((p,i)=>i?c.lineTo(ox+p[0]*scale,oy+p[1]*scale):c.moveTo(ox+p[0]*scale,oy+p[1]*scale));c.stroke();c.setLineDash([]);
+}
+function draw(){c.clearRect(0,0,board.width,board.height);if(img)c.drawImage(img,ox,oy,img.naturalWidth*scale,img.naturalHeight*scale);
+ roads.forEach(f=>line(f.geometry.coordinates,"#d2b77c",true));line(points,"#80d3de",false);
+ if(hover&&img){c.fillStyle="#101819e0";c.fillRect(5,5,193,26);c.fillStyle="#fff";c.font="12px monospace";c.fillText("Pixel "+hover[0].toFixed(1)+", "+hover[1].toFixed(1),13,22)}
+}
+$("image").onchange=e=>{
+ const f=e.target.files&&e.target.files[0];if(!f)return;if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);
+ const next=new Image();next.onload=()=>{img=next;roads=[];points=[];id=0;$("imageId").value=f.name.replace(/[^A-Za-z0-9_.-]/g,"_");fit();note("Map ready. Click points to trace roads.")};
+ next.onerror=()=>note("Image could not be opened.");next.src=url;
+};
+board.onpointerdown=e=>{if(!img)return;if(e.shiftKey){moving={x:e.clientX,y:e.clientY,ox,oy};board.setPointerCapture(e.pointerId);return}
+ const p=coord(e);if(p[0]<0||p[1]<0||p[0]>img.naturalWidth||p[1]>img.naturalHeight)return;
+ points.push(p.map(v=>Math.round(v*100)/100));update()};
+board.onpointermove=e=>{if(moving){const r=board.getBoundingClientRect();ox=moving.ox+(e.clientX-moving.x)*board.width/r.width;oy=moving.oy+(e.clientY-moving.y)*board.height/r.height}
+ hover=img?coord(e):null;draw()};
+board.onpointerup=()=>moving=null;
+board.addEventListener("wheel",e=>{if(!img)return;e.preventDefault();const r=board.getBoundingClientRect();const x=(e.clientX-r.left)*board.width/r.width,y=(e.clientY-r.top)*board.height/r.height;
+ const p=[(x-ox)/scale,(y-oy)/scale];scale=Math.max(.01,Math.min(20,scale*(e.deltaY<0?1.2:1/1.2)));ox=x-p[0]*scale;oy=y-p[1]*scale;draw()},{passive:false});
+function finish(){if(points.length<2)return;const sourceId=$("sourceId").value.trim();if(!sourceId){note("Enter a source registry ID.");return}
+ roads.push({type:"Feature",geometry:{type:"LineString",coordinates:points.slice()},properties:{roadId:"trace-"+(++id),roadName:$("roadName").value.trim(),
+ proof:"candidate",roadType:$("roadType").value,level:$("level").value,sourceId}});points=[];update();note("Saved provisional trace; it is not yet a verified road.")}
+$("finish").onclick=finish;$("undo").onclick=()=>{points.pop();update()};$("remove").onclick=()=>{roads.pop();update()};
+$("zoomIn").onclick=()=>{scale*=1.2;draw()};$("zoomOut").onclick=()=>{scale/=1.2;draw()};$("fit").onclick=fit;$("rights").onchange=update;
+$("export").onclick=()=>{
+ const source=$("sourceId").value.trim(),imageId=$("imageId").value.trim();
+ if(!source||!imageId||!$("rights").checked||roads.some(f=>f.properties.sourceId!==source)){note("Check image ID, source attribution, rights and source consistency.");return}
+ const document={type:"FeatureCollection",coordinateSystem:"source-image-pixels",sourceImageId:imageId,features:roads};
+ const blob=new Blob([JSON.stringify(document,null,2)+"\n"],{type:"application/geo+json"}),u=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=u;a.download=imageId.replace(/[^A-Za-z0-9_.-]/g,"_")+".candidate.geojson";a.click();
+ setTimeout(()=>URL.revokeObjectURL(u),2000);note("Candidate roads exported. Verify rights, coordinates and walkability separately.");
+};
+document.onkeydown=e=>{if(["INPUT","SELECT","TEXTAREA"].includes(document.activeElement&&document.activeElement.tagName))return;
+ if(e.key==="Enter"){e.preventDefault();finish()}if(e.key==="Backspace"){e.preventDefault();points.pop();update()}};
+update();
+</script></body></html>
