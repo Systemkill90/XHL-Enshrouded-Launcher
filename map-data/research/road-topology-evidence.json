@@ -1,0 +1,140 @@
+{
+  "format": "shroudnav-route-observations-v1",
+  "reviewed": "2026-10-17",
+  "statement": "Qualitative road connectivity ONLY: no GIS polyline geometry, no reliable navigation vertex or 1.0 server walkability claim.",
+  "observations": [
+    {
+      "id": "springlands-braelyn-to-spire",
+      "area": "Springlands",
+      "type": "multi_source_topology",
+      "confidence": "corroborated_narrative",
+      "start": "Southern approach to Braelyn Bridge",
+      "end": "Springlands Ancient Spire",
+      "through": [
+        "Braelyn Bridge crossing",
+        "northbound dirt road",
+        "barricade / blockade",
+        "upslope path",
+        "spire entry"
+      ],
+      "directions": "Bridge crossing leads roughly north along a dirt road to a defended barricade, then uphill to the Springlands Spire. The bridge gap is not an ordinary walkable street.",
+      "travelMode": "foot_with_grappling_hook_or_alternative_detour",
+      "blockers": [
+        {
+          "place": "Braelyn Bridge",
+          "kind": "broken-span",
+          "requires": "grappling hook or alternate Shroud route"
+        },
+        {
+          "place": "Road barricade",
+          "kind": "barricade",
+          "requires": "obstacle bypass / combat"
+        }
+      ],
+      "verifiedPositionCoordinates": false,
+      "verifiedPolyline": false,
+      "gameplayCheckedOnLiveServer": false,
+      "sources": [
+        {
+          "url": "https://allthings.how/enshrouded-the-ancient-spires-walkthrough-springlands-spire/",
+          "publishedVersion": "1.0 guide updated 2026-10-16",
+          "what": "Bridge has gap; grappling; north road, guarded barricade, slope."
+        },
+        {
+          "url": "https://9puz.com/6935-enshrouded-1-0-beginner-walkthrough/",
+          "publishedVersion": "1.0 guide updated 2026-10-16",
+          "what": "Cross Braelyn with grappling hook; road goes toward tower."
+        },
+        {
+          "url": "https://earth.gamerguides.com/enshrouded/guide/ancient-spires/springlands/springlands-ancient-spire-puzzle-guide-enshrouded",
+          "publishedVersion": "legacy",
+          "what": "Braelyn gap, north dusty path, barricade, then high road to the Spire."
+        }
+      ],
+      "inspectionNeeded": [
+        "Confirm exact road centerline and junction coordinates from appropriately reusable 1.0 map.",
+        "Check bridge traversal and bypass under current server build.",
+        "Measure two or more independent visible points along each section.",
+        "Record layer/height of crossings before graph export."
+      ]
+    },
+    {
+      "id": "farmer-vault-to-revelwood-bridge",
+      "area": "Springlands/Revelwood boundary",
+      "type": "single_source_topology",
+      "confidence": "guide_only_unconfirmed_1_0",
+      "start": "Ancient Vault — Farmer",
+      "end": "Revelwood approach to Ancient Spire",
+      "through": [
+        "Withered Encampment",
+        "northbound road",
+        "Willow Crush",
+        "Shrouded crevasse",
+        "bridge entrance",
+        "rock wall / Carpentry Camp"
+      ],
+      "directions": "Guide describes northern road to Willow Crush, a crevasse-side bridge crossing with discontinuities, and a climb/glide approach to the Revelwood Spire. Not an uninterrupted walking road.",
+      "travelMode": "mixed_walk_jump_ladder_glide",
+      "blockers": [
+        {
+          "place": "Bridge to Revelwood",
+          "kind": "gaps",
+          "requires": "controlled jumps, ladder, glider"
+        }
+      ],
+      "verifiedPositionCoordinates": false,
+      "verifiedPolyline": false,
+      "gameplayCheckedOnLiveServer": false,
+      "sources": [
+        {
+          "url": "https://enshrouded.wiki.gg/wiki/Quests/Reclaim_The_Wilderness",
+          "publishedVersion": "legacy guide",
+          "what": "Describes landmarks in order and unsafe bridge traversal requiring glider."
+        }
+      ],
+      "inspectionNeeded": [
+        "Verify route topology against 1.0 world.",
+        "Verify bridge grade and gaps.",
+        "Gather map-coordinate positions."
+      ]
+    },
+    {
+      "id": "braelyn-east-shroud-well-route",
+      "area": "Springlands",
+      "type": "single_source_topology",
+      "confidence": "guide_only_unconfirmed_1_0",
+      "start": "Road east of Braelyn Bridge",
+      "end": "Springlands Elixir Well approach",
+      "through": [
+        "eastbound dirt trail",
+        "junction toward east",
+        "northbound stone road",
+        "scaffolding",
+        "stairs toward Elixir Well"
+      ],
+      "directions": "Walkthrough places an eastward branch off a dirt path, joining a stone road north toward the Elixir Well. These are relative directions, not surveyed road vertices.",
+      "travelMode": "foot_shroud_timer",
+      "blockers": [
+        {
+          "place": "Shroud approach",
+          "kind": "environmental-hazard",
+          "requires": "adequate Shroud protection and timer"
+        }
+      ],
+      "verifiedPositionCoordinates": false,
+      "verifiedPolyline": false,
+      "gameplayCheckedOnLiveServer": false,
+      "sources": [
+        {
+          "url": "https://earth.gamerguides.com/enshrouded/guide/elixir-wells/locations",
+          "publishedVersion": "legacy guide",
+          "what": "Describes dirt-road junction east, north stone path, scaffolding and stairway."
+        }
+      ],
+      "inspectionNeeded": [
+        "Confirm road exists in 1.0.",
+        "Determine exact junction location and current Shroud boundaries."
+      ]
+    }
+  ]
+}

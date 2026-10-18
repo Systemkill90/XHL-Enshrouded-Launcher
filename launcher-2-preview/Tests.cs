@@ -238,6 +238,37 @@ static class Checks
             Require(A2S.Decode(new byte[]{255,255,255,255,0x44,0}).Count==0,"Valid empty roster is a confirmed zero");
             bool invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x41,0});}catch(IOException){invalid=true;}Require(invalid,"Unsupported roster response is unavailable, never zero");
             invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x44,1,0,65});}catch(IOException){invalid=true;}Require(invalid,"Truncated roster cannot clear online players");
+            // Synthetic coordinates only. Never treat these as in-game roads.
+            string roadFixture = "{\"Format\":\"shroudnav-roadgraph-v1\",\"CoordinateSystem\":\"enshrouded-world-xy-calibrated-v1\",\"SourceNote\":\"Synthetic fixture, not real Embervale roads\","
+                + "\"Nodes\":[{\"Id\":\"A\",\"X\":0,\"Y\":0},{\"Id\":\"B\",\"X\":10,\"Y\":0},{\"Id\":\"C\",\"X\":10,\"Y\":10},"
+                + "{\"Id\":\"D\",\"X\":20,\"Y\":0},{\"Id\":\"E\",\"X\":20,\"Y\":10}],"
+                + "\"Links\":[{\"From\":\"A\",\"To\":\"B\",\"Proof\":\"verified\"},"
+                + "{\"From\":\"B\",\"To\":\"C\",\"Proof\":\"verified\"},{\"From\":\"C\",\"To\":\"E\",\"Proof\":\"verified\"},"
+                + "{\"From\":\"B\",\"To\":\"D\",\"Proof\":\"candidate\"}]}";
+            var roads=ShroudNavGraph.Parse(roadFixture);
+            var verifiedRoute=roads.FindRoute("A","E");
+            Require(roads.NodeCount==5 && verifiedRoute!=null && verifiedRoute.IsVerified &&
+                Math.Abs(verifiedRoute.DistanceInMapUnits-30)<0.01 && verifiedRoute.NodeIds.Count==4,
+                "Server-only router follows only verified segments and computes coordinate-unit lengths");
+            Require(verifiedRoute.Steps.Any(s=>s.Text.StartsWith("Turn left")),
+                "Navigation cues identify left turns from validated road geometry");
+            Require(roads.FindRoute("A","D")==null,
+                "Unreviewed computer-vision road candidates are never silently routed");
+            var candidate=roads.FindRoute("A","D",true);
+            Require(candidate!=null && candidate.CandidateSegments==1 && !candidate.IsVerified,
+                "Candidate routing requires explicit opt-in and discloses uncertain sections");
+            Require(roads.NearestNode(10.2,10,1)=="C" && roads.NearestNode(100,100,3)==null,
+                "Nearest-node snapping refuses distant guesses");
+            bool bad=false;
+            try{ShroudNavGraph.Parse(roadFixture.Replace("\"From\":\"B\",\"To\":\"D\"",
+                "\"From\":\"B\",\"To\":\"MISSING\""));}catch(ArgumentException){bad=true;}
+            Require(bad,"Road graph rejects missing road endpoints");
+            bad=false;
+            try{ShroudNavGraph.Parse(roadFixture.Replace("enshrouded-world-xy-calibrated-v1","unknown-map"));}catch(ArgumentException){bad=true;}
+            Require(bad,"Road graph refuses an uncalibrated coordinate declaration");
+            bad=false;
+            try{ShroudNavGraph.Parse(roadFixture.Replace("\"Proof\":\"candidate\"","\"Proof\":\"magic\""));}catch(ArgumentException){bad=true;}
+            Require(bad,"Road graph refuses unknown road confidence values");
             string sentinelHash = InstallationAudit.Hash(savePath);
             File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\",\"slotCount\":16}");
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };

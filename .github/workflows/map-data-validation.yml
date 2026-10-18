@@ -1,0 +1,44 @@
+name: ShroudNav map data verification
+
+on:
+  push:
+    paths:
+      - 'map-data/**'
+      - '.github/workflows/map-data-validation.yml'
+    branches:
+      - feature/v2-server-only-navigation-foundation
+  pull_request:
+    paths:
+      - 'map-data/**'
+      - '.github/workflows/map-data-validation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Route data, licensing gates and calibration
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+      - name: Use Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Test map import, topology and calibration
+        run: python -m unittest discover -s map-data/tests -p 'test_*.py' -v
+      - name: Audit real landmark and route descriptions without claiming navigable geometry
+        run: python map-data/tools/verify_road_evidence.py
+      - name: Validate repository datasets without publishing a route
+        run: python map-data/tools/build_graph.py --check
+      - name: Confirm empty dataset cannot become a verified route export
+        shell: bash
+        run: |
+          if python map-data/tools/build_graph.py --publish --output /tmp/shroudnav-roadgraph.json; then
+            echo "Unexpected publish success with no real verified world roads" >&2
+            exit 1
+          fi
+          test ! -e /tmp/shroudnav-roadgraph.json
