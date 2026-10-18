@@ -18,7 +18,7 @@ param(
   [string]$SaveDirectory = '',
   [string]$ServerProcessName = 'enshrouded_server',
   [string]$ManagerProcessName = 'ShroudForge-Launcher',
-  [switch]$SkipHashes
+  [switch]$IncludeHashes
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -33,8 +33,8 @@ function Get-FileEvidence {
     return [ordered]@{ supplied = $true; exists = $false; name = $basename; lengthBytes = $null; sha256 = $null; shaStatus = 'missing' }
   }
   $item = Get-Item -LiteralPath $Path -ErrorAction Stop
-  $hash = $null; $hashState = 'skipped-by-owner'
-  if (-not $SkipHashes) {
+  $hash = $null; $hashState = 'disabled-by-default-or-file-over-50mb'
+  if ($IncludeHashes -and $item.Length -le 52428800) {
     try {
       $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $Path -ErrorAction Stop).Hash.ToLowerInvariant()
       $hashState = 'ok'
