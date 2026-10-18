@@ -1,0 +1,56 @@
+{
+  "format": "shroudnav-source-catalog-v1",
+  "lastReviewed": "2026-10-17",
+  "sources": [
+    {
+      "id": "owner-manual",
+      "label": "Original manually surveyed routes / traces made by repository owner",
+      "url": null,
+      "kind": "owner-authored-vector",
+      "rightsStatus": "approved",
+      "redistributionAllowed": true,
+      "coordinateFrame": "enshrouded-world-xy-calibrated-v1",
+      "note": "Only genuine original authored coordinates. No third-party underlying map imagery redistributed."
+    },
+    {
+      "id": "enshrouded-wiki-coordinates",
+      "label": "Official Enshrouded Wiki in-game coordinate guidance",
+      "url": "https://enshrouded.wiki.gg/wiki/Help:Editing/Map/Ingame_coordinates",
+      "kind": "reference-coordinate-documentation",
+      "rightsStatus": "reference_only",
+      "redistributionAllowed": false,
+      "coordinateFrame": "wiki-map-xy-0-8191",
+      "note": "Documentation describes grid 0–8191. Don't assume transformation to the 1.0 world-meter map; textual wiki reuse terms differ from game artwork."
+    },
+    {
+      "id": "enshrouded-database-map",
+      "label": "Enshrouded Database 1.0 interactive map",
+      "url": "https://enshroudeddatabase.com/map/",
+      "kind": "reference-map-and-game-markers",
+      "rightsStatus": "reference_only",
+      "redistributionAllowed": false,
+      "coordinateFrame": "site-world-xz-0-10240",
+      "note": "Site states coordinates x east/z north 0–10,240; game-derived map textures and marker data, no redistribution permission established."
+    },
+    {
+      "id": "gamevault-map",
+      "label": "Companion for Enshrouded 2D/3D map",
+      "url": "https://enshrouded.gamevault.in/map",
+      "kind": "reference-3d-map",
+      "rightsStatus": "reference_only",
+      "redistributionAllowed": false,
+      "coordinateFrame": "undetermined",
+      "note": "Useful for manual terrain checks. Asset/data license and map transform not established; no scraping/redistribution."
+    },
+    {
+      "id": "enshrouded-wiki-map",
+      "label": "Official wiki map and markers",
+      "url": "https://enshrouded.wiki.gg/wiki/Map",
+      "kind": "reference-community-map",
+      "rightsStatus": "reference_only",
+      "redistributionAllowed": false,
+      "coordinateFrame": "wiki-map-xy-0-8191",
+      "note": "Map imagery/file licensing varies and game assets are Keen Games intellectual property; obtain exact file/data permission before import."
+    }
+  ]
+}
