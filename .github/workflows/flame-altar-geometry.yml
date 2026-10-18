@@ -1,0 +1,45 @@
+name: Flame Altar 45 degree geometry research
+
+on:
+  push:
+    branches:
+      - research/rotatable-flame-territory
+    paths:
+      - 'research/flame-altar-rotation/**'
+      - '.github/workflows/flame-altar-geometry.yml'
+  pull_request:
+    paths:
+      - 'research/flame-altar-rotation/**'
+      - '.github/workflows/flame-altar-geometry.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-geometry:
+    name: Verify yaw-only diamond design and preserve original protection
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate design geometry and conservative grid cells
+        run: python -m unittest discover -s research/flame-altar-rotation/tests -p 'test_*.py' -v
+      - name: Print example 40-grid diamond (offline only)
+        run: python research/flame-altar-rotation/diamond_footprint.py --size 40 --yaw 45 --ascii
+      - name: Require the resource inspector to be read-only
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          base=pathlib.Path('research/flame-altar-rotation/resource-type-inspection')
+          mod=json.loads((base/'mod.json').read_text(encoding='utf-8'))
+          script=(base/'src/mod.lua').read_text(encoding='utf-8')
+          assert mod['capabilities']==['export'], 'Forbidden loader capability'
+          assert 'get_resource_types' in script and 'io.export' in script
+          for forbidden in ['create_content','write_resource','Stop-Process','os.execute','savegame','write_to']:
+              assert forbidden not in script, 'Potential write hook in inspector'
+          print('Verified no patch capability or gameplay mutation code in inspector')
+          PY
