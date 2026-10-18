@@ -105,7 +105,12 @@ static class Checks
         int calls=0; using(var phone=new PhoneView("test-secret", delegate(string op){calls++;return ActionResult.Ok(op);})) {
             phone.Start(System.Net.IPAddress.Loopback,0);phone.Publish(new {name="Fixture",online=true});
             using(var c=new System.Net.WebClient()) {
-                Require(c.DownloadString(phone.Url).Contains("Server controls"), "Phone page serves server controls");
+                string phonePage=c.DownloadString(phone.Url);
+                Require(phonePage.Contains("Server controls"), "Phone page serves server controls");
+                Require(phonePage.Contains("id=\"mapTab\"") && phonePage.Contains("id=\"mapView\"") && phonePage.Contains("function loadMap(reload)"),"Phone includes user-activated interactive map tab");
+                Require(phonePage.Contains("https://enshrouded.gamevault.in/map") && phonePage.Contains("referrerpolicy=\"no-referrer\""),"Embedded map credits external source and does not refer private phone URL");
+                Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssrc\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase),"External map is never loaded until the phone user requests it");
+                Require(phonePage.Contains("id=\"activity\"") && phonePage.Contains("class=\"playerDetails\""),"Phone includes activity and player health diagnostics");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
                 bool rejected=false;try{c.DownloadString(phone.Url.Replace("test-secret","wrong"));}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects requests without private key");
                 rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects unsupported write requests");
