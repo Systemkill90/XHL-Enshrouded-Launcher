@@ -47,7 +47,7 @@ namespace XHLLauncher
         {
             string observed = host != null && host.ServerRunning ? "Process observed" : "No server process observed";
             string disk = audit == null ? "Compatibility unknown" : audit.CanStart ? "Pinned file checks pass" : "Pinned file checks need review";
-            return observed + "  /  " + disk + "  /  " + Math.Max(0, backupMarkers) + " backup completion marker(s)";
+            return observed + "  /  " + disk + "  /  " + (backupMarkers < 0 ? "Backup marker scan unavailable" : backupMarkers + " backup completion marker(s)");
         }
 
         internal static string Create(HostState host, WorldState world, InstallationAudit audit,
@@ -57,6 +57,7 @@ namespace XHLLauncher
             sb.AppendLine("SHROUDFORGE — PRIVACY-SAFE SUPPORT SNAPSHOT");
             sb.AppendLine("Captured: " + When(captured));
             sb.AppendLine("Read-only snapshot. Not an independent game/restore/backup verification.");
+            sb.AppendLine("READINESS: " + Readiness(host, audit, backupMarkers));
             sb.AppendLine();
             sb.AppendLine("PROCESS");
             sb.AppendLine("Server process: " + (host != null && host.ServerRunning ? "Observed running" : "Not observed running"));
@@ -75,7 +76,7 @@ namespace XHLLauncher
             sb.AppendLine("WORLD / BACKUPS");
             sb.AppendLine("Last observed world save: " + (world == null ? "Not observed" : When(world.LastSaveTime)));
             sb.AppendLine("World size estimate: " + (world == null ? "Unavailable" : FormatUtil.Bytes(world.WorldSaveBytes)));
-            sb.AppendLine("Backup completion markers: " + Math.Max(0, backupMarkers).ToString(CultureInfo.InvariantCulture));
+            sb.AppendLine("Backup completion markers: " + (backupMarkers < 0 ? "Unavailable" : backupMarkers.ToString(CultureInfo.InvariantCulture)));
             sb.AppendLine("Most recent marked backup: " + When(latestBackup));
             sb.AppendLine("Note: completion marker count is not a new byte/hash verification.");
             sb.AppendLine();
