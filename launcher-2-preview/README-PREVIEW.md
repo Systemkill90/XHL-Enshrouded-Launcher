@@ -1,3 +1,5 @@
+> **Historical test notes — NOT TODAY'S DEPLOYMENT INSTRUCTIONS (Sunday, October 18, 2026).** This file describes a specific earlier isolated launch and pinned game build, not the current live Velaris installation. The owner runs a **public** server and validates changes there under explicit, change-specific maintenance authorization. Do not follow the old "First session" steps on the production host without reconciling exact files, current running mods, loader conflicts, world saves, and rollback. Begin with [public server operating rules](../docs/PUBLIC-SERVER-OPERATING-MODEL.md), [desktop handoff](../docs/DESKTOP-HANDOFF-2026-10-18.md), and [change register](../ops/change-register.json). No preview ZIP or GitHub workflow run is approved for auto-installation.
+
 # XHL Launcher 2.0 — ready for operator testing
 
 Open XHL-Launcher-2.exe in this folder. Controls are enabled by default; --monitor opens read-only mode. Nothing starts automatically. Click Start when ready. This package selects its own prepared server under Staged-Updates/1269579/Server and uses a fresh, byte-verified copy of your current server saves.
