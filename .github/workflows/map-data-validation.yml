@@ -30,6 +30,8 @@ jobs:
           python-version: '3.11'
       - name: Test map import, topology and calibration
         run: python -m unittest discover -s map-data/tests -p 'test_*.py' -v
+      - name: Audit real landmark and route descriptions without claiming navigable geometry
+        run: python map-data/tools/verify_road_evidence.py
       - name: Validate repository datasets without publishing a route
         run: python map-data/tools/build_graph.py --check
       - name: Confirm empty dataset cannot become a verified route export
