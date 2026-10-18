@@ -1,64 +1,83 @@
-# Enshrouded Server Companion
+<p align="center">
+  <img src="assets/shroudforge-realm.png" alt="Dark fantasy landscape of Velaris, the realm behind ShroudForge" width="100%" />
+</p>
 
-**An easier way to run and manage a dedicated Enshrouded server on Windows.**
+<h1 align="center">ShroudForge</h1>
+<p align="center"><strong>A better way to run your Enshrouded world.</strong><br/>A Windows control room for dedicated-server management, backups and carefully tested gameplay mods.</p>
 
-Start your server, see what's happening, protect your world saves, and handle updates and supported mods without constantly digging through folders, commands, and configuration files.
+<p align="center">
+  <a href="docs/start/README.md"><strong>Get started</strong></a> &nbsp;·&nbsp;
+  <a href="docs/start/features.md"><strong>Explore features</strong></a> &nbsp;·&nbsp;
+  <a href="docs/project/README.md"><strong>What's ready?</strong></a> &nbsp;·&nbsp;
+  <a href="docs/areas/README.md"><strong>Browse the project</strong></a>
+</p>
 
-This project is for people who **want to host and play Enshrouded**, not learn server administration just to keep their game running.
-
-> **Development status — October 17, 2026:** A working installation has been reported on the project owner's Windows host. Today's 2.0 improvements are under development. The [current 2.0 source and testing notes](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) are on a separate review branch, not yet a public release. **There is no downloadable installer here yet.**
-
-## What can it do?
-
-| Feature | In plain English | Where it stands |
-| --- | --- | --- |
-| Server controls | Start, stop, and restart your Enshrouded world from one window | Demonstrated on the owner's host; public release pending |
-| Live dashboard | See whether the server is up, how long it has been running, and its activity | In the current 2.0 preview |
-| Save backups | Make separate backup copies so a mistake or update doesn't wipe your world | Implemented and tested in the preview; longer-term restore testing remains |
-| Mods | Help manage the current, game-version-specific flight, gifting-distance, and item-stacking changes | Reported working on the owner's server; compatibility varies by game update |
-| Updates | Prepare an updated server separately before switching to it | Staging tested; full online update test outstanding |
-| Phone controls | View status and use basic controls on your home network | Host endpoint tested; real-phone check outstanding |
-
-**All controls are intended for an Enshrouded *dedicated server*, not the normal game client.** The server must run on a Windows PC. Enshrouded itself, Steam, and third-party game files are not included.
-
-## Who is this for?
-
-- **You host for friends:** one place to check whether your world is online and restart when needed.
-- **You care about your world:** keep separate backups and avoid risky in-place update experiments.
-- **You like a customized server:** keep compatible gameplay tweaks organized without treating every update like a guessing game.
-
-You should not have to understand programming to use the finished app. More complicated technical details are separated into the [developer information](docs/FOR-DEVELOPERS.md).
-
-## How do I get it?
-
-**A public installer has not been released yet.** The working build on the owner's PC and the source in the development branch are not the same thing as a downloadable, supported version for everyone.
-
-When a tested package is ready, it will appear under [Releases](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/releases) with simple setup instructions, supported game version, and known limitations. Don't download random "server manager" builds from other websites assuming they belong to this project.
-
-[Read the setup and release guide](docs/GETTING-STARTED.md) · [Feature details](docs/FEATURES.md) · [Current status](docs/STATUS.md)
-
-## What we're working on for 2.0
-
-A cleaner desktop interface, safer updates and backups, a better player/activity view, server settings, and refinements to the game-version-specific mods. Features such as character inventory editing or exact player locations will only be advertised after we confirm the game provides reliable access to that data.
-
-[See the roadmap](ROADMAP.md) · [Follow the development build](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/1) · [Report a problem or idea](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues)
-
-## Frequently asked questions
-
-**Will it change or delete my current world?**  
-Simply viewing this repository changes nothing on your PC. The app is being designed to preserve existing installs and world saves, with separate update folders and backups. No software can promise zero risk: use a verified backup before switching installations.
-
-**Do I need to know how to code?**  
-The intended answer is no. A friendly installer and first-run setup are part of the release work.
-
-**Can I manage it from my phone?**  
-The current preview includes local-network phone controls, but access from an actual phone still needs confirmation. It is not intended to be exposed directly to the public internet.
-
-**Will it work with every Enshrouded update and every mod?**  
-No. Supported mods may require changes after the game updates. This project deliberately blocks unverified game builds rather than pretending everything will work.
-
-More answers: [Getting started](docs/GETTING-STARTED.md).
+<p align="center">
+  <a href="https://github.com/Systemkill90/XHL-Enshrouded-Launcher/releases"><img alt="Public installer: not released" src="https://img.shields.io/badge/Public%20installer-Not%20released-5c6265?style=flat-square" /></a>
+  <a href="docs/project/README.md"><img alt="Development: active" src="https://img.shields.io/badge/Development-Active-708e83?style=flat-square" /></a>
+  <a href="docs/operate/README.md"><img alt="Public server: owner controlled" src="https://img.shields.io/badge/Velaris-Public%20server-b49a68?style=flat-square" /></a>
+</p>
 
 ---
 
-**Independent fan project.** Not affiliated with or endorsed by Keen Games, Enshrouded, Steam, or Valve. Game names belong to their respective owners. No proprietary game assets or personal server files are distributed here.
+## Welcome to ShroudForge
+
+**ShroudForge is built for people who want to play Enshrouded—not spend their evening wrestling with server files.** Its goal is to put server status, safe backups, updates, player information and compatible mods in one clear Windows application.
+
+> [!IMPORTANT]
+> **There is no supported public installer yet.** The owner has a working public server, but the latest 2.0 code is still on development branches. You can explore the code and previews without touching your own installation.
+
+## Find your way
+
+| | Your starting point | |
+| :-- | :-- | :-- |
+| 🏁 | **[I'm new here](docs/start/README.md)** | Understand ShroudForge and how a future installation will work |
+| ✨ | **[What can it do?](docs/start/features.md)** | Explore features without the technical jargon |
+| 🔎 | **[What's finished?](docs/project/README.md)** | See working, experimental and unreleased features |
+| 🧱 | **[Explore the project](docs/areas/README.md)** | Find the launcher, mods, mapping work and development branches |
+| 🛡️ | **[Protect your server](docs/operate/README.md)** | Public-server safeguards, saves, testing and rollback |
+| 🛠️ | **[Develop or contribute](docs/developers/README.md)** | Build instructions, source links and contribution guidance |
+
+## The project at a glance
+
+| Area | What we're building | Explore |
+| :-- | :-- | :-- |
+| **Desktop launcher** | Dark-fantasy control room, server status, settings and backups | [Open launcher area](docs/areas/launcher.md) |
+| **Gameplay mods** | Build-specific flight, pitch-hold, gifting and stacking adjustments | [Open mods area](docs/areas/mods.md) |
+| **Maps and quests** | Research into better navigation and the existing in-game quest tracker | [Open navigation research](docs/areas/navigation.md) |
+| **Live-server safety** | Reliable updates and recovery without treating player progress as disposable | [Open operations](docs/areas/operations.md) |
+
+<details>
+<summary><strong>Where's the actual source code?</strong></summary>
+
+The default `main` branch is the public project homepage and documentation. **The latest 2.0 launcher source lives on the [development branch](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/tree/feat/launcher-2-overhaul/launcher-2-preview)** while review continues in [PR #18](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/18).
+
+Code files and some historical internal names still say `XHL` for build compatibility. The project is publicly branded **ShroudForge**. We aren't renaming source folders in a way that would break the working server.
+
+</details>
+
+<details>
+<summary><strong>Can I try flight mods or the new quest GPS?</strong></summary>
+
+Flight, gifting and stacking work exists for specific game versions. They're not universal drop-in downloads.
+
+A new in-game quest tracker/minimap without client installs **is not proven**. [Quest-tracker source research](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/24) and [map-data work](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/21) are experiments—not a working GPS.
+
+</details>
+
+## Built around a real public server
+
+Velaris is an actively used Enshrouded world. **Source changes are not live changes:** merging a PR or passing a GitHub workflow never authorizes restarts, overwriting saves, installing new mod loaders or editing players' progress.
+
+The [public-server operating model](docs/operate/README.md) explains the principles. The [detailed release-safety work](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/25) is tracked separately.
+
+---
+
+<p align="center">
+  <a href="docs/README.md">Documentation</a> &nbsp;·&nbsp;
+  <a href="ROADMAP.md">Roadmap</a> &nbsp;·&nbsp;
+  <a href="https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose">Request a feature / report an issue</a> &nbsp;·&nbsp;
+  <a href="https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pulls">Development progress</a>
+</p>
+
+<p align="center"><sub>Independent fan project · Not affiliated with Keen Games, Steam or Valve · No proprietary game binaries, live saves or private credentials distributed</sub></p>

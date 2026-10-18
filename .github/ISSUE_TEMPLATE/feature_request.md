@@ -1,15 +1,25 @@
 ---
-name: Suggest a feature
-about: An improvement that would make hosting easier
+name: "✨ Suggest an improvement"
+about: "An idea to make ShroudForge or Enshrouded hosting better"
 title: "Idea: "
 labels: []
 assignees: []
 ---
 
-## What is frustrating or missing?
+## What feels frustrating or missing?
 
-## What would you like the app to do?
+Tell us the problem, not just the technical solution.
 
-## Why would that help?
+## What would you like ShroudForge to do?
 
-## Anything else? (optional)
+Describe what a good experience would look like.
+
+## Who would this help?
+
+Your own server? Other hosts? Players? Builders? Explorers?
+
+## Anything else?
+
+Screenshots, mockups and examples are welcome. If the feature is supposed to appear **inside the game**, tell us whether players should need client-side mods.
+
+No programming knowledge required.

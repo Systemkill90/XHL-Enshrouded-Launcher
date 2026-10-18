@@ -1,9 +1,18 @@
-# Help improve Enshrouded Server Companion
+# Help shape ShroudForge
 
-You don't need to be a programmer to help.
+**You don't need to be a developer to help.** If something feels confusing, looks wrong or needs an improvement, we'd like to know.
 
-**Found a bug?** Open a [bug report](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose). Tell us what you clicked, what happened and what you expected. Screenshots can help, but remove passwords, player identifiers and personal paths.
+## Choose one
 
-**Have an idea?** Open a [feature request](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose). Describe the problem the feature would solve and how you'd want it to feel in the app.
+| I want to… | Link |
+| :-- | :-- |
+| 🐛 **Report something broken** | [Open a bug report](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose) |
+| 💡 **Suggest a feature** | [Share an idea](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/new/choose) |
+| 🛠️ **Help with code** | [Developer corner](docs/developers/README.md) |
+| 🔎 **See work in progress** | [Open pull requests](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pulls) |
 
-**Want to contribute code?** Read the [developer guide](docs/FOR-DEVELOPERS.md), [development instructions](docs/DEVELOPMENT.md) and [security guidance](SECURITY.md). Test changes against a **copy** of a server, not a live public world. Avoid adding game binaries, player saves or third-party assets without distribution rights.
+For bugs, tell us what you tried, what happened and what you expected. Screenshots help. Please **remove passwords, private network addresses, player information and personal paths**.
+
+For code changes, keep old server directories and important save data untouched. The project's real-world test target, Velaris, is a **live public server**; deployments need owner approval and a rollback plan. No PR merge alone authorizes a restart or live update.
+
+[← Back to ShroudForge](README.md) · [Build guidance](docs/developers/building.md) · [Security](SECURITY.md)

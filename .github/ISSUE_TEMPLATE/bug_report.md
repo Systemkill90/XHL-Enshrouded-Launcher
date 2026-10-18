@@ -1,25 +1,33 @@
 ---
-name: Something isn't working
-about: Report a problem with the server companion
+name: "🐛 Something isn't working"
+about: "Tell us what broke in ShroudForge"
 title: "Bug: "
 labels: []
 assignees: []
 ---
 
+## What went wrong?
+
+Describe what you saw in your own words. You don't need technical details.
+
 ## What were you trying to do?
 
-## What happened instead?
+What did you click or change, and what did you expect?
 
-## How can we reproduce it?
-1.
-2.
-3.
+## Can it be reproduced?
 
-## Your setup (if known)
-Windows version:
-Program version:
-Enshrouded server version:
+1. 
+2. 
+3. 
 
-## Screenshot or error message (optional)
+## What version are you using? (if known)
 
-**Privacy:** remove passwords, private IPs, player details, and personal file paths.
+- ShroudForge version:
+- Enshrouded server build:
+- Windows version:
+
+## Screenshots or error message (optional)
+
+> **Privacy reminder:** Remove passwords, Steam IDs, IP addresses, player names, save files and personal folders before posting.
+
+**Was the problem on a live server?** Let us know if players or world saves were affected. Don't restart or replace files solely to collect a report.
