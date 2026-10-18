@@ -1,0 +1,140 @@
+{
+  "format": "shroudforge-change-register-v1",
+  "updated": "2026-10-18",
+  "serverClass": "live-public",
+  "serverName": "Velaris",
+  "rules": {
+    "defaultDeployment": "none",
+    "autoDeploy": false,
+    "autoRestart": false,
+    "ownerApprovalRequired": true,
+    "unknownPlayerCountBlocksDisruptiveWork": true,
+    "sourceCiEqualsGameplay": false,
+    "preventSilentWorldRollback": true,
+    "allowedPhases": [
+      "research",
+      "source-ready",
+      "offline-validated",
+      "trial-candidate",
+      "public-trial-approved",
+      "live-validated",
+      "release-approved",
+      "hold"
+    ]
+  },
+  "hostInventoryStatus": "pending-owner-desktop-connection",
+  "changeSets": [
+    {
+      "id": "pitch-hold-17",
+      "name": "Glider pitch-hold exact-build patch",
+      "pr": 17,
+      "kind": "game-mod",
+      "phase": "source-ready",
+      "risk": "high",
+      "requiresRestart": true,
+      "playerVisible": true,
+      "clientDependency": "none-planned",
+      "gameCompatibility": "historical-pinned-build-1269579",
+      "dependencies": [],
+      "decision": "review-on-host",
+      "notes": "Pitch hold may already be active on live host; observe actual version before proposing changes. Never reinstall blindly.",
+      "runtimeDependencies": [
+        "existing-installed-flight-controller (verify on host; no separate PR assumed)"
+      ]
+    },
+    {
+      "id": "launcher-2-overhaul-18",
+      "name": "ShroudForge manager overhaul",
+      "pr": 18,
+      "kind": "manager",
+      "phase": "source-ready",
+      "risk": "medium",
+      "requiresRestart": false,
+      "playerVisible": false,
+      "clientDependency": "none",
+      "gameCompatibility": "host-unknown",
+      "dependencies": [],
+      "decision": "review-on-host",
+      "notes": "Current host manager may already be running a build derived from this branch. Confirm hashes and behavior; do not overwrite live files."
+    },
+    {
+      "id": "player-profiles-19",
+      "name": "Player profiles and read-only session views",
+      "pr": 19,
+      "kind": "manager",
+      "phase": "source-ready",
+      "risk": "low",
+      "requiresRestart": false,
+      "playerVisible": false,
+      "clientDependency": "none",
+      "gameCompatibility": "host-unknown",
+      "dependencies": [
+        "launcher-2-overhaul-18"
+      ],
+      "decision": "review-on-host",
+      "notes": "No direct character inventory or authoritative full character state; privacy controls required."
+    },
+    {
+      "id": "qol-readiness-20",
+      "name": "Parsed events, readiness and sanitized support report",
+      "pr": 20,
+      "kind": "manager",
+      "phase": "source-ready",
+      "risk": "low",
+      "requiresRestart": false,
+      "playerVisible": false,
+      "clientDependency": "none",
+      "gameCompatibility": "host-unknown",
+      "dependencies": [
+        "launcher-2-overhaul-18"
+      ],
+      "decision": "review-on-host",
+      "notes": "Windows CI/test status for this branch must be checked before promotion."
+    },
+    {
+      "id": "roads-research-21",
+      "name": "Server-only maps/roads/GPS research",
+      "pr": 21,
+      "kind": "research",
+      "phase": "hold",
+      "risk": "high",
+      "requiresRestart": false,
+      "playerVisible": true,
+      "clientDependency": "none-required",
+      "gameCompatibility": "unverified",
+      "dependencies": [],
+      "decision": "park-until-in-game-rendering-proof",
+      "notes": "No verified world roads or vanilla-client in-game HUD. A separate browser map does not satisfy the requested feature."
+    },
+    {
+      "id": "browser-quest-guide-22",
+      "name": "Standalone browser quest companion",
+      "pr": 22,
+      "kind": "research",
+      "phase": "hold",
+      "risk": "low",
+      "requiresRestart": false,
+      "playerVisible": false,
+      "clientDependency": "browser",
+      "gameCompatibility": "irrelevant",
+      "dependencies": [],
+      "decision": "rejected-closed",
+      "notes": "Owner rejected as wrong medium; PR closed unmerged. Not in release."
+    },
+    {
+      "id": "quest-tracker-proof-24",
+      "name": "Vanilla-client quest tracker server-only localization transmission proof",
+      "pr": 24,
+      "kind": "game-mod-research",
+      "phase": "research",
+      "risk": "high",
+      "requiresRestart": true,
+      "playerVisible": true,
+      "clientDependency": "none-required",
+      "gameCompatibility": "needs-exact-host-build-and-resource-dump",
+      "dependencies": [],
+      "decision": "no-public-deployment-without-separate-approval",
+      "notes": "Research toolkit source CI passed, but no proprietary game assets examined here; server-to-client change entirely unverified. Never install another EML loader on live server based solely on CI."
+    }
+  ]
+}
