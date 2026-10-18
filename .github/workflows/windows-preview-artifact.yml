@@ -1,0 +1,84 @@
+name: Windows preview build and download
+
+on:
+  push:
+    branches:
+      - launcher-2-readonly-preview
+      - ci/windows-preview-artifacts
+  pull_request:
+    branches:
+      - launcher-2-readonly-preview
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: preview-package-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-package:
+    name: Build, test, and archive Windows preview
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Compile WinForms application
+        shell: pwsh
+        run: |
+          & ./launcher-2-preview/Build.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'companion-build')
+          if ($LASTEXITCODE -ne 0) { throw 'Windows build failed.' }
+
+      - name: Run fixture tests
+        shell: pwsh
+        run: |
+          & ./launcher-2-preview/Test.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'companion-tests')
+          if ($LASTEXITCODE -ne 0) { throw 'Fixture tests failed.' }
+
+      - name: Run native fixture tests
+        shell: pwsh
+        run: |
+          & ./launcher-2-preview/Test-Native.ps1 -OutputDirectory (Join-Path $env:RUNNER_TEMP 'companion-native-tests')
+          if ($LASTEXITCODE -ne 0) { throw 'Native fixture tests failed.' }
+
+      - name: Prepare test-only download and checksum
+        shell: pwsh
+        run: |
+          $stage = Join-Path $env:RUNNER_TEMP 'companion-artifact'
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          $binary = Join-Path $env:RUNNER_TEMP 'companion-build/XHL-Launcher-2.exe'
+          if (-not (Test-Path -LiteralPath $binary -PathType Leaf)) { throw 'Build output missing.' }
+          $target = Join-Path $stage 'Enshrouded-Server-Companion-2-Preview.exe'
+          Copy-Item -LiteralPath $binary -Destination $target
+          Copy-Item -LiteralPath 'launcher-2-preview/README-PREVIEW.md' -Destination (Join-Path $stage 'TECHNICAL-NOTES.md')
+          @'
+          WINDOWS PREVIEW BUILD - NOT AN INSTALLER OR PUBLIC RELEASE
+
+          This is an unsigned CI build of the desktop interface. Passing fixture
+          tests does NOT prove gameplay compatibility, Steam connectivity, or
+          compatibility with the owner's existing live dedicated server.
+
+          No Enshrouded game executable, proprietary game resources, real saves,
+          credentials or personal configuration are included.
+
+          Do not point this test executable at the live server or overwrite your
+          existing working installation. Use an isolated disposable test folder.
+          Read TECHNICAL-NOTES.md and docs/BUILD-ARTIFACTS.md in the repository.
+          '@ | Set-Content -LiteralPath (Join-Path $stage 'READ-FIRST.txt') -Encoding utf8
+          $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash *Enshrouded-Server-Companion-2-Preview.exe" |
+            Set-Content -LiteralPath (Join-Path $stage 'SHA256SUMS.txt') -Encoding ascii
+          Get-ChildItem -LiteralPath $stage | Select-Object Name,Length | Format-Table | Out-String | Write-Host
+          Write-Host "EXE SHA256: $hash"
+
+      - name: Upload temporary preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: enshrouded-companion-preview-${{ github.run_number }}
+          path: ${{ runner.temp }}/companion-artifact/
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 6
