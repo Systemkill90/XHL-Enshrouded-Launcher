@@ -11,6 +11,7 @@ The current source lives in [launcher-2-preview](launcher-2-preview). The existi
 - Saved world and player history available while the server is offline.
 - Verified backups, guarded offline restore, pinned-build mod checks and the established startup path.
 - Splash screen, app icon, tray access and authenticated private-LAN phone controls.
+- iPhone-friendly companion overview with player network details, recent activity, and an opt-in embedded third-party Embervale 3D map (external-link fallback if framing is blocked).
 
 ## Build and validation
 
