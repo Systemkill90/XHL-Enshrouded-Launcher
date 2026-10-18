@@ -22,6 +22,13 @@
 | `tests/test_map_data.py` | Synthetic topology, coordinate, safety and importer checks |
 | `reports/` | Generated statistics and review reports (never mislabelled as verified world data) |
 
+## Road-geometry verification evidence
+
+- [Current real-world geometry verification findings](research/GEOMETRY-VERIFICATION.md): what published guides agree on, what roads remain unusable, and the exact numerical gaps.
+- [Reference landmark coordinates](research/legacy-landmark-control-points.json): eight official-wiki locations in an older coordinate frame, **not calibrated to 1.0**.
+- [Source-cited corridor observations](research/road-topology-evidence.json): one corroborated narrative route, two single-source candidates, including impassable bridge/gap warnings.
+- [Evidence verifier](tools/verify_road_evidence.py): fails if old references or narrative roads are misrepresented as independently measured 1.0 geometry.
+
 ## Current evidence status
 **0 verified world roads; 0 real-world trace samples imported; no verified player-position feed.** The existing ShroudNav router is a tested-in-source prototype, not a working in-game GPS. The map editor and importer are offline tools for preparing legitimate data. Never bundle third-party map images or marker datasets until redistribution rights are established.
 
