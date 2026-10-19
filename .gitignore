@@ -16,7 +16,18 @@ node_modules/
 .venv/
 __pycache__/
 *.pyc
+launcher-2-preview/compatibility/resources/
+**/Manager Data/
+**/World-Backups/
+**/Staged-Updates/
 .vs/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Generated Windows builds and local fixture outputs
+*.exe
+*.pdb
+**/test-results/
+**/native-test-results/
+**/artifacts/

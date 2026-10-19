@@ -58,6 +58,10 @@ namespace XHLLauncher
         private long prevSent = -1, prevReceived = -1;
         private DateTime prevNicSample = DateTime.MinValue;
         private DateTime lastA2s = DateTime.MinValue;
+        private DateTime lastRosterSuccess = DateTime.MinValue;
+        private int lastRosterCount;
+        public string PlayerCountText { get {lock(gate){if(DateTime.Now-lastRosterSuccess<TimeSpan.FromSeconds(15))return lastRosterCount.ToString();int n=players.Values.Count(p=>p.Connected&&!p.Name.StartsWith("Player "));return n>0?n+"+":"—";}} }
+        public string PlayerCountEvidence {get {lock(gate){return DateTime.Now-lastRosterSuccess<TimeSpan.FromSeconds(15)?"Confirmed by server query":"Log evidence; exact count unavailable";}}}
         private DateTime lastHealthPersist = DateTime.MinValue;
         private DateTime lastPublicLookup = DateTime.MinValue;
         private int publicLookupBusy = 0;
@@ -624,6 +628,7 @@ namespace XHLLauncher
                     }
                     HashSet<string> online = new HashSet<string>(q.Where(x => !string.IsNullOrEmpty(x.Name)).Select(x => x.Name), StringComparer.OrdinalIgnoreCase);
                     foreach (PlayerState p in players.Values) if (!p.Name.StartsWith("Player ") && !online.Contains(p.Name) && (DateTime.Now - p.LastSeen).TotalSeconds > 20) p.Connected = false;
+                    lastRosterCount=q.Count;lastRosterSuccess=DateTime.Now;
                 }
             }
             catch { }
@@ -655,14 +660,20 @@ namespace XHLLauncher
             {
                 client.Client.ReceiveTimeout = timeout; client.Connect(host, port); IPEndPoint remote = new IPEndPoint(IPAddress.Any, 0);
                 byte[] cr = new byte[] { 255,255,255,255,0x55,255,255,255,255 }; client.Send(cr, cr.Length); byte[] cres = client.Receive(ref remote);
-                if (cres.Length < 9 || cres[4] != 0x41) return list; byte[] req = new byte[9]; req[0]=req[1]=req[2]=req[3]=255; req[4]=0x55; Array.Copy(cres,5,req,5,4); client.Send(req,req.Length); byte[] res = client.Receive(ref remote);
-                if (res.Length < 6 || res[4] != 0x44) return list; int count = res[5], off = 6;
+                if(cres.Length>=6 && cres[4]==0x44)return Decode(cres);
+                if (cres.Length < 9 || cres[4] != 0x41) throw new IOException("Player query unavailable"); byte[] req = new byte[9]; req[0]=req[1]=req[2]=req[3]=255; req[4]=0x55; Array.Copy(cres,5,req,5,4); client.Send(req,req.Length); byte[] res = client.Receive(ref remote);
+                return Decode(res);
+            }
+        }
+        internal static List<A2SPlayer> Decode(byte[] res) {
+                var list=new List<A2SPlayer>();
+                if (res.Length < 6 || res[0]!=255 || res[1]!=255 || res[2]!=255 || res[3]!=255 || res[4] != 0x44) throw new IOException("Invalid player query reply"); int count = res[5], off = 6;
                 for (int i=0;i<count && off<res.Length;i++)
                 {
-                    off++; List<byte> nb = new List<byte>(); while (off<res.Length && res[off]!=0) { nb.Add(res[off]); off++; } if (off<res.Length) off++; if (off+8>res.Length) break;
+                    off++; List<byte> nb = new List<byte>(); while (off<res.Length && res[off]!=0) { nb.Add(res[off]); off++; } if (off<res.Length) off++; if (off+8>res.Length) throw new IOException("Truncated player query reply");
                     string name = Encoding.UTF8.GetString(nb.ToArray()); int score = BitConverter.ToInt32(res,off); off+=4; float dur = BitConverter.ToSingle(res,off); off+=4; list.Add(new A2SPlayer { Name=name, Score=score, DurationSeconds=Math.Max(0,dur) });
                 }
-            }
+            if(list.Count!=count)throw new IOException("Incomplete player query reply");
             return list;
         }
     }

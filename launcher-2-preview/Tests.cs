@@ -37,11 +37,94 @@ static class Checks
         Require(!UpdateActivation.Prepare(server, staged, output, delegate { return false; }).Success, "Update activation refuses unverified mod files");
         Require(StagedUpdate.Confirmed(0, "Success! App '2278520' fully installed", server), "Updater requires app evidence and all three output files");
     }
+    static void CheckMaintenance(string output) {
+        string root=Path.Combine(output,"maintenance-"+Guid.NewGuid().ToString("N")), backups=Path.Combine(output,"restore-backups-"+Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(Path.Combine(root,"saves"));
+        string config=Path.Combine(root,"enshrouded_server.json"), save=Path.Combine(root,"saves","world0.ksd");
+        File.WriteAllText(config,"{\"saveDirectory\":\"./saves\",\"name\":\"Before\",\"slotCount\":16,\"queryPort\":15637,\"customRule\":{\"keep\":true}}");
+        File.WriteAllText(save,"first world");string original=InstallationAudit.Hash(save);
+        Require(!Maintenance.SaveSettings(root,"New",16,15637,delegate{return true;}).Success,"Settings cannot change a running server");
+        Require(!Maintenance.SaveSettings(root,"",16,15637,delegate{return false;}).Success,"Invalid server names fail without writes");
+        Require(Maintenance.SaveSettings(root,"New name",8,15638,delegate{return false;}).Success,"Stopped server settings save atomically");
+        var settings=Maintenance.Config(root);Require(Convert.ToString(settings["name"])=="New name" && settings.ContainsKey("customRule") && Convert.ToString(settings["saveDirectory"])=="./saves","Settings preserve unknown rules and save path");
+        Require(Directory.GetFiles(root,"*.before-settings-*").Length==1,"Settings retain the original configuration");
+        Require(SaveBackup.Create(root,backups,false).Success,"Offline restore fixture has verified backup");string snapshot=Directory.GetDirectories(backups).Single();
+        File.WriteAllText(save,"newer world");string newer=InstallationAudit.Hash(save);
+        Require(!Maintenance.Restore(root,backups,snapshot,delegate{return true;}).Success && InstallationAudit.Hash(save)==newer,"Restore refuses running server without changing world");
+        Require(!Maintenance.Restore(root,backups,output,delegate{return false;}).Success,"Restore rejects snapshots outside backup root");
+        File.WriteAllText(Path.Combine(snapshot,"saves","world0.ksd"),"tampered");
+        Require(!Maintenance.Restore(root,backups,snapshot,delegate{return false;}).Success && InstallationAudit.Hash(save)==newer,"Corrupt backup fails before changing current world");
+        File.WriteAllText(Path.Combine(snapshot,"saves","world0.ksd"),"first world");
+        Require(Maintenance.Restore(root,backups,snapshot,delegate{return false;}).Success && InstallationAudit.Hash(save)==original,"Verified offline world restores exact bytes");
+        Require(Directory.GetDirectories(root,"saves.before-restore-*").Any(d=>InstallationAudit.Hash(Path.Combine(d,"world0.ksd"))==newer),"Restore retains the previous world for rollback");
+        Require(SaveBackup.Create(root,backups,true).Success,"Live snapshot fixture created");string live=Directory.GetDirectories(backups).Single(d=>File.ReadAllText(Path.Combine(d,"manifest.json")).Contains("\"ServerObservedRunning\":true"));
+        Require(!Maintenance.Restore(root,backups,live,delegate{return false;}).Success,"Automatic restore rejects nontransactional live copies");
+        File.WriteAllText(Path.Combine(root,"enshrouded_server.exe"),"fixture, never run");
+        string archive=Path.Combine(root,"XHL-Launcher-v1.0.1.zip");File.WriteAllText(archive,"old archive");string archiveHash=InstallationAudit.Hash(archive);
+        Require(!Maintenance.Archive(root,backups,delegate{return true;}).Success&&File.Exists(archive),"Organization refuses running server");
+        Require(Maintenance.Archive(root,backups,delegate{return false;}).Success&&InstallationAudit.Hash(Path.Combine(root,"Manager","Archive",Path.GetFileName(archive)))==archiveHash,"Organization moves verified historical archive with matching bytes");
+        Require(InstallationAudit.Hash(save)==original&&File.Exists(Path.Combine(root,"enshrouded_server.exe")),"Organization preserves game runtime and world");
+    }
+    static void CheckFullConfiguration(string output){
+        string root=Path.Combine(output,"rules-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(Path.Combine(root,"saves"));string path=Path.Combine(root,"enshrouded_server.json");
+        File.WriteAllText(path,"{\"name\":\"Fixture\",\"slotCount\":16,\"queryPort\":15637,\"saveDirectory\":\"./saves\",\"logDirectory\":\"./logs\",\"gameSettingsPreset\":\"Default\",\"gameSettings\":{\"playerHealthFactor\":1.0,\"dayTimeDuration\":1800000000000,\"enableDurability\":true},\"userGroups\":[{\"name\":\"Admin\",\"password\":\"fixture-only\",\"canEditWorld\":true}],\"bannedAccounts\":[]}");
+        var data=Maintenance.Config(root);var fields=ConfigurationDocument.Flatten(data);
+        Require(fields.Any(f=>f.Path=="gameSettings.playerHealthFactor")&&fields.Any(f=>f.Path=="userGroups[0].canEditWorld"),"Full editor includes nested gameplay and permission rules");
+        Require(ConfigurationDocument.FriendlyName("playerHealthFactor")=="Player health multiplier"&&ConfigurationDocument.FriendlyName("dayTimeDuration")=="Day length (minutes)"&&fields.Single(f=>f.Key=="playerHealthFactor").Path=="gameSettings.playerHealthFactor","Plain-English setting names preserve the original configuration keys");
+        Require(ConfigurationDocument.Choices("tombstoneMode","NoTombstone").Single(c=>c.Value=="NoTombstone").Text=="Keep everything","Readable death-rule choices preserve game enum values");
+        Require(Convert.ToDouble(ConfigurationDocument.ConvertValue(new ConfigField{Key="playerHealthFactor",Value=1},"1.5"))==1.5,"Multiplier editor accepts fractional values when original JSON used an integer");
+        foreach(var pair in new[]{new[]{"playerHealthFactor","0.24","4.01"},new[]{"bossDamageFactor","0.19","5.01"},new[]{"fromHungerToStarving","4.99","20.01"},new[]{"flameLevelFogRemoval","-1","21"}}){foreach(string invalid in pair.Skip(1)){bool rejected=false;try{ConfigurationDocument.ConvertValue(new ConfigField{Key=pair[0],Value=1},invalid);}catch{rejected=true;}Require(rejected,pair[0]+" rejects out-of-range value "+invalid);}}
+        Require(ConfigurationDocument.ReadOnlyReason(new ConfigField{Key="saveDirectory"})!=null&&ConfigurationDocument.ReadOnlyReason(new ConfigField{Key="unknownRule"})!=null,"Protected and unknown settings expose read-only reasons");
+        string script=Path.Combine(root,"controller.ps1");File.WriteAllText(script,"line one\nline two\n");string scriptHash=InstallationAudit.ScriptHash(script);File.WriteAllText(script,"line one\r\nline two\r\n",new System.Text.UTF8Encoding(true));Require(InstallationAudit.ScriptHash(script)==scriptHash,"Pinned script checks survive Git line-ending and BOM normalization");
+        var time=fields.Single(f=>f.Key=="dayTimeDuration");Require(Convert.ToInt64(ConfigurationDocument.ConvertValue(time,"20"))==1200000000000,"Duration editor converts minutes to exact 64-bit nanoseconds");
+        string hash=InstallationAudit.Hash(path),json=new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data);
+        Require(!Maintenance.SaveConfiguration(root,json,hash,delegate{return true;}).Success,"Full configuration save refuses running server");
+        Require(!Maintenance.SaveConfiguration(root,json,"stale-hash",delegate{return false;}).Success,"Configuration save rejects stale disk version");
+        Require(!Maintenance.SaveConfiguration(root,json.Replace("./saves","./different-world"),hash,delegate{return false;}).Success,"Full JSON editor cannot redirect the existing world");
+        Require(ConfigurationDocument.DirectionHint("playerHealthFactor").Contains("Higher: easier")&&ConfigurationDocument.DirectionHint("enemyDamageFactor").Contains("Higher: harder"),"Difficulty arrows distinguish player benefits from stronger enemies");
+        Require(ConfigurationDocument.DirectionHint("factoryProductionSpeedFactor").Contains("Higher: harder")&&ConfigurationDocument.DirectionHint("perkUpgradeRecyclingFactor").Contains("Higher: easier"),"Difficulty arrows reflect production time and salvage return semantics");
+        Require(!ConfigurationDocument.DirectionHint("dayTimeDuration").Contains("easier")&&!ConfigurationDocument.DirectionHint("slotCount").Contains("harder"),"Neutral settings receive factual directional hints");
+        var invalidGame=(System.Collections.Generic.Dictionary<string,object>)data["gameSettings"];invalidGame["playerHealthFactor"]=5;
+        Require(!Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success&&InstallationAudit.Hash(path)==hash,"Advanced JSON cannot bypass compatible numeric ranges or alter disk on rejection");
+        invalidGame["playerHealthFactor"]=1;invalidGame["weatherFrequency"]="Impossible";
+        Require(!Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Advanced JSON rejects unsupported enum options");invalidGame.Remove("weatherFrequency");
+        data["unknownRule"]=17;
+        Require(!Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Advanced JSON rejects new unverified rules");data.Remove("unknownRule");
+        var game=(System.Collections.Generic.Dictionary<string,object>)data["gameSettings"];game["playerHealthFactor"]=1.5;
+        Require(Maintenance.SaveConfiguration(root,new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(data),hash,delegate{return false;}).Success,"Full rules document saves atomically with original fields");
+        var saved=Maintenance.Config(root);Require(Convert.ToString(saved["gameSettingsPreset"])=="Custom"&&saved.ContainsKey("userGroups")&&Convert.ToInt64(((System.Collections.Generic.Dictionary<string,object>)saved["gameSettings"])["dayTimeDuration"])==1800000000000,"Custom preset activates changed rules and preserves permissions and 64-bit durations");
+        Require(Directory.GetFiles(root,"*.before-rules-*").Length==1,"Full rules save retains previous config for rollback");
+        var record=new RealmRecord{ServerRoot=root,Bases=6,Entities=42,KnownPlayers=new[]{"Fixture player"},Observed=DateTime.Now};RealmHistory.Save(output,record);var loaded=RealmHistory.Load(output,root);
+        Require(loaded.Bases==6&&loaded.KnownPlayers.Contains("Fixture player"),"Previous realm statistics and player history persist while offline");
+        Require(RealmHistory.Load(output,root+"-other").KnownPlayers.Length==0,"Cached history cannot leak between selected worlds");
+        File.WriteAllText(Path.Combine(root,"saves","world0.ksd"),"offline world");Require(RealmHistory.WorldFiles(root).Length==1,"Offline world information comes directly from saved files");
+        Directory.CreateDirectory(Path.Combine(root,"logs","backup"));File.WriteAllText(Path.Combine(root,"logs","backup","previous.log"),"[I 00:01:00] [server] Player 'Previous session player' logged in with Permissions:");
+        Require(RealmHistory.Load(output,root).KnownPlayers.Contains("Previous session player"),"Offline player history is recovered from rotated server logs");
+    }
     static void CheckPhone() {
+        string overrideFile=Path.Combine(Path.GetTempPath(),"shroudforge-phone-"+Guid.NewGuid().ToString("N")+".html");
+        try {
+            File.WriteAllText(overrideFile,"<html>Mobile test revision A</html>");
+            using(var hot=new PhoneView("hot-ui-test",null,overrideFile)) {
+                hot.Start(System.Net.IPAddress.Loopback,0);
+                using(var client=new System.Net.WebClient()) {
+                    Require(client.DownloadString(hot.Url).Contains("revision A"),"Phone can load editable UI without rebuilding");
+                    File.WriteAllText(overrideFile,"<html>Mobile test revision B</html>");
+                    Require(client.DownloadString(hot.Url).Contains("revision B"),"Phone UI reloads from disk without restarting listener");
+                    File.Delete(overrideFile);
+                    Require(client.DownloadString(hot.Url).Contains("ShroudForge Launcher"),"Phone falls back to compiled page if external UI is missing");
+                }
+            }
+        } finally {if(File.Exists(overrideFile))File.Delete(overrideFile);}
         int calls=0; using(var phone=new PhoneView("test-secret", delegate(string op){calls++;return ActionResult.Ok(op);})) {
             phone.Start(System.Net.IPAddress.Loopback,0);phone.Publish(new {name="Fixture",online=true});
             using(var c=new System.Net.WebClient()) {
-                Require(c.DownloadString(phone.Url).Contains("Server controls"), "Phone page serves server controls");
+                string phonePage=c.DownloadString(phone.Url);
+                Require(phonePage.Contains("Server controls"), "Phone page serves server controls");
+                Require(phonePage.Contains("id=\"mapTab\"") && phonePage.Contains("id=\"mapView\"") && phonePage.Contains("function loadMap(reload)"),"Phone includes user-activated interactive map tab");
+                Require(phonePage.Contains("https://enshrouded.gamevault.in/map") && phonePage.Contains("referrerpolicy=\"no-referrer\""),"Embedded map credits external source and does not refer private phone URL");
+                Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssrc\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase),"External map is never loaded until the phone user requests it");
+                Require(phonePage.Contains("id=\"activity\"") && phonePage.Contains("details.className='playerDetails'"),"Phone includes activity and player health diagnostics");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
                 bool rejected=false;try{c.DownloadString(phone.Url.Replace("test-secret","wrong"));}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects requests without private key");
                 rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects unsupported write requests");
@@ -169,19 +252,36 @@ static class Checks
             CheckLifecycle();
             CheckPhone();
             CheckAutomation(server, root, savePath);
+            CheckMaintenance(root);
+            CheckFullConfiguration(root);
+            Require(A2S.Decode(new byte[]{255,255,255,255,0x44,0}).Count==0,"Valid empty roster is a confirmed zero");
+            bool invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x41,0});}catch(IOException){invalid=true;}Require(invalid,"Unsupported roster response is unavailable, never zero");
+            invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x44,1,0,65});}catch(IOException){invalid=true;}Require(invalid,"Truncated roster cannot clear online players");
             string sentinelHash = InstallationAudit.Hash(savePath);
+            File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\",\"slotCount\":16}");
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
             using (var form = new ControlRoom(root, settings, false))
             {
                 form.ClientSize = new Size(1384, 870);
                 form.ShowInTaskbar = false; form.Opacity = 0; form.Show(); Application.DoEvents();
                 form.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: unsupported executable. No live patch or save changes." });
-                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone" })
+                foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone", "Backups", "Settings", "Updates" })
                 {
                     form.Navigate(page); form.PerformLayout(); Application.DoEvents();
                     using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, page + ".png"), ImageFormat.Png); }
                     Require(form.Controls.Count > 0 && form.Width > 1000, page + " constructs and renders (visual review also required)");
                 }
+                form.Navigate("Settings"); Application.DoEvents();
+                var binding=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+                var categories=(ListBox)typeof(ControlRoom).GetField("settingCategories",binding).GetValue(form);
+                var cards=(FlowLayoutPanel)typeof(ControlRoom).GetField("settingCards",binding).GetValue(form);
+                Require(categories.Items.Cast<object>().Any(x=>Convert.ToString(x)=="Server & chat"),"Settings expose friendly category navigation");
+                Require(!cards.Controls.Cast<Control>().Any(x=>x is DataGridView),"Primary settings surface uses cards instead of an editable grid");
+                string before=InstallationAudit.Hash(Path.Combine(server,"enshrouded_server.json"));
+                var number=cards.Controls.Cast<Control>().SelectMany(x=>x.Controls.Cast<Control>()).OfType<NumericUpDown>().FirstOrDefault();
+                Require(number!=null,"Numeric settings use dedicated number controls");
+                if(number!=null)number.Value=number.Value>number.Minimum?number.Value-1:number.Value+1;
+                Require(before==InstallationAudit.Hash(Path.Combine(server,"enshrouded_server.json")),"Card edits remain unsaved until explicitly saved");
                 form.Navigate("Overview"); form.ClientSize = new Size(1084, 701); form.PerformLayout(); Application.DoEvents();
                 Dump(form);
                 using (var bmp = new Bitmap(form.Width, form.Height)) { form.DrawToBitmap(bmp, new Rectangle(0, 0, form.Width, form.Height)); bmp.Save(Path.Combine(root, "Overview-small.png"), ImageFormat.Png); }
@@ -193,7 +293,7 @@ static class Checks
                 using (var bmp = new Bitmap(controls.Width, controls.Height)) { controls.DrawToBitmap(bmp, new Rectangle(0, 0, controls.Width, controls.Height)); bmp.Save(Path.Combine(root, "Controls.png"), ImageFormat.Png); }
                 controls.Navigate("Automation"); Application.DoEvents();
                 using (var bmp = new Bitmap(controls.Width, controls.Height)) { controls.DrawToBitmap(bmp, new Rectangle(0, 0, controls.Width, controls.Height)); bmp.Save(Path.Combine(root, "Automation-controls.png"), ImageFormat.Png); }
-                Require(Buttons(controls).Where(b => b.Text == "Start" || b.Text == "Restart").All(b => !b.Enabled), "Start and restart remain disabled for unsupported fixture");
+                Require(Buttons(controls).Count(b=>b.Text=="Start server"||b.Text=="Restart")==2 && Buttons(controls).Where(b => b.Text == "Start server" || b.Text == "Restart").All(b => !b.Enabled), "Start and restart remain disabled for unsupported fixture");
             }
             Require(sentinelHash == InstallationAudit.Hash(savePath), "Save sentinel unchanged after every page and audit");
             Require(!Directory.EnumerateFiles(server, "*", SearchOption.AllDirectories).Any(p => p.EndsWith(".log")), "Preview creates no server logs or runtime artifacts");
@@ -249,3 +349,4 @@ static class Checks
         Require(reentrant.Execute("Start").Success && rejected, "Concurrent operation is rejected while preflight is in progress");
     }
 }
+

@@ -5,6 +5,7 @@ on:
     branches:
       - launcher-2-readonly-preview
       - ci/windows-preview-artifacts
+      - feat/launcher-2-overhaul
   pull_request:
     branches:
       - launcher-2-readonly-preview
@@ -49,10 +50,14 @@ jobs:
         run: |
           $stage = Join-Path $env:RUNNER_TEMP 'companion-artifact'
           New-Item -ItemType Directory -Path $stage -Force | Out-Null
-          $binary = Join-Path $env:RUNNER_TEMP 'companion-build/XHL-Launcher-2.exe'
+          $binary = Join-Path $env:RUNNER_TEMP 'companion-build/ShroudForge-Launcher.exe'
           if (-not (Test-Path -LiteralPath $binary -PathType Leaf)) { throw 'Build output missing.' }
-          $target = Join-Path $stage 'Enshrouded-Server-Companion-2-Preview.exe'
+          $target = Join-Path $stage 'ShroudForge-Launcher-Preview.exe'
           Copy-Item -LiteralPath $binary -Destination $target
+          Copy-Item -LiteralPath 'launcher-2-preview/assets' -Destination $stage -Recurse
+          Copy-Item -LiteralPath 'launcher-2-preview/phone' -Destination $stage -Recurse
+          New-Item -ItemType Directory -Path (Join-Path $stage 'compatibility') -Force | Out-Null
+          Get-ChildItem 'launcher-2-preview/compatibility/*.ps1' | Copy-Item -Destination (Join-Path $stage 'compatibility')
           Copy-Item -LiteralPath 'launcher-2-preview/README-PREVIEW.md' -Destination (Join-Path $stage 'TECHNICAL-NOTES.md')
           @'
           WINDOWS PREVIEW BUILD - NOT AN INSTALLER OR PUBLIC RELEASE
@@ -69,7 +74,7 @@ jobs:
           Read TECHNICAL-NOTES.md and docs/BUILD-ARTIFACTS.md in the repository.
           '@ | Set-Content -LiteralPath (Join-Path $stage 'READ-FIRST.txt') -Encoding utf8
           $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
-          "$hash *Enshrouded-Server-Companion-2-Preview.exe" |
+          "$hash *ShroudForge-Launcher-Preview.exe" |
             Set-Content -LiteralPath (Join-Path $stage 'SHA256SUMS.txt') -Encoding ascii
           Get-ChildItem -LiteralPath $stage | Select-Object Name,Length | Format-Table | Out-String | Write-Host
           Write-Host "EXE SHA256: $hash"
@@ -77,7 +82,7 @@ jobs:
       - name: Upload temporary preview artifact
         uses: actions/upload-artifact@v4
         with:
-          name: enshrouded-companion-preview-${{ github.run_number }}
+          name: shroudforge-launcher-preview-${{ github.run_number }}
           path: ${{ runner.temp }}/companion-artifact/
           if-no-files-found: error
           retention-days: 14

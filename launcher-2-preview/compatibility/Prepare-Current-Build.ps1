@@ -18,7 +18,7 @@ foreach($n in $verified.Keys){Copy-Item -LiteralPath (Join-Path $payload $n) -De
 $k=(Get-FileHash -LiteralPath (Join-Path $root 'enshrouded_server.kfc')).Hash
 $r=(Get-FileHash -LiteralPath (Join-Path $root 'enshrouded_server.kfc_resources')).Hash
 if($k -ne '5BC0A5117714D69CE07960BFB5DDE87F0D929A1F7CB8A469CBA67016037B6E5D' -or $r -ne 'F55CF7101A78D4476F72B2574BA7EE219762AFFD6C470FF2CAB3D73DC20EBF2B'){throw 'Patch output did not match the verified current-build profile.'}
-foreach($n in @('XHL-Flight-Control.ps1','XHL-Gifting-Range-1.0.ps1','XHL-Safe-Start.ps1','XHL-Diagnostic-Wrapper.ps1')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $n) -Destination $root}
+foreach($n in @('XHL-Flight-Control.ps1','XHL-Pitch-Hold.ps1','XHL-Gifting-Range-1.0.ps1','XHL-Safe-Start.ps1','XHL-Diagnostic-Wrapper.ps1')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $n) -Destination $root}
 @{Format='XHL-EML-OFFLINE-STAGING-v1';MaxStack=65535;ExeSha256=$expected['enshrouded_server.exe'];KfcSha256=$k;ResourcesSha256=$r} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root 'XHL-STACK-1.0-ATTESTATION.json')
 Set-Content -LiteralPath (Join-Path $root 'XHL-SAFE-MODE.flag') 'Current-build guarded profile'
 Set-Content -LiteralPath (Join-Path $root 'XHL-STACK-LOSS-GUARD.flag') 'Never start without verified stacking resources.'
