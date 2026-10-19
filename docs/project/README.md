@@ -4,6 +4,10 @@
 
 ShroudForge distinguishes **code written**, **tests passing**, **working on the live server**, and **publicly released**. They are not the same thing.
 
+> **October 19 planning update:** The owner reported the server and its three existing mods working and confirmed server-launch detection. The UI redesign is now the primary task. GPS navigation and altar rotation were canceled; the companion phone app is paused. These planning updates do not replace a source-code or host audit.
+
+**[Open the October 19 development tracker →](development-tracker.md)** — estimated percentages, discussion dates, active priorities, and verified vs. unverified claims.
+
 | Area | Status |
 | :-- | :-- |
 | **Public installer** | **Not released** |
@@ -12,8 +16,8 @@ ShroudForge distinguishes **code written**, **tests passing**, **working on the 
 | **Flight and existing mods** | Working modifications reported; new changes must be matched to exact build |
 | **Player profiles** | Draft [PR #19](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/19) |
 | **Quality-of-life controls** | Draft [PR #20](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/20) |
-| **In-game quest-tracker proof** | Research [PR #24](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/24)—not proven on an unmodified client |
-| **Road and map studies** | Research [PR #21](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/21)—not an installable GPS |
+| **In-game quest-tracker proof (historical)** | Research [PR #24](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/24); GPS concept canceled from active scope |
+| **Road and map studies (historical)** | Research [PR #21](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/21); not an active GPS deliverable |
 | **Public-server release process** | Draft [PR #25](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/25) |
 | **Second-screen quest guide** | Closed [PR #22](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/22), because it does not meet the desired in-game experience |
 
