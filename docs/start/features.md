@@ -10,11 +10,11 @@ A quick, nontechnical overview. Features described below are present in the **de
 | **Gameplay mods** | Keep approved, build-specific flight, gifting and stacking modifications organized |
 | **Game updates** | Prepare a version separately and check compatibility before switching |
 | **Player history** | Examine observed sessions and activity without claiming data the server doesn't provide |
-| **Private phone access** | View/control select functions from a trusted local network |
+| **Private phone access (paused)** | Experimental local-network phone controls exist in development source; the companion is not an active development priority |
 
 ## What is still experimental?
 
-More detailed character inventories, exact player positions, custom vanilla-client quest tracking and an in-game minimap **have not been established as supported server-only features**. They are not promised for a public release.
+More detailed character inventories and exact player positions **have not been established as supported server-only features**. The custom vanilla-client quest tracker and in-game GPS/minimap initiative were **canceled from active scope** on October 19. Phone companion work is paused. None is promised for a public release.
 
 ### What about a new Enshrouded update?
 
