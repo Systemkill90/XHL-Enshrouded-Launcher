@@ -265,6 +265,19 @@ static class Checks
                 form.ClientSize = new Size(1384, 870);
                 form.ShowInTaskbar = false; form.Opacity = 0; form.Show(); Application.DoEvents();
                 form.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: unsupported executable. No live patch or save changes." });
+                var navField = typeof(ControlRoom).GetField("navigation", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                var navButtons = (System.Collections.Generic.Dictionary<string, Button>)navField.GetValue(form);
+                Require(navButtons.Count == 12 && navButtons.Values.All(b => b.TabStop && !string.IsNullOrEmpty(b.AccessibleName)),
+                    "All sidebar pages have keyboard focus and accessible names");
+                Require(((Panel)navButtons["Overview"].Parent).AutoScroll,
+                    "Sidebar navigation scrolls independently of branding and footer");
+                form.Navigate("Players");
+                var activeNav = navButtons["Players"];
+                typeof(Control).GetMethod("OnMouseEnter", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(activeNav, new object[] { EventArgs.Empty });
+                typeof(Control).GetMethod("OnMouseLeave", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(activeNav, new object[] { EventArgs.Empty });
+                Require(activeNav.BackColor == Theme.Panel3 && activeNav.ForeColor == Theme.Cyan &&
+                    activeNav.Tag is bool && (bool)activeNav.Tag,
+                    "Selected sidebar page stays highlighted after mouse hover");
                 foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone", "Backups", "Settings", "Updates" })
                 {
                     form.Navigate(page); form.PerformLayout(); Application.DoEvents();
