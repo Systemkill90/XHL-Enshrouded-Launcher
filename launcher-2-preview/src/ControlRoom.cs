@@ -104,7 +104,14 @@ namespace XHLLauncher
         {
             current = page;
             foreach (var entry in pages) entry.Value.Visible = entry.Key == page;
-            foreach (var entry in navigation) { entry.Value.BackColor = entry.Key == page ? Theme.Panel3 : Theme.Sidebar; entry.Value.ForeColor = entry.Key == page ? Theme.Cyan : Theme.Muted; }
+            foreach (var entry in navigation)
+            {
+                bool selected = entry.Key == page;
+                entry.Value.Tag = selected;
+                entry.Value.BackColor = selected ? Theme.Panel3 : Theme.Sidebar;
+                entry.Value.ForeColor = selected ? Theme.Cyan : Theme.Muted;
+                entry.Value.Invalidate();
+            }
             UpdateState(); if (page == "Logs") ReadLogs(); if(page == "Backups") RefreshBackupList();
         }
         Panel Card(Control parent, string title, int x, int y, int width, int height)
