@@ -34,7 +34,7 @@
 | 🏁 | **[I'm new here](docs/start/README.md)** | Understand ShroudForge and how a future installation will work |
 | ✨ | **[What can it do?](docs/start/features.md)** | Explore features without the technical jargon |
 | 🔎 | **[What's finished?](docs/project/README.md)** | See working, experimental and unreleased features |
-| 🧱 | **[Explore the project](docs/areas/README.md)** | Find the launcher, mods, mapping work and development branches |
+| 🧱 | **[Explore the project](docs/areas/README.md)** | Find the launcher, mods, historical research and development branches |
 | 🛡️ | **[Protect your server](docs/operate/README.md)** | Public-server safeguards, saves, testing and rollback |
 | 🛠️ | **[Develop or contribute](docs/developers/README.md)** | Build instructions, source links and contribution guidance |
 
@@ -44,7 +44,7 @@
 | :-- | :-- | :-- |
 | **Desktop launcher** | Dark-fantasy control room, server status, settings and backups | [Open launcher area](docs/areas/launcher.md) |
 | **Gameplay mods** | Build-specific flight, pitch-hold, gifting and stacking adjustments | [Open mods area](docs/areas/mods.md) |
-| **Maps and quests** | Research into better navigation and the existing in-game quest tracker | [Open navigation research](docs/areas/navigation.md) |
+| **Archived quest/map research** | Earlier experiments retained for reference; GPS development is canceled | [Review archived research](docs/areas/navigation.md) |
 | **Live-server safety** | Reliable updates and recovery without treating player progress as disposable | [Open operations](docs/areas/operations.md) |
 
 <details>
@@ -57,11 +57,11 @@ Code files and some historical internal names still say `XHL` for build compatib
 </details>
 
 <details>
-<summary><strong>Can I try flight mods or the new quest GPS?</strong></summary>
+<summary><strong>What about gameplay mods and quest GPS?</strong></summary>
 
 Flight, gifting and stacking work exists for specific game versions. They're not universal drop-in downloads.
 
-A new in-game quest tracker/minimap without client installs **is not proven**. [Quest-tracker source research](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/24) and [map-data work](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/21) are experiments—not a working GPS.
+The GPS / quest-navigation replacement was **canceled** on October 19. [Quest-tracker research](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/24) and [map-data work](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/21) remain historical experiments, not a current or installable feature. The phone companion is paused.
 
 </details>
 

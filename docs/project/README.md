@@ -8,6 +8,8 @@ ShroudForge distinguishes **code written**, **tests passing**, **working on the 
 
 **[Open the October 19 development tracker →](development-tracker.md)** — estimated percentages, discussion dates, active priorities, and verified vs. unverified claims.
 
+**[Next development session →](NEXT-SESSION.md)** — precise launcher-UI focus, existing GitHub branches, tests and live-server safety gates.
+
 | Area | Status |
 | :-- | :-- |
 | **Public installer** | **Not released** |
