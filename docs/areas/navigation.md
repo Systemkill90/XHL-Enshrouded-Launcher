@@ -1,8 +1,8 @@
-# Maps, roads & quest tracking
+# Historical research — maps, roads & quest tracking
 
-**Goal:** Better ways to navigate and track quests *inside Enshrouded*, without requiring players to install client-side mods.
+**Status (October 19, 2026): archived research, not active development.** The owner canceled the in-game GPS / quest-navigation replacement. Earlier work remains available to document what was explored, but it is not an approved ShroudForge feature or release target.
 
-### Two separate research paths
+### Earlier research paths
 
 | Research | Where to look | What is proven? |
 | :-- | :-- | :-- |
@@ -12,6 +12,6 @@
 The rejected browser-only guide is [archived as closed PR #22](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/22) because it didn't solve the actual in-game tracker problem.
 
 > [!CAUTION]
-> An unmodified Enshrouded client may simply ignore custom server-supplied text or HUD instructions. Until a real vanilla-client proof succeeds, **don't describe either branch as an installable feature** or put it into a public-server update.
+> An unmodified Enshrouded client may simply ignore custom server-supplied text or HUD instructions. Neither branch has an approved development objective now; **do not describe either as an installable feature** or include it in a public-server update.
 
 [← Explore project areas](README.md)
