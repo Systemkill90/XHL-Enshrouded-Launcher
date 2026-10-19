@@ -80,6 +80,42 @@ namespace XHLLauncher
             return b;
         }
 
+        // Sidebar styling is independent of action-button hover handlers.
+        public static Button NavigationButton(string text)
+        {
+            var button = new Button
+            {
+                Text = text,
+                AccessibleName = text,
+                AccessibleDescription = "Open " + text + " in ShroudForge",
+                UseMnemonic = false,
+                FlatStyle = FlatStyle.Flat,
+                BackColor = Sidebar,
+                ForeColor = Muted,
+                Font = Font(9f, FontStyle.Regular),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(12, 0, 0, 0),
+                AutoEllipsis = true,
+                Cursor = Cursors.Hand,
+                UseVisualStyleBackColor = false,
+                TabStop = true
+            };
+            button.FlatAppearance.BorderSize = 0;
+            button.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 39, 42);
+            button.FlatAppearance.MouseDownBackColor = Panel3;
+            button.MouseLeave += delegate
+            {
+                button.BackColor = button.Tag is bool && (bool)button.Tag ? Panel3 : Sidebar;
+            };
+            button.Paint += delegate(object sender, PaintEventArgs e)
+            {
+                if (!(button.Tag is bool && (bool)button.Tag)) return;
+                using (var brush = new SolidBrush(Cyan))
+                    e.Graphics.FillRectangle(brush, 0, 6, 3, Math.Max(0, button.Height - 12));
+            };
+            return button;
+        }
+
         public static Label Label(string text, float size, Color color, FontStyle style)
         {
             Label l = new Label();
