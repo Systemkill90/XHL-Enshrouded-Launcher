@@ -1,30 +1,23 @@
-# ShroudForge — acceptance handoff
+# ShroudForge — current session handoff
 
-## Live deployment — owner authorized October 19, 2026, 11:50 PM EDT
+Updated October 19 EDT / October 20 UTC, 2026.
 
-The owner explicitly waived a separate test server, paused phone work for today, and authorized taking the candidate online with a server/launcher restart. **3.0.0-private.2 is now installed and running**, not merely staged. Exactly one graceful server restart was submitted; the server was query-confirmed online before and after the launcher replacement. Installed package file hashes matched; checked server executable/configuration/startup/controller files remained unchanged. Previous launcher files and manager state were retained privately for rollback. No game patch, mod replacement, save restoration or public GitHub release/PR merge was performed.
+## Current installation
 
-The owner's iPhone screenshot shows GameVault failing with crypto.subtle.digest unavailable. Phone work is paused; this defect is **not fixed** or certified by the deployment. Native visual/DPI and gameplay acceptance remain limited as recorded below. The test-server acceptance gate was waived by the owner, not passed.
+**ShroudForge 3.0.0-private.2 is installed and running.** Source: 3e868582d47f21df547fcc554e8ad172814c3ed2 on feat/ui-navigation-polish-20261019, draft [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31). Modern source is under desktop/. The older 2.2 milestone and installed private.1 are historical.
 
-## Earlier acceptance snapshot (historical)
+The owner explicitly authorized taking private.2 online, restarting server and launcher, and waived a separate test server. Exactly one graceful server restart completed. Local game query confirmed readiness before and after launcher replacement; package hashes verified. Checked server executable/configuration/startup/controller files remained unchanged. Previous launcher files and manager state are retained privately for rollback. No game patch, mod replacement or save restoration was performed.
 
-Prepared October 20, 2026. First read AGENTS.md, CURRENT-STATE.md and DECISIONS.md. Do not re-plan or downgrade to the old 2.2 candidate.
+## Validation retained
 
-## Exact source
+Modern/classic Windows builds, TypeScript/bundle, 247 fixtures and seven native dummy lifecycle checks passed. All twelve pages were exercised in a synthetic browser preview. Modern Windows run [#4](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39365624611) and historical run [#139](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39365624690) passed. The initial frozen-lock mismatch was corrected before the successful rerun.
 
-Installed binary metadata: **3.0.0-private.1** (file version 3.0.0.0), inspected read-only. Unified candidate: **3.0.0-private.2**, development head **3e868582d47f21df547fcc554e8ad172814c3ed2**, [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31). Modern build input is desktop/react-launcher plus desktop/field-audit-launcher. launcher-2-preview is retained historical source. The validated local source tree exactly matches the GitHub publication tree; the connected GitHub app published after CLI credential handling stalled.
+Native WebView2 startup/accessibility passed. Screenshot capture timed out and input geometry was unavailable; full native visual/DPI acceptance remains unverified. Test-server acceptance was waived, not passed. Deployment does not newly certify gameplay mod/sleep/restore semantics.
 
-Local build/validation passed: both Windows executables, TypeScript, bundle, embedded phone synchronization, 247 fixture checks and seven native lifecycle checks. Browser verification covered all twelve pages, profile sheets, event search, minimum-width dashboard and compact phone modes. Modern Windows run #4 (39365624611) and historical run #139 (39365624690) passed for this head. The first modern CI failed on stale lockfile specifiers; all seven were corrected and fresh CI passed. Reuse valid local evidence instead of repeating every build.
+## Phone pause and next scope
 
-## Next necessary checks
+Phone development is paused for today. The owner's actual iPhone screenshot shows GameVault failing with "undefined is not an object (evaluating 'crypto.subtle.digest')". Record this as unresolved; do not claim the map fixed or resume phone work automatically. Compatibility, Protected and external fallback remain in source.
 
-1. CI and fresh dependency restore passed. Retain run #4 and #139 evidence; rerun only for relevant source changes.
-2. Complete native WebView2/DPI/keyboard visual acceptance; a later visible preview verified startup/accessibility, but screenshot capture timed out and click input lacked geometry. Use disposable settings and --preview-from; do not copy live settings.
-3. Check actual iPhone Safari terrain/touch on the exact phone page. Compatibility is default; Protected/external fallback retained. Browser iframe dimensions/mode attributes passed, but are not device certification.
-4. If separately authorized, rehearse real-game mod/sleep and backup/restore using a disposable server/world. No live server testing.
+Preserve the running installation and rollback. No further restart or server modification is authorized by the completed deployment. Do not demand the waived test server or silently reinstate it as a deployment gate. GPS and altar rotation remain canceled. PR #31 stays draft; no merge or public release occurred.
 
-## Package and rollback
-
-A separately staged, human-readable 3.0.0-private.2 candidate contains required managed/native WebView2 DLLs, UI, phone, assets, instructions, manifest and checksums. Private package paths and operational evidence stay local. No installed file was changed. Rollback for this staged review means close/discard only the candidate; preserve the working launcher and existing rollback archives. A future migration must preserve automation journals and requires separate review/authorization.
-
-No server start, stop, restart, patch, mod/config/save write or backup restoration. No merge/public release. GPS and altar rotation stay canceled; companion expansion stays paused.
+See [current state](CURRENT-STATE.md), [work log](WORK-LOG.md), [decisions](DECISIONS.md) and [issue register](ISSUE-REGISTER.md).

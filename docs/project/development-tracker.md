@@ -2,7 +2,7 @@
 
 **For latest source/test/install state:** see [CURRENT-STATE.md](CURRENT-STATE.md) and [SESSION-HANDOFF.md](SESSION-HANDOFF.md). This table intentionally preserves the owner/assistant **October 19 historical planning estimates**; its numeric percentages must not be silently recalculated from passing CI or newly written documentation. Read the [issue register](ISSUE-REGISTER.md) for priority and blockers.
 
-**Latest checked evidence (October 20):** recovered 3.0 desktop source reconciled in draft PR #31 at 3e868582d47f21df547fcc554e8ad172814c3ed2; candidate 3.0.0-private.2, installed 3.0.0-private.1 inspected read-only. Both Windows builds, TypeScript/bundle, 247 fixtures and seven native dummy checks passed locally. All twelve browser pages and compact phone modes checked. Native DPI, physical-device terrain and disposable-game acceptance remain open. See CURRENT-STATE. Historical percentages below remain planning estimates; no deployment is implied.
+**Latest checked evidence (October 19 EDT / October 20 UTC):** private.2 is installed and running from source 3e86858 in draft PR #31. Owner-authorized server and launcher restart completed once; query readiness and package hashes verified, rollback retained. Both Windows CI workflows, 247 local fixtures and seven native checks passed. Test-server acceptance was explicitly waived. Phone work is paused; actual iPhone crypto.subtle.digest map failure remains unresolved. Native visual/DPI review remains unverified. Historical percentages below remain planning estimates.
 
 **Owner planning baseline: October 19, 2026.** This tracker consolidates the October 19 development discussion. It is **not** a source-code audit, deployment manifest, or proof that each feature works on the live server.
 
