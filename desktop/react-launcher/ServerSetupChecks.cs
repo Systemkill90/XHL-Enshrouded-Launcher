@@ -29,6 +29,18 @@ static class ServerSetupChecks {
   check(!Directory.GetFiles(Path.Combine(fresh,"savegame")).Any()&&!File.Exists(Path.Combine(fresh,".shroudforge-creating")),"Creation leaves an empty separate world and does not launch the game");
   foreach(string target in new[]{old,Path.Combine(old,"nested"),app,fresh})check(!ServerSetup.Create(app,old,target,steam,"Blocked","fixture password",15647,8,null,success).Success,"Creation refuses an existing or overlapping destination");
   string failed=Path.Combine(area,"failed");check(!ServerSetup.Create(app,old,failed,steam,"Failed","fixture password",15647,8,null,(client,target,output)=>{files(target);return 0;}).Success&&!VanillaServer.Managed(failed),"Exit zero without Steam success is rejected without enrolling partial files");
+  string nonzero=Path.Combine(area,"nonzero-exit");
+  check(!ServerSetup.Create(app,old,nonzero,steam,"Failed","fixture password",15647,8,null,(client,target,output)=>{files(target);output("Success! App '2278520' fully installed");return 1;}).Success&&!VanillaServer.Managed(nonzero),"Nonzero SteamCMD exit cannot be disguised by a success line");
+  string invalidName=Path.Combine(area,"invalid-name");
+  check(!ServerSetup.Create(app,old,invalidName,steam,"Bad\nName","fixture password",15647,8,null,success).Success&&!Directory.Exists(invalidName),"Invalid server names fail before creating a destination");
+  string invalidPort=Path.Combine(area,"invalid-port");
+  check(!ServerSetup.Create(app,old,invalidPort,steam,"Bad Port","fixture password",1023,8,null,success).Success&&!Directory.Exists(invalidPort),"Privileged or invalid query port cannot create a destination");
+  string invalidSlots=Path.Combine(area,"invalid-slots");
+  check(!ServerSetup.Create(app,old,invalidSlots,steam,"Bad Slots","fixture password",15647,17,null,success).Success&&!Directory.Exists(invalidSlots),"Oversubscribed server slots cannot create a destination");
+  string invalidCredentials=Path.Combine(area,"invalid-password");
+  check(!ServerSetup.Create(app,old,invalidCredentials,steam,"Bad Password","short",15647,8,null,success).Success&&!Directory.Exists(invalidCredentials),"Short administrator passwords cannot create a destination");
+  string invalidCmd=Path.Combine(area,"invalid-steamcmd");
+  check(!ServerSetup.Create(app,old,invalidCmd,Path.Combine(area,"not-steamcmd.exe"),"Bad SteamCMD","fixture password",15647,8,null,success).Success&&!Directory.Exists(invalidCmd),"Missing SteamCMD executable cannot create a destination");
   var scan=ServerSetup.Scan(new[]{area,old});check(scan.Servers.Count(s=>s.Root==old)==1&&scan.Servers.Any(s=>s.Root==fresh&&s.Error==null),"Folder scan finds and deduplicates nested installations");
   File.WriteAllText(Path.Combine(failed,"enshrouded_server.json"),"invalid");check(ServerSetup.Scan(new[]{failed}).Servers.Single().Error!=null,"Invalid existing configuration is visible in scan results");
   check(ServerSetup.Scan(new[]{area},1).Limited,"Bounded scan exposes its limit instead of claiming completeness");
