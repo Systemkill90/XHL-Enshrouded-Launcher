@@ -1,5 +1,7 @@
 # ShroudForge — verified development and decision chronology
 
+> **October 20 GitHub-only follow-up:** Separate [draft PR #32](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/32) stages iPhone HTTP-parent secure-context map diagnostics, a direct HTTPS map fallback, HTML/C# synchronization and phone tests, six server-creation rejection cases and acceptance docs. Source synchronization and expected test text were statically checked. **New Windows CI, the real iPhone map and new-server installation have not yet been verified**. No live or desktop files were touched by this follow-up.
+
 ## October 20 — New server beside the realm box
 
 Owner requested a visible top-bar New server entry leading to a create/scan guide. Implemented a dedicated Server setup page: create opens the native new-server form directly, while scan opens discovery. Realm and New server controls remain visible at minimum width. Guide navigation and twenty combined top-bar/overview viewport checks passed, including no page scrolling, no footer/metrics overlap and a visible adjacent button. No real server was created or selected.
