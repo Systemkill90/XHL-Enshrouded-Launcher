@@ -257,9 +257,65 @@ static class Checks
             Require(A2S.Decode(new byte[]{255,255,255,255,0x44,0}).Count==0,"Valid empty roster is a confirmed zero");
             bool invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x41,0});}catch(IOException){invalid=true;}Require(invalid,"Unsupported roster response is unavailable, never zero");
             invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x44,1,0,65});}catch(IOException){invalid=true;}Require(invalid,"Truncated roster cannot clear online players");
+            var readOnlyEvents = new[] {
+                new ActivityItem(new DateTime(2026, 10, 17, 18, 1, 0), "Player", "Test ranger connected"),
+                new ActivityItem(new DateTime(2026, 10, 17, 18, 2, 0), "Warning", "Network congestion"),
+                new ActivityItem(new DateTime(2026, 10, 17, 18, 3, 0), "Warning", "Multiline" + "\n" + "spoofed log row")
+            };
+            string filteredEvents = ParsedEventView.Render(readOnlyEvents, "ranger", 50);
+            Require(filteredEvents.Contains("Test ranger connected") && !filteredEvents.Contains("Network congestion"),
+                "Read-only parsed events filter by observed event text");
+            string allEvents = ParsedEventView.Render(readOnlyEvents, "", 50);
+            Require(allEvents.IndexOf("Multiline") < allEvents.IndexOf("Test ranger connected") && 
+                !allEvents.Contains("\nspoofed log row"),
+                "Parsed events render latest first and flatten embedded newlines");
+            Require(ParsedEventView.Render(readOnlyEvents, "unmatched", 50).Contains("No matching"),
+                "Parsed event view differentiates absent matches");
+            var syntheticHost = new HostState {
+                ServerRunning=true, Uptime=TimeSpan.FromMinutes(33), CpuPercent=12.5,
+                RamBytes=1048576, DiskFreeBytes=10737418240L, DiskTotalBytes=21474836480L,
+                PublicIp="SECRET_PUBLIC_IP", AdapterDescription="SECRET_DEVICE"
+            };
+            var syntheticAudit = new InstallationAudit {
+                Summary="SECRET_INTERNAL_SUMMARY", Details="SECRET_PASSWORD",
+                FlightCompatible=true, StackMatches=true, LoadersIsolated=true
+            };
+            var syntheticWorld = new WorldState { LastSaveTime=DateTime.Now.AddMinutes(-3), WorldSaveBytes=1024 };
+            string safe = SafeSupportReport.Create(syntheticHost,syntheticWorld,syntheticAudit,2,
+                DateTime.Now.AddMinutes(-5),DateTime.Now);
+            Require(safe.Contains("Pinned build matches") && safe.Contains("Backup completion markers: 2") &&
+                safe.Contains("Observed running"), "Safe support snapshot reports only available process and file-check evidence");
+            Require(!safe.Contains("SECRET_") && !safe.Contains("SECRET_PASSWORD") && !safe.Contains("SECRET_PUBLIC_IP"),
+                "Safe support snapshot excludes raw audit text, network identity and credential-like fields");
+            string unavailable = SafeSupportReport.Create(null,null,null,-1,DateTime.MinValue,DateTime.Now);
+            Require(unavailable.Contains("Backup completion markers: Unavailable") &&
+                unavailable.Contains("Compatibility unknown") && unavailable.Contains("Not observed running"),
+                "Unknown checks and failed backup scans are not reported as healthy or zero");
             string sentinelHash = InstallationAudit.Hash(savePath);
             File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\",\"slotCount\":16}");
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
+            var profileNow=DateTime.Now;
+            var observed=new PlayerState { Name="Fixture player", SteamId="76561198000000000", Peer="4(2)", MachineIndex=5, Handle="4(2)",
+                Connected=true, JoinTime=profileNow.AddMinutes(-18), PingMs=62, Jitter=4.2, OneMinuteAverage=60, OneMinutePeak=79,
+                FiveMinutePeak=103, HealthScore=91, HealthReason="Stable", LostTotal=3, TimeoutCount=1, CharacterSaveBytes=1024 };
+            var completed=new PlayerSession { Player="Fixture player", Joined=profileNow.AddHours(-2), Left=profileNow.AddHours(-1),
+                DurationSeconds=3600 };
+            var joined=new ActivityItem(profileNow.AddMinutes(-18),"Player","Fixture player connected");
+            var sheet=PlayerSheet.Create("Fixture player",observed,new[]{completed},new[]{joined},true,profileNow);
+            Require(sheet.Status.StartsWith("ONLINE") && sheet.Identity.Contains(observed.SteamId) && sheet.Identity.Contains("1 KB"),
+                "Player profile shows observed identity and save-transfer evidence, without reading inventory");
+            Require(sheet.Sessions.Contains("1h") && sheet.Sessions.Contains("18m") && sheet.Connection.Contains("62 ms"),
+                "Player profile shows completed visits, current session and ping");
+            Require(sheet.Incidents.Contains("1 observed") && sheet.Activity.Contains("Fixture player connected"),
+                "Player profile includes recorded connection issues and exact-name events");
+            Require(sheet.Limitations.Contains("inventory") && sheet.Limitations.Contains("matched by display name"),
+                "Player profile states unsupported character data and identity-matching limits");
+            var oldSheet=PlayerSheet.Create("Offline player",null,new[]{new PlayerSession { Player="Offline player",
+                Joined=profileNow.AddDays(-1),Left=profileNow.AddDays(-1).AddMinutes(25),DurationSeconds=1500 }},
+                new[]{new ActivityItem(profileNow,"Player","Offline player2 connected")},false,profileNow);
+            Require(oldSheet.Status.StartsWith("OFFLINE") && oldSheet.Identity.Contains("Not recorded")
+                && oldSheet.Activity.Contains("No matching") && oldSheet.Sessions.Contains("25m"),
+                "Offline player sheet uses historical visits, omits unknown fields and rejects prefix-name events");
             using (var form = new ControlRoom(root, settings, false))
             {
                 form.ClientSize = new Size(1384, 870);
