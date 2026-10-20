@@ -38,3 +38,7 @@ Owner screenshot shows GameVault crypto.subtle.digest unavailable; phone work pa
 ## October 20 — engineering-review findings addressed
 
 Process observation failures no longer become confirmed absence; failed scans retain the last complete result with visible errors/age; stale or altered builds are rejected; classic tools use an explicit recovery capability; desktop host/UI contracts and operation results are typed/consistent. Source: [39684d2](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/commit/39684d20d05ce1f12f83562f5994c1cf2c3d6956), identical tree to installed local 507d86c. Local validation passed; current-head CI and remaining device/gameplay limits are tracked in current state. Existing Windows/.NET path-length limitation requires short fixture paths; no broad filesystem redesign was introduced.
+
+## October 20 — offline metadata retention addressed
+
+Previous-session identity and connection metadata no longer disappears when a member is offline or the launcher restarts. Retained logs/health history backfill private server-scoped records, session sources are combined/deduplicated, and historical values are labeled. Source a6c1db8 matches installed local f6d5715 by exact tree. 279 fixtures and seven native checks passed locally; current-head CI and deployment evidence are in current state. Information absent from every retained source cannot be reconstructed and remains Not recorded. No player records or raw operational evidence are published.

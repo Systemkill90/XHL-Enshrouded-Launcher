@@ -14,7 +14,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 **At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
 
-**Latest deployment note:** October 20 selective refactor is published at 39684d2 (tree-identical to installed local 507d86c). Launcher-only replacement completed with installed hashes, query readiness, unchanged server process/files/settings and rollback verified; zero server restarts for this update. Local builds and 264 fixtures plus seven native checks passed; current-head CI is tracked in current state. Existing phone defect remains unresolved. The owner authorized this deployment and related GitHub updates; use the current task's scope for subsequent operations.
+**Latest deployment note:** October 20 offline player-history metadata is published at a6c1db8, tree-identical to installed local f6d5715. Prior-session identity/session/network details now fill offline profiles with historical labels and private server-scoped persistence. The launcher-only deployment verified installed hashes, metadata import, query readiness and unchanged server process/files/settings; zero game-server restarts. Local builds and 279 fixtures plus seven native checks passed; current-head CI is linked in current state. The owner preapproved related work. Existing phone/device/gameplay limits remain.
 
 ## Start here
 

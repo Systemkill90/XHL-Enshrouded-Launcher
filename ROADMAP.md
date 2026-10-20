@@ -1,6 +1,6 @@
 # Where we're going
 
-> **Current implementation:** the selective reliability refactor is published in [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) at 39684d2 and installed under explicit authorization. Its source tree matches local 507d86c. The launcher-only update preserved the running server and settings; see [current state](docs/project/CURRENT-STATE.md) and [handoff](docs/project/SESSION-HANDOFF.md) for exact tests, CI and unresolved device/gameplay limits.
+> **Current implementation:** offline player metadata and the selective reliability refactor are published in [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31), with a6c1db8 tree-identical to installed local f6d5715. Offline profiles retain recorded identity, sessions and network evidence. Launcher-only deployment preserved the running game server and settings. See [current state](docs/project/CURRENT-STATE.md) and [handoff](docs/project/SESSION-HANDOFF.md) for exact tests, CI and remaining limits.
 
 **Planning updated October 19, 2026.** This is a plain-English roadmap, not a list of features already installed on Velaris. See the [dated development tracker](docs/project/development-tracker.md) for provisional percentages and activity dates.
 
