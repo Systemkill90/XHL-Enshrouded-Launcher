@@ -205,6 +205,211 @@ nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;display:grid;grid-templ
    <details class=""control-details""><summary>Server controls <small>Start · Restart · Stop</small></summary>
     <div class=""control-body""><p class=""live-note"">These actions affect your live server. Stop and Restart disconnect players.</p>
      <div class=""actions""><button id=""start"" class=""primary"" disabled onclick=""run('Start')"">Start</button><button id=""restart"" disabled onclick=""run('Restart')"">Restart</button><button id=""stop"" class=""danger"" disabled onclick=""run('Stop')"">Stop</button></div>
+    </div>
+   </details>
+   <p id=""result"" class=""result"" role=""status"" aria-live=""polite""></p>
+  </div>
+ </section>
+ <div class=""section-heading""><h2>Realm overview</h2><small>Live host readings</small></div>
+ <div class=""columns"">
+  <section class=""panel""><div class=""section-kicker"">WORLD PROTECTION</div><h2>Backups</h2><p class=""caption"">Last completed verified copy</p><p id=""lastBackup"">Checking…</p><button id=""backup"" class=""primary"" disabled onclick=""run('Backup')"">Back up now</button><p id=""backupResult"" class=""result"" role=""status""></p><p class=""caption"">Save copies are retained. Live copies can span a save cycle.</p></section>
+  <section class=""panel""><div class=""section-kicker"">WORLD STATUS</div><h2>World information</h2><div class=""row""><span>Save folder files</span><strong id=""worldFiles"">Checking</strong></div><div class=""row""><span>Save folder size</span><strong id=""worldSize"">—</strong></div><div class=""row""><span>Last file write</span><strong id=""worldSaved"">—</strong></div><div class=""row""><span>Bases observed</span><strong id=""bases"">—</strong></div></section>
+ </div>
+ <section class=""panel""><div class=""section-kicker automation-title"">AUTOMATION</div><div class=""row""><div><strong>Automatic backups</strong><small id=""backupSchedule"">While this launcher is open</small></div><button id=""autoBackup"" class=""switch"" aria-pressed=""false"" disabled onclick=""run(current.autoBackup?'AutoBackupOff':'AutoBackupOn')"">Off</button></div><div class=""row""><div><strong>Crash recovery</strong><small>Limited attempts after an observed exit. Manual Stop pauses recovery.</small></div><button id=""recovery"" class=""switch"" aria-pressed=""false"" disabled onclick=""run(current.recovery?'RecoveryOff':'RecoveryOn')"">Off</button></div></section>
+</div>
+<div id=""playersView"" class=""view"" role=""tabpanel"" aria-labelledby=""playersTab"" data-section=""players"" hidden>
+ <div class=""section-kicker"">REALM ROSTER</div><div class=""section-heading""><h2>Players</h2><span id=""playerBadge"" class=""badge"">0</span></div><p class=""section-intro"">Sessions and connection measurements observed by the launcher—not live character inventories or positions.</p>
+ <section class=""panel""><h2>Currently connected</h2><div id=""roster"" class=""empty"">Waiting for player information</div></section>
+ <section class=""panel""><h2>Known player history</h2><div id=""knownPlayers"" class=""empty""></div><p class=""caption"">Records come from server logs and session history. Characters stored on player devices are not accessible to this launcher.</p></section>
+</div>
+<div id=""activityView"" class=""view"" role=""tabpanel"" aria-labelledby=""activityTab"" data-section=""activity"" hidden>
+ <div class=""section-kicker"">OBSERVED EVENTS</div><div class=""section-heading""><h2>Activity</h2></div>
+ <p class=""section-intro"">Recent launcher and server events. No invented coordinates, town names or unobserved player actions.</p>
+ <section class=""panel""><h2>Event feed</h2><div id=""activity"" class=""empty"">Waiting for recorded events</div></section>
+</div>
+<div id=""mapView"" class=""view"" role=""tabpanel"" aria-labelledby=""mapTab"" data-section=""map"" hidden>
+ <div class=""section-kicker"">CARTOGRAPHY</div><div class=""section-heading""><h2>Embervale</h2><span class=""badge"">3D WORLD MAP</span></div>
+ <section class=""map-card""><div class=""map-art"" aria-hidden=""true"">◇</div><h2>Explore the Shroud</h2>
+  <p>Open the complete interactive GameVault map with terrain, landmarks, filters and touch navigation. This direct HTTPS view is the mode already confirmed working on iPhone.</p>
+  <a class=""primary-link"" id=""openWorldMap"" href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open interactive 3D map ↗</a>
+  <div class=""map-badges""><span>Live map data</span><span>Pinch &amp; zoom</span><span>Opens securely</span></div>
+ </section>
+ <p class=""caption"">Map content is maintained by GameVault, independently of your server. Opening it does not send your private ShroudForge address or server key.</p>
+ <details class=""map-experiment""><summary>Experimental: embed the map here</summary><div class=""map-experiment-content"">
+  <p class=""mapNote"">ShroudForge's private HTTP page cannot guarantee browser Web Crypto within an HTTPS iframe. If you see a crypto.subtle.digest error, use the direct map link above.</p>
+  <div class=""mapWindow""><div id=""mapStart"" class=""mapStart""><span class=""sigil"" aria-hidden=""true"">◇</span><strong>Embedded map</strong><p>May fail in iPhone Safari. Loading is optional.</p><button class=""primary"" onclick=""loadMap()"">Try embedded view</button></div>
+   <iframe id=""gameMap"" title=""External interactive Embervale 3D map by GameVault"" referrerpolicy=""no-referrer"" allow=""fullscreen; gyroscope; accelerometer"" allowfullscreen hidden></iframe>
+   <div id=""mapTrouble"" class=""mapTrouble"" role=""status"" hidden><strong>Map still showing white?</strong><p>Try the standalone HTTPS map for full 3D terrain.</p><div class=""mapTroubleActions""><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full 3D map ↗</a><button type=""button"" onclick=""loadMap(true)"">Try again</button><button id=""mapHelpMode"" type=""button"" onclick=""toggleMapMode()"">Try Protected mode</button><button type=""button"" onclick=""dismissMapHelp()"">Hide help</button></div></div>
+  </div>
+  <div class=""mapControls""><button id=""reloadMap"" onclick=""loadMap(true)"">Reload map</button><button id=""mapMode"" type=""button"" aria-pressed=""true"" onclick=""toggleMapMode()"">Use Protected mode</button><button id=""mapTroubleshoot"" type=""button"" onclick=""showMapTrouble()"">Map blank?</button></div>
+  <p class=""mapNote"" id=""mapSecureHint"" role=""status"" hidden><strong>Insecure page context.</strong> The embedded map can fail to build due to crypto.subtle.digest. <a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open the 3D map directly over HTTPS ↗</a>.</p>
+  <p class=""mapNote"" id=""mapHelp"" role=""status"">Compatibility mode is default for the iframe, but the direct HTTPS link above is more reliable.</p>
+ </div></details>
+ <p class=""caption"">3D terrain and landmarks provided by GameVault's Companion for Enshrouded. Not affiliated with Keen Games.</p>
+</div>
+<footer class=""app-footer"">ShroudForge · Private realm companion · Keep this link private</footer>
+<nav class=""tabs"" role=""tablist"" aria-label=""Phone companion sections"">
+ <button id=""overviewTab"" role=""tab"" aria-selected=""true"" aria-controls=""dashboardView"" onclick=""showTab('overview')""><span class=""tab-symbol"" aria-hidden=""true"">⌂</span>Overview</button>
+ <button id=""playersTab"" role=""tab"" aria-selected=""false"" aria-controls=""playersView"" onclick=""showTab('players')""><span class=""tab-symbol"" aria-hidden=""true"">♙</span>Players</button>
+ <button id=""activityTab"" role=""tab"" aria-selected=""false"" aria-controls=""activityView"" onclick=""showTab('activity')""><span class=""tab-symbol"" aria-hidden=""true"">≋</span>Activity</button>
+ <button id=""mapTab"" role=""tab"" aria-selected=""false"" aria-controls=""mapView"" onclick=""showTab('map')""><span class=""tab-symbol"" aria-hidden=""true"">◇</span>Map</button>
+</nav>
+</main><script>
+let current={},sending=false,notice='',mapLoaded=false,mapAssistTimer=null,mapCompatibility=true;const el=id=>document.getElementById(id);
+function showTab(which){
+ const views={overview:'dashboardView',players:'playersView',activity:'activityView',map:'mapView'};
+ const chosen=Object.prototype.hasOwnProperty.call(views,which)?which:'overview';
+ Object.keys(views).forEach(key=>{
+  const selected=key===chosen;el(views[key]).hidden=!selected;
+  el(key+'Tab').setAttribute('aria-selected',String(selected));
+ });
+ if(chosen==='map')updateMapSecurityHint();
+ if(location.hash!=='#'+chosen)history.replaceState(null,'','#'+chosen);
+}
+function dismissMapHelp(){el('mapTrouble').hidden=true;}
+function showMapTrouble(){
+ if(!mapLoaded||el('gameMap').hidden)return;
+ el('mapTrouble').hidden=false;
+ text('mapHelp','If the map is blank or white, open the full interactive map. A browser iframe load event does not prove its 3D content actually rendered.');
+}
+function syncMapMode(){
+ el('mapMode').textContent=mapCompatibility?'Use Protected mode':'Use Compatibility mode';
+ el('mapMode').setAttribute('aria-pressed',String(mapCompatibility));
+ el('mapHelpMode').textContent=mapCompatibility?'Try Protected mode':'Try Compatibility';
+}
+function updateMapSecurityHint(){
+ const insecure=window.isSecureContext===false;
+ el('mapSecureHint').hidden=!insecure;
+ return insecure;
+}
+function toggleMapMode(){
+ mapCompatibility=!mapCompatibility;
+ syncMapMode();
+ if(mapLoaded)loadMap(true);
+}
+function loadMap(reload){
+ const frame=el('gameMap');
+ if(mapAssistTimer!==null)clearTimeout(mapAssistTimer);
+ mapAssistTimer=null;
+ syncMapMode();
+ el('mapTrouble').hidden=true;
+ el('mapStart').hidden=true;
+ frame.hidden=false;
+ if(mapCompatibility)frame.removeAttribute('sandbox');
+ else frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups');
+ const insecureParent=updateMapSecurityHint();
+ if(!mapLoaded||reload){
+  mapLoaded=true;frame.src='https://enshrouded.gamevault.in/map';
+  text('mapHelp',insecureParent?'This private-network HTTP page is not a secure context. The embedded HTTPS map may fail when it calls crypto.subtle.digest. Use the direct HTTPS map link above. Server controls remain on this private page.':mapCompatibility?'Compatibility mode is active: this external map uses normal cross-origin iframe rules and no-referrer. Select Map blank? only if you need help.':'Protected mode is active: stricter iframe permissions might produce white terrain. Switch back to Compatibility if needed.');
+ }
+ // Cross-origin iframe failure is not reliably observable in Safari.
+ // Never show a misleading success indicator just because the iframe fires ""load"".
+ if(!mapCompatibility)mapAssistTimer=setTimeout(showMapTrouble,9000);
+}
+function text(id,value){el(id).textContent=value;}function lock(){['start','restart','stop','backup','autoBackup','recovery'].forEach(id=>el(id).disabled=true);}
+async function refresh(){try{let r=await fetch('status',{cache:'no-store'});if(!r.ok)throw Error();let s=await r.json();if(s.observedUtc&&Date.now()-Date.parse(s.observedUtc)>15000)throw Error('Stale host data');current=s;text('name',s.name);text('stateText',s.busy?'Operation in progress':s.readiness||(s.online?'The realm is online':'The realm is resting'));el('state').className='state'+(s.queryConfirmed?' online':'');text('updated','Updated '+s.updated);text('uptime',s.uptime);text('count',s.players);text('cpu',s.cpu==='—'?'—':s.cpu+'%');text('memory',s.memory);text('playerBadge',s.players);const list=el('roster');list.replaceChildren();(s.roster||[]).forEach(p=>{
+ let row=document.createElement('div');row.className='playerRow';let top=document.createElement('div');top.className='playerTop';
+ let name=document.createElement('strong');name.textContent=p.name;let health=document.createElement('span');health.className='playerBadge'+(p.health<55?' playerBad':'');health.textContent=Number.isFinite(p.health)?p.health+' / 100':'Health unknown';top.append(name,health);
+ let session=document.createElement('small');session.textContent=p.session;
+ let details=document.createElement('div');details.className='playerDetails';[p.connection||'Status unknown','Ping '+(p.ping||'—'),'Jitter '+(p.jitter||'—'),'Dropped '+(p.droppedPackets??'—')].forEach(v=>{let cell=document.createElement('span');cell.textContent=v;details.append(cell);});
+ row.append(top,session,details);if(p.lastIssue){let issue=document.createElement('small');issue.textContent='Last issue: '+p.lastIssue;row.append(issue);}list.append(row);
+});if(!list.children.length)list.textContent=s.online?'No named players currently observed.':'Server offline';['worldFiles','worldSize','worldSaved','bases'].forEach(id=>text(id,s[id]||'Not observed'));const known=el('knownPlayers');known.replaceChildren();(s.knownPlayers||[]).forEach(p=>{let row=document.createElement('div');row.className='row';let name=document.createElement('strong');name.textContent=p.name;let evidence=document.createElement('small');evidence.textContent=p.evidence;row.append(name,evidence);known.append(row);});if(!known.children.length)known.textContent='No identifiable player records in the available history.';const events=el('activity');events.replaceChildren();(s.activity||[]).forEach(e=>{let row=document.createElement('div');row.className='row';let message=document.createElement('span');message.className='activityText';message.textContent=e.message;let when=document.createElement('small');when.textContent=e.time;row.append(message,when);events.append(row);});if(!events.children.length)events.textContent='No recent activity available.';
+text('lastBackup',(s.backupCount>=0?s.backupCount+' completion markers · ':'')+s.lastBackup);text('backupSchedule','Every '+s.backupMinutes+' minutes'+(s.backupPaused?' · Paused for review':s.controls&&s.autoBackup?' · Next '+s.nextBackup:' · Currently off'));text('backupResult',s.backupStatus||'');text('result',s.operation||notice||'Ready for your next action');el('result').className='result'+(s.busy?' working':'');['autoBackup','recovery'].forEach(id=>{el(id).setAttribute('aria-pressed',s[id]?'true':'false');text(id,s.controls?(id==='recovery'&&s.recoveryPaused?'Paused':s[id]?'On':'Off'):'Paused');});const busy=s.busy||!s.controls||sending;el('start').disabled=busy||s.online;el('stop').disabled=el('restart').disabled=busy||!s.online;['backup','autoBackup','recovery'].forEach(id=>el(id).disabled=busy);}catch(e){lock();text('stateText','Connection lost');text('updated','Check the host launcher and Wi-Fi.');}}
+async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}document.querySelector('nav.tabs').addEventListener('keydown',event=>{
+ const keys=['ArrowLeft','ArrowRight','Home','End'];
+ if(!keys.includes(event.key))return;
+ const tabs=[...document.querySelectorAll('nav.tabs [role=""tab""]')];
+ const at=tabs.indexOf(document.activeElement);
+ if(at<0)return;
+ event.preventDefault();
+ const target=event.key==='Home'?0:event.key==='End'?tabs.length-1:(at+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+ tabs[target].focus();
+ showTab(tabs[target].id.slice(0,-3));
+});
+syncMapMode();showTab(location.hash.slice(1));refresh();setInterval(refresh,1000);
+</script></body></html>";position:absolute;right:-13px;top:4px;font:120px Georgia,serif;color:#cda66a09;pointer-events:none}
+.hero-content{position:relative;z-index:1}.hero h1{font:500 clamp(28px,7vw,40px) Georgia,serif;letter-spacing:-.045em;margin:14px 0 10px;overflow-wrap:anywhere}
+.state{display:flex;gap:8px;align-items:center;font:500 16px -apple-system,BlinkMacSystemFont,""Segoe UI"",system-ui;margin:0 0 10px;color:#dccab2}
+.dot{flex:none;width:8px;height:8px;margin:0;background:var(--warn)}.online .dot{background:var(--live);box-shadow:0 0 10px #8dc6a677}.online{color:var(--live)}
+#updated{display:block;font-size:12px;color:#b1bbb2}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0 0}
+.metric{position:relative;min-width:0;padding:15px 13px;background:linear-gradient(130deg,#283130,#202829);border:1px solid #5a645a38;border-radius:12px}
+.metric small{font-size:10px;font-weight:700;letter-spacing:.1em;color:#aeb9b5}
+.metric strong{font-size:clamp(19px,5vw,25px);font-weight:600;letter-spacing:-.04em;color:#f1ebdb;line-height:1.3;overflow-wrap:anywhere}
+.columns{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:13px}.columns .panel{margin:0}.columns .panel+ .panel{margin:0}
+button,.mapControls a,.mapTroubleActions a{transition:background .15s ease,border-color .15s ease,transform .15s ease}
+button{border-radius:11px;background:#27302f;border-color:#57635d;min-height:46px;color:#f0e8d8;font-size:13px;font-weight:600}
+button.primary,.primary-link{background:linear-gradient(115deg,#bb965c,#d9b77e);border:1px solid #edd2a6;color:#151916;font-weight:750}
+button.danger{border-color:#916f67;background:#3b2a2a;color:#f2b8a8}
+button:active,.primary-link:active{transform:translateY(1px)}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e3c891;outline-offset:3px}
+button:disabled{opacity:.45}
+.control-details{margin:14px 0 0;border:1px solid #6d74554f;background:#13191a99;border-radius:12px;overflow:hidden}
+.control-details summary,.map-experiment summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 15px;cursor:pointer;font-weight:650;list-style:none}
+.control-details summary::-webkit-details-marker,.map-experiment summary::-webkit-details-marker{display:none}
+.control-details summary::after,.map-experiment summary::after{content:""⌄"";color:var(--gold);font-size:19px}
+.control-details[open] summary::after,.map-experiment[open] summary::after{content:""⌃""}
+.control-body{padding:0 14px 15px;border-top:1px solid #3d484253}
+.actions{margin:15px 0;gap:7px}
+.control-body .muted{font-size:11px;line-height:1.6}
+.live-note{font-size:12px;color:#a7b8ad;line-height:1.6;margin:7px 0 0}
+.row{padding:13px 0;border-color:#41504a68}
+.row span{color:#c4cbc4;font-size:12px}.row strong{font-size:12px;max-width:54%;text-align:right}
+.row div strong{text-align:left;max-width:none}.row small{display:block;color:var(--dim);font-size:11px;line-height:1.5}
+.result{color:#e4d6b4}.empty{line-height:1.7}.playerRow{padding:16px 0}.playerTop strong{font-size:15px}.playerBadge{background:#23403259;border-color:#688e76;color:#b1dec2}.playerDetails span{background:#293533;font-size:11px}
+.switch[aria-pressed=true]{color:#bae4be;background:#274832;border-color:#729b79}
+.automation-title{margin-bottom:8px}.caption{font-size:11px;color:var(--dim);line-height:1.6}.muted{line-height:1.6}
+.section-intro{color:#b5beb7;margin:0 0 16px;font-size:13px;line-height:1.7}
+.event-row{border-bottom:1px solid #43514c68;padding:13px 0}
+.event-row:last-child{border:0}
+#activity .row{align-items:flex-start;gap:12px}
+#activity .row small{flex:none;max-width:95px;text-align:right}
+.app-footer{font-size:10px;line-height:1.6;padding:12px 0 3px;text-align:center;color:#939f98;letter-spacing:.05em}
+nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;z-index:30;padding:7px max(14px,calc((100vw - 780px)/2)) calc(8px + env(safe-area-inset-bottom,0px));background:#121a1af4;border-top:1px solid #5160586d;box-shadow:0 -14px 36px #0006;backdrop-filter:blur(20px)}
+.tabs button{background:transparent;border:1px solid transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:53px;padding:6px 2px;font-size:10px;color:#aebdb5}
+.tabs button .tab-symbol{font:22px Georgia,serif;line-height:1.1;color:#84978d}
+.tabs button[aria-selected=true]{background:linear-gradient(135deg,#5f563839,#332e243b);border-color:#aa8e5a6b;color:#efd4a1}
+.tabs button[aria-selected=true] .tab-symbol{color:#d8b781}
+.primary-link{display:flex;align-items:center;justify-content:center;text-align:center;gap:10px;text-decoration:none;border-radius:13px;padding:17px 15px;min-height:57px;font-size:15px;margin:18px 0 10px}
+.map-card{position:relative;overflow:hidden;background:radial-gradient(ellipse at 70% 15%,#45665370,transparent 60%),linear-gradient(130deg,#263731,#141e20);border:1px solid #bd9c615f;border-radius:var(--radius);padding:26px 20px 20px;margin-bottom:16px}
+.map-art{font:66px Georgia,serif;color:#e9c79377;text-align:center;margin:8px 0}
+.map-card h2{font:500 28px Georgia,serif;text-align:center;margin:8px 0}
+.map-card p{line-height:1.7;color:#c0cdc6;text-align:center}
+.map-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:16px 0 0}
+.map-badges span{border:1px solid #6f857463;border-radius:20px;padding:6px 10px;font-size:10px;color:#c4d5c8}
+.map-experiment{border:1px solid #55635d60;background:#182020;border-radius:13px;margin:15px 0}
+.map-experiment summary{font-size:13px}
+.map-experiment-content{padding:0 12px 14px}
+.mapWindow{min-height:0;border-color:#67745f55}.mapWindow iframe{width:100%;height:400px;min-height:300px}
+.mapStart{min-height:210px}.mapStart strong{font-size:22px}
+.mapControls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.mapControls button,.mapControls a{flex:1 1 auto;min-width:125px;min-height:44px;font-size:12px}
+.mapTrouble{position:static;background:#292d2b;margin:8px;border:1px solid #8f744f}
+#mapSecureHint{border-left:2px solid #c5a267;padding:11px;background:#26291f;color:#e2d6c1}
+.mapNote{overflow-wrap:anywhere}
+[data-section] .section-kicker{margin:0}
+@media(max-width:600px){main{padding:0 12px calc(93px + env(safe-area-inset-bottom,0px))}.app-header{margin:0 -12px;padding-left:17px;padding-right:17px}.panel,.card{padding:17px}.columns{grid-template-columns:1fr}.hero{padding:22px 18px}.metrics{gap:9px}.header-tag{font-size:8px}.brand-name{font-size:19px}.mapWindow{margin:0}.mapWindow iframe{height:clamp(280px,56dvh,700px);min-height:0}.mapTrouble{position:static}.tabs button{min-height:52px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+</style></head><body><main>
+<header class=""app-header"">
+ <div class=""brand-lockup""><span class=""brand-mark"" aria-hidden=""true"">◆</span><div><div class=""eyebrow"">REALM MANAGEMENT</div><div class=""brand-name"">ShroudForge</div></div></div>
+ <span class=""header-tag"">PRIVATE NETWORK</span>
+</header>
+<div id=""dashboardView"" class=""view"" role=""tabpanel"" aria-labelledby=""overviewTab"" data-section=""overview"">
+ <section class=""panel hero"" aria-labelledby=""name"">
+  <div class=""hero-content""><div class=""section-kicker"">CURRENT REALM</div><h1 id=""name"">Your realm</h1>
+   <div id=""state"" class=""state"" role=""status"" aria-live=""polite""><span class=""dot"" aria-hidden=""true""></span><span id=""stateText"">Connecting…</span></div>
+   <small id=""updated"">Waiting for the host</small>
+   <div class=""metrics"" aria-label=""Server measurements"">
+    <div class=""metric""><small>UPTIME</small><strong id=""uptime"">—</strong></div>
+    <div class=""metric""><small>PLAYERS</small><strong id=""count"">—</strong></div>
+    <div class=""metric""><small>HOST CPU</small><strong id=""cpu"">—</strong></div>
+    <div class=""metric""><small>MEMORY</small><strong id=""memory"">—</strong></div>
+   </div>
+   <details class=""control-details""><summary>Server controls <small>Start · Restart · Stop</small></summary>
+    <div class=""control-body""><p class=""live-note"">These actions affect your live server. Stop and Restart disconnect players.</p>
+     <div class=""actions""><button id=""start"" class=""primary"" disabled onclick=""run('Start')"">Start</button><button id=""restart"" disabled onclick=""run('Restart')"">Restart</button><button id=""stop"" class=""danger"" disabled onclick=""run('Stop')"">Stop</button></div>
      <p id=""result"" class=""result"" role=""status"" aria-live=""polite""></p>
     </div>
    </details>
