@@ -69,7 +69,7 @@ namespace XHLLauncher
                     "LOST PACKETS        " + p.LostTotal + " observed since telemetry began",
                     "CONGESTION RTT      " + (p.CongestionRttMs < 0 ? "Not observed" : p.CongestionRttMs.ToString("0") + " ms"),
                     "UP / DOWN / REMOTE  " + p.UpRate.ToString("0") + " / " + p.DownRate.ToString("0") + " / " + p.RemoteRate.ToString("0") + " (raw log values; unit unconfirmed)",
-                    "BANDWIDTH LIMIT     " + p.BandwidthLimit.ToString("0") + " (raw log value)"));
+                    "BANDWIDTH LIMIT     " + p.BandwidthLimit.ToString("0") + " (raw log value)");
             sheet.Incidents = p == null ? "No connection diagnostics available for this name." :
                 Lines("CONNECTION TIMEOUTS  " + p.TimeoutCount + " observed",
                       "RECONNECTS           " + p.ReconnectCount + " observed",
