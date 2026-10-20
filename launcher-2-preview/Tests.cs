@@ -123,6 +123,11 @@ static class Checks
                 Require(phonePage.Contains("Server controls"), "Phone page serves server controls");
                 Require(phonePage.Contains("id=\"mapTab\"") && phonePage.Contains("id=\"mapView\"") && phonePage.Contains("function loadMap(reload)"),"Phone includes user-activated interactive map tab");
                 Require(phonePage.Contains("https://enshrouded.gamevault.in/map") && phonePage.Contains("referrerpolicy=\"no-referrer\""),"Embedded map credits external source and does not refer private phone URL");
+                Require(phonePage.Contains("id=\"mapTrouble\"") && phonePage.Contains("Map still showing white?") &&
+                    phonePage.Contains("setTimeout(showMapTrouble,9000)") && phonePage.Contains("mapWindow [hidden]"),
+                    "Map tab presents an in-panel recovery state without showing hidden frames");
+                Require(phonePage.Contains("Open full 3D map") && phonePage.Contains("dismissMapHelp()"),
+                    "Map troubleshooting provides a working external link and dismiss control");
                 Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssrc\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase),"External map is never loaded until the phone user requests it");
                 Require(phonePage.Contains("id=\"activity\"") && phonePage.Contains("details.className='playerDetails'"),"Phone includes activity and player health diagnostics");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
