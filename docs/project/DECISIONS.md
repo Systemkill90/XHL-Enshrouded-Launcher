@@ -22,6 +22,7 @@
 | D-16 | Oct 20 | Owner requests running-server close choices and separate create/scan functionality. | Add explicit modern UI prompts and bounded read-only discovery; create in separate empty folders, no automatic start or world migration. Preserve existing managed wrapper behavior. |
 | D-17 | Oct 20 | Owner authorized one server and launcher restart; it was completed and query-confirmed. | That one-time server restart is consumed. Subsequent sizing/unit corrections were launcher-only updates; no automatic repeat server restart. |
 | D-18 | Oct 20 | Owner requests minimum window sizing, uncovered View players and proper megabytes. | Native minimum protects 1100 × 900 CSS content with DPI/zoom adjustment; actions and metrics use separate rows. Display decimal MB with actual conversion, and label unchanged binary safety limits MiB. |
+| D-19 | Oct 20 | Owner requests New server beside the selected-realm box, opening a create/scan wizard or guide. | Keep both top controls visible; show a dedicated Server setup guide with direct new-server form and discovery choices. No automatic real-server creation, selection or restart. |
 
 ## Security / publishing rule
 

@@ -14,7 +14,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 **At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
 
-**Latest scope/status:** Items 1–3 remain owner-accepted as-is; installation polish is in progress. Close/server setup, window sizing/overlap and decimal MB corrections are installed at local 5f35199 / published 75952a5 (identical tree). Both current-head CI workflows passed. One server and one launcher restart were explicitly authorized and completed; later follow-ups were launcher-only updates. Do not reuse that one-time server restart approval. Keep PRs/tracking open with running updates; do not merge or close. See CURRENT-STATE.md for exact identities, checks, compatibility changes and unverified limits.
+**Latest scope/status:** Items 1–3 remain owner-accepted as-is; installation polish is in progress. Close/server setup, window sizing/overlap and decimal MB corrections are installed at local 2432857 / published 2a83af6 (identical tree). Both current-head CI workflows passed. One server and one launcher restart were explicitly authorized and completed; later follow-ups were launcher-only updates. Do not reuse that one-time server restart approval. Keep PRs/tracking open with running updates; do not merge or close. See CURRENT-STATE.md for exact identities, checks, compatibility changes and unverified limits.
 
 ## Start here
 

@@ -1,6 +1,6 @@
 # Where we're going
 
-> **Current priority:** continue installation/update polish and open GitHub updates. Close warnings, create/scan, DPI/zoom-aware window minimum, unobstructed View players and decimal MB are implemented, verified and installed at 75952a5 / local 5f35199. Current UI/recovery/mod behavior stays accepted as-is. Real SteamCMD/fresh-machine/new-server gameplay checks remain unverified; do not treat them as owner-approved automatic operations. [Current state](docs/project/CURRENT-STATE.md) has exact evidence.
+> **Current priority:** continue installation/update polish and open GitHub updates. Close warnings, create/scan, DPI/zoom-aware window minimum, unobstructed View players and decimal MB are implemented, verified and installed at 2a83af6 / local 2432857. Current UI/recovery/mod behavior stays accepted as-is. Real SteamCMD/fresh-machine/new-server gameplay checks remain unverified; do not treat them as owner-approved automatic operations. [Current state](docs/project/CURRENT-STATE.md) has exact evidence.
 
 **Planning updated October 19, 2026.** This is a plain-English roadmap, not a list of features already installed on Velaris. See the [dated development tracker](docs/project/development-tracker.md) for provisional percentages and activity dates.
 

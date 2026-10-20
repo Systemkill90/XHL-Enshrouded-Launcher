@@ -1,5 +1,11 @@
 # ShroudForge — verified development and decision chronology
 
+## October 20 — New server beside the realm box
+
+Owner requested a visible top-bar New server entry leading to a create/scan guide. Implemented a dedicated Server setup page: create opens the native new-server form directly, while scan opens discovery. Realm and New server controls remain visible at minimum width. Guide navigation and twenty combined top-bar/overview viewport checks passed, including no page scrolling, no footer/metrics overlap and a visible adjacent button. No real server was created or selected.
+
+Published **2a83af68ccfb6d2fd03ae256470678b6c0801cdc**, local installed **2432857f2723f8e8a3cda276b8ed27f3ba3c19aa**, identical tree **d1689eda00df06591378408885c9da59de5109cb**. Both local Windows builds, 317 fixtures, 10 native checks, installer and provenance passed; exact-head [modern #20](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39422846373) and [historical #155](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39422846386) passed. Installed package hashes, unchanged selected settings/server/mod script hashes, query readiness, Running observation, clean scan and MB output verified. The previously restarted server process continued running. Rollback retained; no further server restart. Native dialog interaction and real Steam download/new-server gameplay remain unverified. PR #31 stays open.
+
 ## October 20 — close/server setup, sizing correction and MB units installed
 
 Published source **75952a5ec4e2461c89e6d783d289ad0ac32b5349**, local **5f351990b92da1c4f49df5df07cb160e50438dd5**, identical tree **9e1cf8c6081b5a5d41c6e6b1a0e982e4fa9f346c**, on dev/server-setup-and-close-prompt and the open PR #31 feature branch. Earlier feature source e49bfcdf/local49115cf is included.
