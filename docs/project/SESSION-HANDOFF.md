@@ -1,5 +1,8 @@
 # ShroudForge — current session handoff
 
+> **October 20 — active phone scope changed:** The owner explicitly dropped the native iOS App Store plan and authorized modernizing the existing private-LAN **web** companion. Work is staged only in [draft PR #33](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/33) atop PR #32 and #31. It adds mobile-first four-tab dark-fantasy UI, direct confirmed-working HTTPS GameVault map link, optional collapsed iframe and regression checks. Static source synchronization verified; Windows CI and installed-device acceptance pending. No server restart, deployment or desktop connection performed for this work. Keep the PRs draft; do not assume public App Store delivery.
+
+
 > **New staging note — October 20 (GitHub-only):** [Draft PR #32](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/32) branches from #31. It adds HTTP-parent/map secure-context diagnostics, a direct HTTPS external-map option, synced C# phone markup and new fail-closed SteamCMD/setup fixture checks. **Check CI for the new PR head** and run iPhone validation when authorized; no application installation or server action was performed. Continue accepted launcher/backup/mod behavior unchanged and keep #31 open.
 
 ## Latest: close choices, server setup, window sizing and MB units — October 20, 2026
