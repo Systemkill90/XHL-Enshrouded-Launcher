@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101b1e">
+  <title>ShroudForge · World HUD</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="hud" aria-label="ShroudForge World HUD">
+    <header class="masthead">
+      <span class="brand">SHROUDFORGE <span class="brand-small">/ WORLD HUD</span></span>
+      <span id="signal" class="signal">NO FEED</span>
+    </header>
+
+    <section class="map-shell" aria-label="World minimap">
+      <div class="map-ornament top">N</div>
+      <canvas id="radar" width="500" height="500" role="img" aria-label="Minimap radar, awaiting positional telemetry"></canvas>
+      <div class="map-ornament bottom">S</div>
+      <div class="map-status" id="mapStatus">Position unavailable</div>
+      <div class="map-substatus">LIVE COORDINATES REQUIRED</div>
+    </section>
+
+    <section class="readouts" aria-label="World conditions">
+      <div class="readout">
+        <span class="readout-label">WORLD TIME</span>
+        <span class="readout-value" id="time">--:--</span>
+        <span class="readout-detail" id="phase">Awaiting game time</span>
+      </div>
+      <div class="readout">
+        <span class="readout-label">WEATHER</span>
+        <span class="readout-value weather-value" id="weather">Unknown</span>
+        <span class="readout-detail" id="weatherDetail">Awaiting game weather</span>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span id="updated">No telemetry received</span>
+      <span>SERVER WEB PREVIEW</span>
+    </footer>
+  </main>
+  <aside class="notice" id="notice">Browser-based prototype · Not injected into Enshrouded</aside>
+</body>
+</html>
