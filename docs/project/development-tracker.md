@@ -1,5 +1,9 @@
 # ShroudForge 2.0 — Development tracker
 
+**For latest source/test/install state:** see [CURRENT-STATE.md](CURRENT-STATE.md) and [SESSION-HANDOFF.md](SESSION-HANDOFF.md). This table intentionally preserves the owner/assistant **October 19 historical planning estimates**; its numeric percentages must not be silently recalculated from passing CI or newly written documentation. Read the [issue register](ISSUE-REGISTER.md) for priority and blockers.
+
+**Recent checked evidence (as of October 19):** staged [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) contains combined launcher UI, player profiles and event-feed modules; [Windows run #135](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39357907800) completed compile, 172 fixtures and native tests. The owner visually confirmed the *standalone* GameVault iPhone iframe worked in Compatibility mode; the actual installed phone page/desktop version remain unverified. No live deployment is implied.
+
 **Owner planning baseline: October 19, 2026.** This tracker consolidates the October 19 development discussion. It is **not** a source-code audit, deployment manifest, or proof that each feature works on the live server.
 
 **Evidence labels:** percentages are provisional owner/assistant estimates; **Verified** describes an explicit observed runtime check; **Testing**, **Verify**, and **Research** are stages, not completion percentages. The dates reflect recorded discussions or development activity, not necessarily Git commits. The repository's main-branch technical documentation was last reviewed October 18, 2026.
