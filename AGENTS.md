@@ -2,9 +2,23 @@
 
 This repository contains the public-facing ShroudForge documentation and **development** branches for a Windows Enshrouded dedicated-server launcher. The main branch is not an installed copy of the live Velaris server.
 
+## One shared project record — mandatory first read
+
+The **public GitHub repository is the canonical shared *development* record**, not the user's private ChatGPT conversation store, local desktop checkout or live Enshrouded installation. For every task, first read:
+
+1. [Current verified/reported state](docs/project/CURRENT-STATE.md) — code branches, tested source, version uncertainty and server boundaries.
+2. [Current handoff](docs/project/SESSION-HANDOFF.md) — precise next safe task, latest source refs and missing host validation.
+3. [Decision log](docs/project/DECISIONS.md) — irreversible scope changes, paused and canceled features.
+4. [AI work protocol](docs/project/AI-WORKFLOW.md) — how ChatGPT, desktop Work and Codex synchronize their *work records* through GitHub.
+5. [Work chronology](docs/project/WORK-LOG.md) and [issue register](docs/project/ISSUE-REGISTER.md) only when history or prioritization is needed.
+
+**At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
+
+**Current October 19 note:** The owner confirmed the existing server and three working mods. The active consolidated UI candidate is [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31), a 2.2 **candidate** over 2.0 development source, not a verified installed 2.2. Windows CI passed 172 fixtures on the reviewed commit. An iPhone Safari external-map Compatibility embed was owner-verified in a standalone diagnostic; the phone application remains paused except for that staged fix. **Never stop or modify the live server without explicit permission.**
+
 ## Start here
 
-- Read [project status](docs/project/README.md) for the distinction between written code, passed tests, live operation, and release.
+- Read [current state](docs/project/CURRENT-STATE.md) and [project status](docs/project/README.md) for the distinction between written code, passed tests, live operation, and release.
 - Read the [October 19 development tracker](docs/project/development-tracker.md) for dated *provisional* estimates and current priorities.
 - Read [roadmap](ROADMAP.md) and [server safety](docs/operate/README.md).
 - The current launcher implementation is under feat/launcher-2-overhaul, not necessarily main. Verify branch, file versions, and installed host state before making claims.
