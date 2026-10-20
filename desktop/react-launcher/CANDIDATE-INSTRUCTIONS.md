@@ -12,10 +12,10 @@ Do not launch this candidate against live settings for acceptance. The source co
 
 ## Acceptance
 
-Review Dashboard, Players, World, Mods, Resilience, Incidents, Console, Backups, Settings, Map, Phone and System. Test keyboard focus, Tools/Escape, Windows scaling at 100/125/150/200%, and native WebView2 startup. Phone map defaults to GameVault Compatibility with Protected and external fallback. Physical iPhone Safari/WebGL, real-game mod behavior, sleep settings, and an approved disposable-game backup/restore rehearsal remain acceptance gates. Never use the live server for these checks.
+On October 20 the owner accepted the existing Windows UI, backup/recovery and mod/settings behavior as-is. These are not held open as completion gates; owner acceptance does not claim new independent gameplay or device tests. Current work is installation/update polish; see INSTALL-UPDATE.md. GitHub work stays open with running updates. Phone expansion stays paused, and the known iPhone GameVault crypto.subtle.digest defect remains unresolved.
 
 ## Rollback
 
 This staged candidate requires no rollback of the installed launcher: leave the working installation in place. Close only the candidate window to end an isolated preview; discard its separate folder later if unwanted. Preserve the existing launcher, settings/recovery journals and prior rollback archives.
 
-Any later installation needs a separately reviewed migration and explicit authorization. First retain byte-for-byte copies and hashes of the previous launcher files and Manager Data, excluding the volatile WebView2 cache. Hand over automation safely before replacing launcher files. Restore retained launcher files/settings if acceptance fails; do not restore game saves, replace mods, or restart the server as part of launcher rollback. No deployment, public release or merge is authorized by this candidate.
+Use the included launcher-only updater for an authorized update of an existing installation. It retains previous launcher files and Manager Data, excluding the volatile WebView2 cache, and requests normal launcher closure before replacing files. Restore retained launcher files/settings if needed; do not restore game saves, replace mods, or restart the server as part of launcher rollback. Existing folders and private data paths remain unchanged. The package itself grants no deployment permission; the owner's current task authorization governs updates. No public release, merge or closing of ongoing GitHub work is implied.

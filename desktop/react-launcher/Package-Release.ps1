@@ -11,6 +11,7 @@ foreach($file in @('ShroudForge-Launcher.exe','ShroudForge-Classic.exe','Microso
 foreach($file in @('index.html','app.js','style.css','realm-cinematic.png')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot ('build/ui/'+$file)) -Destination (Join-Path $Destination 'ui')}
 foreach($folder in @('assets','phone')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot ('build/'+$folder)) -Destination $Destination -Recurse}
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'CANDIDATE-INSTRUCTIONS.md') -Destination (Join-Path $Destination 'READ-FIRST.md')
+foreach($file in @('Install-Desktop.ps1','Launcher-Process.ps1','INSTALL-UPDATE.md')){Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination $Destination}
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'build/build-provenance.json') -Destination $Destination
 $files=@(Get-ChildItem -LiteralPath $Destination -File -Recurse|ForEach-Object {[pscustomobject]@{Path=$_.FullName.Substring($Destination.Length+1).Replace('\','/');Length=$_.Length;SHA256=(Get-FileHash -LiteralPath $_.FullName).Hash.ToLowerInvariant()}})
 $sha=$provenance.Source.Commit

@@ -1,5 +1,13 @@
 # ShroudForge candidate changelog
 
+## Installation/update polish — first slice, October 20, 2026
+
+- Close a hidden modern launcher through its normal close handler; honor busy-operation guards and never force termination or touch the game server.
+- Preserve a new rollback copy, reject overlapping folders and unsafe/tampered package contents, and restore earlier replacements on an update failure.
+- Create Open ShroudForge while retaining and updating the existing Open XHL 2.0 shortcut. Keep existing installation and private data paths.
+- Include the updater, normal-close helper and INSTALL-UPDATE.md in portable packages. Add 15 isolated installer checks, including relaunch, to Windows validation.
+- Owner accepts the current UI, backup/recovery and mod/settings behavior as-is. Installation polish is in progress; fresh-machine onboarding/folder migration are not included in this slice. GitHub work remains open with running updates.
+
 ## 3.0.0-private.2 — October 20, 2026
 
 - Reconcile the recovered 3.0 private React/WebView2 desktop with PR #31's profiles, event presentation and narrow Compatibility phone fix. Preserve the original 2.0/PR sources for comparison.

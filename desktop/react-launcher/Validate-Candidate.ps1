@@ -17,11 +17,12 @@ try {
  & ./Build-Classic.ps1
  & ./Test-Desktop.ps1 -OutputDirectory (Join-Path $Evidence 'desktop') *> (Join-Path $Evidence 'desktop.txt')
  & ./Test-Resilience.ps1 -OutputDirectory (Join-Path $Evidence 'resilience') *> (Join-Path $Evidence 'resilience.txt')
+ & ./Test-DesktopInstall.ps1 -OutputDirectory (Join-Path $Evidence 'installer') *> (Join-Path $Evidence 'installer.txt')
  $core=Join-Path $PSScriptRoot '../field-audit-launcher'
  foreach($suite in @(@('Test.ps1','regression'),@('Test-Fields.ps1','fields'),@('Test-Mods.ps1','mods'),@('Test-Native.ps1','native'))){
   & (Join-Path $core $suite[0]) -OutputDirectory (Join-Path $Evidence $suite[1]) *> (Join-Path $Evidence ($suite[1]+'.txt'))
  }
  & ./Test-Provenance.ps1
  & ./Build-Provenance.ps1 -Mode Record -ExpectedSource $sourceBefore
- Write-Output 'PASS Windows builds, TypeScript, exact phone synchronization and isolated desktop/core/resilience/field/mod/native checks; build provenance recorded.'
+ Write-Output 'PASS Windows builds, TypeScript, phone synchronization and isolated desktop/core/resilience/installer/field/mod/native checks; build provenance recorded.'
 } finally {Pop-Location}
