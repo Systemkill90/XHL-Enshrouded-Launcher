@@ -1,5 +1,7 @@
 # Where we're going
 
+> **For the current implementation rather than the original planning baseline, use [CURRENT-STATE.md](docs/project/CURRENT-STATE.md) and [SESSION-HANDOFF.md](docs/project/SESSION-HANDOFF.md).** The merged UI/player/event source is staged in [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31); compilation and tests do not mean it was installed. The October 19 iPhone iframe Compatibility bug fix is a narrowly approved exception to the general phone-app pause.
+
 **Planning updated October 19, 2026.** This is a plain-English roadmap, not a list of features already installed on Velaris. See the [dated development tracker](docs/project/development-tracker.md) for provisional percentages and activity dates.
 
 | Focus | What success looks like | Status |
