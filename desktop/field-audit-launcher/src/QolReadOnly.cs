@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -63,7 +63,7 @@ namespace XHLLauncher
             sb.AppendLine("Server process: " + (host != null && host.ServerRunning ? "Observed running" : "Not observed running"));
             sb.AppendLine("Process uptime: " + (host != null && host.ServerRunning ? FormatUtil.Duration(host.Uptime) : "Unavailable"));
             sb.AppendLine("Process CPU: " + (host != null && host.ServerRunning ? host.CpuPercent.ToString("0.0", CultureInfo.InvariantCulture) + "%" : "Unavailable"));
-            sb.AppendLine("Working memory: " + (host != null && host.ServerRunning ? FormatUtil.Bytes(host.RamBytes) : "Unavailable"));
+            sb.AppendLine("Working memory: " + (host != null && host.ServerRunning ? FormatUtil.Megabytes(host.RamBytes) : "Unavailable"));
             sb.AppendLine("Free disk: " + (host != null && host.DiskTotalBytes > 0 ? FormatUtil.Bytes(host.DiskFreeBytes) : "Unavailable"));
             sb.AppendLine();
             sb.AppendLine("INSTALLATION / PINNED BUILD CHECKS");

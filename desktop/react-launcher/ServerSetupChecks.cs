@@ -1,6 +1,15 @@
 using System;using System.IO;using System.Linq;using System.Collections.Generic;using System.Web.Script.Serialization;using XHLLauncher;
 static class ServerSetupChecks {
  internal static void Run(string root,Action<bool,string> check){
+  string decimalPoint=System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+  check(FormatUtil.Bytes(999)=="999 B","Byte display preserves sizes below one kilobyte");
+  check(FormatUtil.Bytes(1000)=="1 kB","Decimal kilobytes use 1000 bytes and the correct kB symbol");
+  check(FormatUtil.Bytes(1000000)=="1 MB","One megabyte is exactly 1000000 bytes");
+  check(FormatUtil.Bytes(1048576)=="1"+decimalPoint+"05 MB","Binary megabyte quantity is converted before displaying MB");
+  check(FormatUtil.Bytes(1000000000)=="1"+decimalPoint+"0 GB","Decimal gigabytes use the matching GB label");
+  check(FormatUtil.Megabytes(1073741824)=="1073"+decimalPoint+"74 MB","Memory cards display the actual decimal megabyte value");
+  check(Math.Abs(FormatUtil.GiBToMegabytes(1)-1073.741824)<0.000001,"Memory chart samples convert GiB to MB instead of only changing their label");
+  check(FormatUtil.Megabytes(-1)=="n/a"&&FormatUtil.Bytes(-1)=="n/a","Unavailable byte measurements remain unavailable");
   check(DesktopWindow.MinimumClient(96,1)==new System.Drawing.Size(1100,900),"Desktop minimum protects the measured compact content area");
   check(DesktopWindow.MinimumClient(120,1)==new System.Drawing.Size(1375,1125),"Window minimum accounts for 125 percent display scaling");
   check(DesktopWindow.MinimumClient(144,1.25)==new System.Drawing.Size(2063,1688),"Window minimum accounts for display scaling combined with WebView zoom");
@@ -36,4 +45,3 @@ static class ServerSetupChecks {
   check(InstallationAudit.Hash(Path.Combine(old,"enshrouded_server.json"))==before&&InstallationAudit.Hash(Path.Combine(old,"savegame/world.ksd"))==world,"Creation, scanning and switching preserve existing configuration and world bytes");
  }
 }
-

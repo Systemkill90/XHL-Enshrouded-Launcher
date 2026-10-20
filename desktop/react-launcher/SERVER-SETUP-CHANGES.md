@@ -13,7 +13,13 @@ smaller content sizes, accounting for display DPI and WebView zoom. Long data pa
 and error details retain scrolling. Browser viewport checks cover supported windowed
 sizes; native screenshot capture was unavailable during verification.
 
-Validation: 85 desktop checks (30 added), 160 core checks, 24 resilience checks,
+Size-unit follow-up: memory cards and charts display decimal **MB** (1 MB =
+1,000,000 bytes). File, world and player-transfer sizes use decimal B/kB/MB/GB/TB
+with matching calculations. Existing binary safety limits retain their thresholds
+and are labeled MiB. Internal historical telemetry and existing incident schema
+remain in GiB; displayed chart values are converted to MB.
+
+Validation: 93 desktop checks (38 added), 160 core checks, 24 resilience checks,
 14 field checks, 26 mod checks; 10 isolated native checks (3 added); 15 installer
 checks; modern/classic builds, strict TypeScript, UI bundling, phone synchronization
 and missing/stale/tampered provenance rejection. Installer checks also run under

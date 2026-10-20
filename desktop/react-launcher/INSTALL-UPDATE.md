@@ -10,6 +10,10 @@ native minimum includes the window frame, display DPI and WebView zoom, so resiz
 cannot squeeze the interface below that layout. The overview uses compact spacing
 and charts at windowed sizes; long data pages and error details can still scroll.
 
+Memory displays use **MB**, where 1 MB is 1,000,000 bytes. File/world/transfer sizes
+use decimal B, kB, MB, GB or TB. Binary safety limits use **MiB**, where 1 MiB is
+1,048,576 bytes. Changing the display units does not change those safety limits.
+
 Closing the modern launcher while its selected server is running offers **Keep
 server running**, **Stop server and exit**, or **Cancel**. Stopping uses the
 existing graceful shutdown; failure leaves the launcher open. An unavailable

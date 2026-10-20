@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -278,7 +278,7 @@ namespace XHLLauncher
             foreach(var session in Storage.ReadSessions(settings.ServerRoot)) if(!known.Any(p=>p.name==session.Player))known.Add(new {name=session.Player,evidence="Recorded session history"});
             var world=telemetry.GetWorld();
             if(lastRealm!=null)foreach(string name in lastRealm.KnownPlayers)if(!known.Any(p=>p.name==name))known.Add(new {name=name,evidence="Previous server session / saved history"});
-            phone.Publish(new {observedUtc=h.SampledUtc.ToString("o"),queryConfirmed=h.QueryResponsive,readiness=!h.ServerRunning?"The realm is offline":h.QueryResponsive?"The realm is online":"Process running · game query unconfirmed",worldFiles=phoneWorldFiles,worldSize=phoneWorldSize,worldSaved=phoneWorldSaved,bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString()+" (last logged; time unknown)",knownPlayers=known.OrderBy(p=>p.name).ToArray(),name=settings.ServerName,online=h.ServerRunning,players=h.ServerRunning?telemetry.PlayerCountText:"—",playerEvidence=telemetry.PlayerCountEvidence,roster=list.Select(p=>new {name=p.Name,session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed"}).ToArray(),uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",cpu=h.ServerRunning?h.CpuPercent.ToString("0.0"):"—",memory=h.ServerRunning?FormatUtil.Bytes(h.RamBytes):"Unavailable",updated=h.SampledUtc.ToLocalTime().ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text,lastBackup=lastPhoneBackup,backupStatus=automationStatus==null?"":automationStatus.Text,autoBackup=settings.AutoBackup,recovery=settings.AutoRestartOnCrash,backupMinutes=settings.BackupIntervalMinutes,nextBackup=!controlsEnabled?"Paused":!settings.AutoBackup?"Off":nextBackup.ToLocalTime().ToString("h:mm tt")});
+            phone.Publish(new {observedUtc=h.SampledUtc.ToString("o"),queryConfirmed=h.QueryResponsive,readiness=!h.ServerRunning?"The realm is offline":h.QueryResponsive?"The realm is online":"Process running · game query unconfirmed",worldFiles=phoneWorldFiles,worldSize=phoneWorldSize,worldSaved=phoneWorldSaved,bases=world.FlameAltarBases<0?"Not observed":world.FlameAltarBases.ToString()+" (last logged; time unknown)",knownPlayers=known.OrderBy(p=>p.name).ToArray(),name=settings.ServerName,online=h.ServerRunning,players=h.ServerRunning?telemetry.PlayerCountText:"—",playerEvidence=telemetry.PlayerCountEvidence,roster=list.Select(p=>new {name=p.Name,session=p.JoinTime==DateTime.MinValue?"Session unavailable":FormatUtil.Duration(DateTime.Now-p.JoinTime)+" observed"}).ToArray(),uptime=h.ServerRunning?FormatUtil.Duration(h.Uptime):"Offline",cpu=h.ServerRunning?h.CpuPercent.ToString("0.0"):"—",memory=h.ServerRunning?FormatUtil.Megabytes(h.RamBytes):"Unavailable",updated=h.SampledUtc.ToLocalTime().ToString("h:mm:ss tt"),controls=controlsEnabled,busy=operationBusy||updateBusy||lifecycle.StartupPending,operation=operationStatus==null?"":operationStatus.Text,lastBackup=lastPhoneBackup,backupStatus=automationStatus==null?"":automationStatus.Text,autoBackup=settings.AutoBackup,recovery=settings.AutoRestartOnCrash,backupMinutes=settings.BackupIntervalMinutes,nextBackup=!controlsEnabled?"Paused":!settings.AutoBackup?"Off":nextBackup.ToLocalTime().ToString("h:mm tt")});
         }
 
         ActionResult PhoneCommand(string operation)
@@ -446,7 +446,7 @@ namespace XHLLauncher
             statusDetail.Text = h.ServerRunning ? "PID " + h.Pid + "  /  " + FormatUtil.Duration(h.Uptime)+"  /  "+(h.QueryResponsive?"Local query answered · Internet unverified":"Game query unconfirmed") : "No matching server process observed. Check Installation before starting.";
             players.Set(h.ServerRunning ? telemetry.PlayerCountText : "—", h.ServerRunning ? telemetry.PlayerCountEvidence : "Server offline");
             cpu.Set(h.ServerRunning ? h.CpuPercent.ToString("0.0") + "%" : "—", "Server share of total host CPU");
-            memory.Set(h.ServerRunning ? FormatUtil.Bytes(h.RamBytes) : "—", "Server working set");
+            memory.Set(h.ServerRunning ? FormatUtil.Megabytes(h.RamBytes) : "—", "Server working set");
             uptime.Set(h.ServerRunning ? FormatUtil.Duration(h.Uptime) : "—", "Current session");
             cpu.Chart.SetValues(telemetry.CpuHistory); memory.Chart.SetValues(telemetry.RamHistory);
             saveSummary.Text = "Last observed save  " + (w.LastSaveTime == DateTime.MinValue ? "Not observed" : w.LastSaveTime.ToString("MMM d, h:mm tt")) + "\r\nWorld size  " + FormatUtil.Bytes(w.WorldSaveBytes);
@@ -551,5 +551,3 @@ namespace XHLLauncher
         }
     }
 }
-
-

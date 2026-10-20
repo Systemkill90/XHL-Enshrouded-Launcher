@@ -283,7 +283,7 @@ static class Checks
                 DurationSeconds=3600 };
             var joined=new ActivityItem(profileNow.AddMinutes(-18),"Player","Fixture player connected");
             var sheet=PlayerSheet.Create("Fixture player",observed,new[]{completed},new[]{joined},true,profileNow);
-            Require(sheet.Status.StartsWith("ONLINE") && sheet.Identity.Contains(observed.SteamId) && sheet.Identity.Contains("1 KiB"),
+            Require(sheet.Status.StartsWith("ONLINE") && sheet.Identity.Contains(observed.SteamId) && sheet.Identity.Contains("1.02 kB"),
                 "Player profile shows observed identity and save-transfer evidence, without reading inventory");
             Require(sheet.Sessions.Contains("1h") && sheet.Sessions.Contains("18m") && sheet.Connection.Contains("62 ms"),
                 "Player profile shows completed visits, current session and ping");
@@ -396,4 +396,3 @@ static class Checks
         Require(reentrant.Execute("Start").Success && rejected, "Concurrent operation is rejected while preflight is in progress");
     }
 }
-

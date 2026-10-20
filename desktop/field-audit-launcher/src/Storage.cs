@@ -212,10 +212,13 @@ namespace XHLLauncher
         public static string Bytes(long bytes)
         {
             if (bytes < 0) return "n/a";
-            string[] u = new string[] { "B", "KiB", "MiB", "GiB", "TiB" }; double v = bytes; int i = 0;
-            while (v >= 1024 && i < u.Length - 1) { v /= 1024; i++; }
+            string[] u = new string[] { "B", "kB", "MB", "GB", "TB" }; double v = bytes; int i = 0;
+            while (v >= 1000 && i < u.Length - 1) { v /= 1000; i++; }
             return v.ToString(i >= 3 ? "0.0" : "0.##") + " " + u[i];
         }
+        public static string Megabytes(long bytes){return bytes<0?"n/a":(bytes/1000000.0).ToString("0.##")+" MB";}
+        // Telemetry stores historical working-set samples internally in GiB.
+        public static double GiBToMegabytes(double value){return value*1073741824.0/1000000.0;}
         public static string Duration(TimeSpan t)
         {
             if (t.TotalDays >= 1) return ((int)t.TotalDays) + "d " + t.Hours + "h";

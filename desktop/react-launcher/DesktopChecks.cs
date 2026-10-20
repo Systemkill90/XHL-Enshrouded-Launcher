@@ -47,7 +47,7 @@ class DesktopChecks {
   var visit=new PlayerSession{Player="History Visitor",Joined=DateTime.Now.AddDays(-1),Left=DateTime.Now.AddDays(-1).AddMinutes(25),DurationSeconds=1500};
   var offline=record.FillIdentity(new PlayerState{Name="History Visitor"});var sheet=PlayerSheet.Create(offline.Name,offline,new[]{visit},new ActivityItem[0],true,DateTime.Now,record);
   Check(!offline.Connected&&offline.JoinTime==DateTime.MinValue&&offline.LastNetworkSample==DateTime.MinValue,"Metadata fill cannot reconnect an offline member or create a current session/network sample");
-  Check(sheet.Identity.Contains(identity.SteamId)&&sheet.Identity.Contains("2 KiB")&&sheet.Connection.Contains("HISTORICAL")&&sheet.Connection.Contains("31 ms")&&sheet.Sessions.Contains("LAST SESSION")&&sheet.Sessions.Contains("25m"),"Offline profile fills identity, last completed session and labeled historical network fields");
+  Check(sheet.Identity.Contains(identity.SteamId)&&sheet.Identity.Contains("2.05 kB")&&sheet.Connection.Contains("HISTORICAL")&&sheet.Connection.Contains("31 ms")&&sheet.Sessions.Contains("LAST SESSION")&&sheet.Sessions.Contains("25m"),"Offline profile fills identity, last completed session and labeled historical network fields");
   Check(PlayerSheet.SessionSummary(offline,new[]{visit},true,DateTime.Now).Contains("25m")&&PlayerSheet.LastSeen(offline,new[]{visit})!="Not recorded","Offline overview uses completed-session duration and last departure");
   File.Delete(archived);File.Delete(health);var restored=new PlayerHistoryStore(app,server).Read(new PlayerHistoryRecord[0],false).Single(p=>p.Name==offline.Name);
   Check(restored.SteamId==identity.SteamId&&restored.Network.PingMs==31&&restored.CharacterSaveBytes==2048,"Private metadata survives launcher restart and original log rotation/deletion");
@@ -66,4 +66,3 @@ class DesktopChecks {
   string preview=Path.Combine(root,"history-preview");Directory.CreateDirectory(preview);File.WriteAllText(archived,text);var previewStore=new PlayerHistoryStore(preview,server);Check(previewStore.Read(parsed,false).Length>0&&Directory.GetFiles(Storage.DataDir(preview),"player-history-*.json").Length==0,"Read-only preview can backfill profiles without persisting player metadata");
  }
 }
-

@@ -1,10 +1,10 @@
-﻿using System;using System.IO;using System.Linq;using System.Collections.Generic;using System.Reflection;using System.Text;using System.Web.Script.Serialization;using XHLLauncher;
+using System;using System.IO;using System.Linq;using System.Collections.Generic;using System.Reflection;using System.Text;using System.Web.Script.Serialization;using XHLLauncher;
 class FieldChecks {
  static int count;static void Check(bool ok,string text){if(!ok)throw new Exception(text);Console.WriteLine("PASS "+text);count++;}
  static BindingFlags flags=BindingFlags.NonPublic|BindingFlags.Instance;
  static void Main(string[] args){
   string fixture=Path.Combine(args[0],"field-fixture-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(Path.Combine(fixture,"savegame","nested"));File.WriteAllText(Path.Combine(fixture,"enshrouded_server.json"),"{\"saveDirectory\":\"savegame\",\"logDirectory\":\"logs\"}");File.WriteAllText(Path.Combine(fixture,"savegame","nested","world.ksd"),"fixture");
-  Check(FormatUtil.Bytes(1024)=="1 KiB"&&FormatUtil.Bytes(1073741824)=="1.0 GiB","Binary file and memory units are accurate");
+  Check(FormatUtil.Bytes(1024)=="1.02 kB"&&FormatUtil.Megabytes(1073741824)=="1073.74 MB","Decimal file units and megabyte memory values are accurate");
   Check(RealmHistory.WorldFiles(fixture).Length==1,"Nested saves contribute to world metadata");
   using(var t=new TelemetryService(fixture,new LauncherSettings{ServerRoot=fixture,PublicIpLookup=false})){
    var parse=typeof(TelemetryService).GetMethod("ProcessLine",flags);Action<string,bool> line=(s,b)=>parse.Invoke(t,new object[]{s,b});

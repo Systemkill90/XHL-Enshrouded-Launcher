@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -56,7 +56,7 @@ namespace XHLLauncher {
    MetricCard[] cards={players,cpu,memory,uptime};for(int i=0;i<4;i++){stats.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,25));cards[i].Dock=DockStyle.Fill;cards[i].Margin=new Padding(i==0?0:6,0,i==3?0:6,0);stats.Controls.Add(cards[i],i,0);}
    stackState=new Label();giftingState=new Label();flightState=new Label();
    var activity=new TableLayoutPanel{Location=new Point(0,294),Size=new Size(1000,176),ColumnCount=2,RowCount=1,Margin=Padding.Empty};activity.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));activity.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,50));activity.RowStyles.Add(new RowStyle(SizeType.Percent,100));page.Controls.Add(activity);
-   cpuTrend=new DashboardTrend("PROCESSOR LOAD", "%",Theme.Teal,100);memoryTrend=new DashboardTrend("SERVER MEMORY", "GiB",Theme.Cyan,0);
+   cpuTrend=new DashboardTrend("PROCESSOR LOAD", "%",Theme.Teal,100);memoryTrend=new DashboardTrend("SERVER MEMORY", "MB",Theme.Cyan,0);
    cpuTrend.Dock=memoryTrend.Dock=DockStyle.Fill;cpuTrend.Margin=new Padding(0,0,7,0);memoryTrend.Margin=new Padding(7,0,0,0);activity.Controls.Add(cpuTrend,0,0);activity.Controls.Add(memoryTrend,1,0);
    var world=Card(page,"WORLD & SAVES",0,486,320,138);saveSummary=Body(world,"Reading save metadata",42,9,Theme.Text);saveSummary.Height=52;
    ActionButton(world,"View world",18,100,116,delegate{Navigate("World");});
@@ -70,7 +70,7 @@ namespace XHLLauncher {
    return page;
   }
   void UpdateModernDetails() {
-   if(liveActivity!=null){var h=telemetry.GetHost();cpuTrend.UpdateSamples(telemetry.CpuHistory,h.ServerRunning);memoryTrend.UpdateSamples(telemetry.RamHistory,h.ServerRunning);liveActivity.Text=h.ServerRunning?"LIVE  /  PID "+h.Pid+"  •  Trends show actual process samples from this launcher session":"OFFLINE  /  Live trends unavailable. Saved world and backup records remain available.";
+   if(liveActivity!=null){var h=telemetry.GetHost();cpuTrend.UpdateSamples(telemetry.CpuHistory,h.ServerRunning);memoryTrend.UpdateSamples(telemetry.RamHistory.Select(FormatUtil.GiBToMegabytes).ToArray(),h.ServerRunning);liveActivity.Text=h.ServerRunning?"LIVE  /  PID "+h.Pid+"  •  Trends show actual process samples from this launcher session":"OFFLINE  /  Live trends unavailable. Saved world and backup records remain available.";
     readinessInfo.Text="READINESS / "+SafeSupportReport.Readiness(h,audit,markedBackupCount);
     if((DateTime.Now-lastBackupOverview).TotalSeconds<10)return;lastBackupOverview=DateTime.Now;
     try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>BackupFacts.Created(d.FullName)).ToArray():new DirectoryInfo[0];markedBackupCount=snapshots.Length;backupOverview.Text=snapshots.Length+" completion markers"+(snapshots.Length>0?"\r\nLatest  "+BackupFacts.When(snapshots[0].FullName):"\r\nNo completed copy found")+"\r\nAutomatic backups  "+(settings.AutoBackup?(controlsEnabled?"Every "+settings.BackupIntervalMinutes+" min":"Paused in monitoring mode"):"Off");}catch{markedBackupCount=-1;backupOverview.Text="Backup history unavailable";}
@@ -105,15 +105,10 @@ namespace XHLLauncher {
    var area=new RectangleF(18,91,Math.Max(1,Width-36),Math.Max(1,Height-121));
    double max=fixedMaximum>0?fixedMaximum:Math.Max(1,samples.Length==0?1:samples.Max()*1.15);
    using(var pen=new Pen(Theme.Border)){for(int i=0;i<3;i++){float y=area.Top+i*area.Height/2;g.DrawLine(pen,area.Left,y,area.Right,y);}}
-   string caption=!online?"Server offline · no live data":samples.Length<2?"Collecting process samples…":"Recent "+samples.Length+" samples  ·  "+(fixedMaximum>0?"0–100%":"0–"+max.ToString("0.0")+" GiB");
+   string caption=!online?"Server offline · no live data":samples.Length<2?"Collecting process samples…":"Recent "+samples.Length+" samples  ·  "+(fixedMaximum>0?"0–100%":"0–"+max.ToString("0.0")+" "+unit);
    if(online&&samples.Length>=2){var points=samples.Select((v,i)=>new PointF(area.Left+i*area.Width/(samples.Length-1),area.Bottom-(float)(Math.Min(max,Math.Max(0,v))/max)*area.Height)).ToArray();var fill=points.Concat(new[]{new PointF(area.Right,area.Bottom),new PointF(area.Left,area.Bottom)}).ToArray();using(var brush=new SolidBrush(Color.FromArgb(24,line)))g.FillPolygon(brush,fill);using(var pen=new Pen(line,2))g.DrawLines(pen,points);using(var brush=new SolidBrush(line)){var last=points[points.Length-1];g.FillEllipse(brush,last.X-3,last.Y-3,6,6);}}
    using(var font=Theme.Font(7.5f,FontStyle.Regular))using(var brush=new SolidBrush(Theme.Muted))g.DrawString(caption,font,brush,18,Height-24);
   }
  }
 
 }
-
-
-
-
-
