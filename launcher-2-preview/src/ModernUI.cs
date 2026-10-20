@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace XHLLauncher {
  public sealed partial class ControlRoom {
-  Label liveActivity, backupResult, readinessInfo;
+  Label liveActivity, backupResult, readinessInfo, recentEvents;
   DataGridView backupGrid;
   DashboardTrend cpuTrend, memoryTrend; Label backupOverview; DateTime lastBackupOverview=DateTime.MinValue; int markedBackupCount=-1;
   void ConfigureTray(){
@@ -77,12 +77,24 @@ namespace XHLLauncher {
    ActionButton(health,"Review checks",18,100,128,delegate{Navigate("Installation");});ActionButton(health,"Mods",154,100,78,delegate{Navigate("Mods");});
    liveActivity=TextLabel("Waiting for live telemetry",8,Theme.Muted,false);liveActivity.SetBounds(0,638,1000,30);liveActivity.AutoSize=false;page.Controls.Add(liveActivity);
    readinessInfo=TextLabel("READINESS / Checking pinned files and backup markers",8,Theme.Muted,false);readinessInfo.SetBounds(0,674,1000,28);readinessInfo.AutoSize=false;page.Controls.Add(readinessInfo);
-   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=readinessInfo.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;};
+   var recent=Card(page,"RECENT RECORDED ACTIVITY",0,716,650,236);
+   recentEvents=Body(recent,"Waiting for recorded server events",48,9,Theme.Text);recentEvents.Height=132;
+   ActionButton(recent,"Open event feed",18,184,166,delegate{parsedEvents=true;if(eventModeButton!=null)eventModeButton.Text="Show raw log";Navigate("Logs");});
+   var shortcuts=Card(page,"REALM NAVIGATION",664,716,336,236);
+   ActionButton(shortcuts,"Player profiles",18,39,190,delegate{Navigate("Players");});
+   ActionButton(shortcuts,"Live console",18,87,190,delegate{Navigate("Logs");});
+   ActionButton(shortcuts,"World records",18,135,190,delegate{Navigate("World");});
+   ActionButton(shortcuts,"Verified backups",18,183,190,delegate{Navigate("Backups");});
+   page.AutoScrollMinSize=new Size(0,972);
+   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=readinessInfo.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;recent.Width=Math.Max(450,(int)(w*.65)-14);shortcuts.Left=recent.Width+14;shortcuts.Width=Math.Max(200,w-shortcuts.Left);};
    return page;
   }
   void UpdateModernDetails() {
    if(liveActivity!=null){var h=telemetry.GetHost();cpuTrend.UpdateSamples(telemetry.CpuHistory,h.ServerRunning);memoryTrend.UpdateSamples(telemetry.RamHistory,h.ServerRunning);liveActivity.Text=h.ServerRunning?"LIVE  /  PID "+h.Pid+"  •  Trends show actual process samples from this launcher session":"OFFLINE  /  Live trends unavailable. Saved world and backup records remain available.";
     readinessInfo.Text="READINESS / "+SafeSupportReport.Readiness(h,audit,markedBackupCount);
+    if(recentEvents!=null){var observed=telemetry.GetActivity(4);
+     recentEvents.Text=observed.Count==0?"No recorded events yet. Open the live console to see server logs.":string.Join("\r\n",observed.Select(e=>e.Time.ToString("h:mm tt")+"   /   "+(e.Level??"Event")+"   /   "+(e.Text??"").Replace("\r"," ").Replace("\n"," ").Trim()).ToArray());
+    }
     if((DateTime.Now-lastBackupOverview).TotalSeconds<10)return;lastBackupOverview=DateTime.Now;
     try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>d.CreationTimeUtc).ToArray():new DirectoryInfo[0];markedBackupCount=snapshots.Length;backupOverview.Text=snapshots.Length+" verified snapshots"+(snapshots.Length>0?"\r\nLatest  "+snapshots[0].CreationTime.ToString("MMM d, h:mm tt"):"\r\nNo verified snapshot found")+"\r\nAutomatic backups  "+(settings.AutoBackup?"Every "+settings.BackupIntervalMinutes+" min":"Off");}catch{markedBackupCount=-1;backupOverview.Text="Backup history unavailable";}
    }
