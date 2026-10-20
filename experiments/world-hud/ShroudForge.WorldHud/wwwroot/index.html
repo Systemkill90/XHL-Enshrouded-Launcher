@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>ShroudForge World HUD</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <main class="hud" aria-label="ShroudForge browser HUD">
+    <header class="hud-header">
+      <span class="mark">SHROUDFORGE</span>
+      <span id="connection" class="connection">Connecting</span>
+    </header>
+    <section class="map-panel" aria-label="Minimap">
+      <div id="map" class="map unavailable">
+        <div class="map-grid"></div>
+        <span class="north">N</span>
+        <div class="position" id="position" hidden>▲</div>
+        <p class="map-message" id="map-message">Map data unavailable</p>
+      </div>
+      <div class="map-meta">
+        <span>WORLD MAP</span>
+        <span id="coordinates">Position unknown</span>
+      </div>
+    </section>
+    <section class="readouts" aria-label="World time and weather">
+      <div class="readout">
+        <span class="readout-label">WORLD TIME</span>
+        <span class="readout-value" id="world-time">--:--</span>
+      </div>
+      <div class="readout weather">
+        <span class="readout-label">WEATHER</span>
+        <span class="readout-value" id="weather">Unknown</span>
+      </div>
+    </section>
+    <footer>
+      <span id="source">Awaiting verified game telemetry</span>
+      <span class="scope">Browser companion · not an in-game overlay</span>
+    </footer>
+  </main>
+  <script type="module" src="/hud.mjs"></script>
+</body>
+</html>
