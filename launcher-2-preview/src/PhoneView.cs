@@ -72,13 +72,13 @@ nav.tabs{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;z-inde
 <div id=""mapView"" class=""view"" role=""tabpanel"" aria-labelledby=""mapTab"" hidden>
 <section class=""panel""><div class=""mapHeading""><div><div class=""eyebrow"">ShroudForge / Cartography</div><h2>Embervale in 3D</h2></div><span class=""badge"">1.0 terrain</span></div>
 <p class=""mapNote"">Real community map data, not a simulated landscape. Use the map's own 3D view and filters for roads, landmarks, chests, quests and resources. Pinch to zoom; drag to explore.</p>
-<div class=""mapWindow""><div id=""mapStart"" class=""mapStart""><span class=""sigil"" aria-hidden=""true"">◇</span><strong>Explore Embervale</strong><p>Load the interactive 3D world map only when you need it. A connection to the map provider is required.</p><button class=""primary"" onclick=""loadMap()"">Load interactive map</button></div><iframe id=""gameMap"" title=""External interactive Embervale 3D map by GameVault"" referrerpolicy=""no-referrer"" sandbox=""allow-scripts allow-same-origin allow-forms allow-popups"" allow=""fullscreen"" allowfullscreen hidden></iframe><div id=""mapTrouble"" class=""mapTrouble"" role=""status"" hidden><strong>Map still showing white?</strong><p>This map belongs to another website, which may prevent embedding or fail in iPhone Safari. ShroudForge cannot inspect or bypass its frame restrictions. You can open the full interactive map without affecting the server.</p><div class=""mapTroubleActions""><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full 3D map ↗</a><button type=""button"" onclick=""loadMap(true)"">Try again</button><button type=""button"" onclick=""dismissMapHelp()"">Map works / Hide</button></div></div></div>
+<div class=""mapWindow""><div id=""mapStart"" class=""mapStart""><span class=""sigil"" aria-hidden=""true"">◇</span><strong>Explore Embervale</strong><p>Load the interactive 3D world map only when you need it. A connection to the map provider is required.</p><button class=""primary"" onclick=""loadMap()"">Load interactive map</button></div><iframe id=""gameMap"" title=""External interactive Embervale 3D map by GameVault"" referrerpolicy=""no-referrer"" sandbox=""allow-scripts allow-same-origin allow-forms allow-popups"" allow=""fullscreen"" allowfullscreen hidden></iframe><div id=""mapTrouble"" class=""mapTrouble"" role=""status"" hidden><strong>Map still showing white?</strong><p>This map belongs to another website, which may prevent embedding or fail in iPhone Safari. ShroudForge cannot inspect or bypass its frame restrictions. You can open the full interactive map without affecting the server.</p><div class=""mapTroubleActions""><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full 3D map ↗</a><button type=""button"" onclick=""loadMap(true)"">Try again</button><button type=""button"" onclick=""tryCompatibility()"">Compatibility</button><button type=""button"" onclick=""dismissMapHelp()"">Map works / Hide</button></div></div></div>
 <div class=""mapControls""><button id=""reloadMap"" onclick=""loadMap(true)"">Reload map</button><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full map ↗</a></div>
 <p class=""mapNote"" id=""mapHelp"" role=""status"">The external viewer may not permit embedding. If the embedded frame remains blank, choose Open full map. No private server key, save, or player data is sent to the map provider. Live player positions are not available through the current server data.</p>
 <p class=""mapNote"">3D terrain and map markers provided by GameVault's Companion for Enshrouded. Not affiliated with Keen Games. Map loading is independent of your server controls.</p>
 </section></div>
 </main><script>
-let current={},sending=false,notice='',mapLoaded=false,mapAssistTimer=null;const el=id=>document.getElementById(id);
+let current={},sending=false,notice='',mapLoaded=false,mapAssistTimer=null,mapCompatibility=false;const el=id=>document.getElementById(id);
 function showTab(which){
  const map=which==='map';el('dashboardView').hidden=map;el('mapView').hidden=!map;
  el('overviewTab').setAttribute('aria-selected',String(!map));
@@ -91,15 +91,22 @@ function showMapTrouble(){
  el('mapTrouble').hidden=false;
  text('mapHelp','If the map is blank or white, open the full interactive map. A browser iframe load event does not prove its 3D content actually rendered.');
 }
+function tryCompatibility(){
+ // Opt-in full iframe functionality if the original sandbox blocked WebGL/map controls.
+ // Same-origin rules still isolate the external provider from launcher data.
+ mapCompatibility=true;loadMap(true);
+}
 function loadMap(reload){
  const frame=el('gameMap');
  if(mapAssistTimer!==null)clearTimeout(mapAssistTimer);
  el('mapTrouble').hidden=true;
  el('mapStart').hidden=true;
  frame.hidden=false;
+ if(mapCompatibility)frame.removeAttribute('sandbox');
+ else frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups');
  if(!mapLoaded||reload){
   mapLoaded=true;frame.src='https://enshrouded.gamevault.in/map';
-  text('mapHelp','Attempting to load the external map. If nothing appears, use the in-panel Open full 3D map link; this does not change server data.');
+  text('mapHelp',mapCompatibility?'Compatibility mode: more iframe permissions are enabled only for this map. If still white, open the full map directly.':'Protected mode: if white, select Compatibility in the map panel or open the full map directly. No server controls are affected.');
  }
  // Cross-origin iframe failure is not reliably observable in Safari.
  // Never show a misleading success indicator just because the iframe fires ""load"".
