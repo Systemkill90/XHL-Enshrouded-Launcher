@@ -22,6 +22,8 @@ for(const id of ['dashboardView','playersView','activityView','mapView','overvie
  assert(ids.includes(id),'Expected dynamic control: '+id);
 }
 assert.equal((html.match(/\brole="tab"/g)||[]).length,4,'Four accessible phone sections');
+assert(html.includes("event.key==='ArrowRight'")&&html.includes("event.key==='Home'"),'Four-tab navigation supports keyboard arrows and Home/End');
+assert(html.includes('id="result"')&&html.indexOf('id="result"')>html.indexOf('</details>'),'Operation feedback is visible even when controls are collapsed');
 assert(html.includes('env(safe-area-inset-bottom')&&html.includes('prefers-reduced-motion'),'Safe area and reduced motion styling required');
 assert(html.includes('class="control-details"')&&html.includes("run('Restart')")&&html.includes("run('Stop')"),'Existing guarded game controls preserved');
 assert(html.includes('id="openWorldMap" href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"'),'Working HTTPS map is first-class safe action');
