@@ -6,9 +6,11 @@ on:
       - launcher-2-readonly-preview
       - ci/windows-preview-artifacts
       - feat/launcher-2-overhaul
+      - 'feat/ui-navigation-polish-*'
   pull_request:
     branches:
       - launcher-2-readonly-preview
+      - feat/launcher-2-overhaul
   workflow_dispatch:
 
 permissions:
@@ -73,6 +75,15 @@ jobs:
           existing working installation. Use an isolated disposable test folder.
           Read TECHNICAL-NOTES.md and docs/BUILD-ARTIFACTS.md in the repository.
           '@ | Set-Content -LiteralPath (Join-Path $stage 'READ-FIRST.txt') -Encoding utf8
+          @"
+          Build SHA: ${{ github.sha }}
+          Source ref: ${{ github.ref }}
+          Workflow run: ${{ github.run_id }}
+          Type: unsigned, isolated Windows preview; NOT a public release
+          Live server deployment: NOT AUTHORIZED
+          "@ | Set-Content -LiteralPath (Join-Path $stage 'BUILD-INFO.txt') -Encoding utf8
+          Copy-Item -LiteralPath 'launcher-2-preview/STAGING.md' -Destination (Join-Path $stage 'STAGING-NOTES.md')
+
           $hash = (Get-FileHash -LiteralPath $target -Algorithm SHA256).Hash.ToLowerInvariant()
           "$hash *ShroudForge-Launcher-Preview.exe" |
             Set-Content -LiteralPath (Join-Path $stage 'SHA256SUMS.txt') -Encoding ascii
