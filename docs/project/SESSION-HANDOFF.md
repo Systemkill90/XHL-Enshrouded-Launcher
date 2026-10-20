@@ -1,5 +1,7 @@
 # ShroudForge — current session handoff
 
+> **New staging note — October 20 (GitHub-only):** [Draft PR #32](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/32) branches from #31. It adds HTTP-parent/map secure-context diagnostics, a direct HTTPS external-map option, synced C# phone markup and new fail-closed SteamCMD/setup fixture checks. **Check CI for the new PR head** and run iPhone validation when authorized; no application installation or server action was performed. Continue accepted launcher/backup/mod behavior unchanged and keep #31 open.
+
 ## Latest: close choices, server setup, window sizing and MB units — October 20, 2026
 
 **Installed and locally verified.** Published source [2a83af6](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/commit/2a83af68ccfb6d2fd03ae256470678b6c0801cdc) on `dev/server-setup-and-close-prompt` and `feat/ui-navigation-polish-20261019`; local installed commit `2432857f2723f8e8a3cda276b8ed27f3ba3c19aa` has identical tree `d1689eda00df06591378408885c9da59de5109cb`. The initial feature commit is published `e49bfcdf96f3f518e13d4dab025784ffc817a9bd` / local `49115cf009de3918b1ef214eee29872ea791fb77`, tree `0cb757f21f50985081591bd76ed4b243295ec473`. Connected-app publication preserves remote ancestry.
