@@ -26,7 +26,7 @@ app.MapGet("/health", () => Results.Ok(new
 
 // Read-only file adapter. The server does NOT know Enshrouded time/weather/position.
 // A separately validated game telemetry bridge must write a real state snapshot.
-app.MapGet("/api/hud", async (CancellationToken cancellationToken) =>
+app.MapGet("/api/hud", async Task<IResult> (CancellationToken cancellationToken) =>
 {
     var path = Environment.GetEnvironmentVariable("SHROUDFORGE_WORLDHUD_STATE")
         ?? Path.Combine(AppContext.BaseDirectory, "state", "current.json");
