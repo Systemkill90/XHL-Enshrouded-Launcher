@@ -11,6 +11,8 @@ try {
  if($LASTEXITCODE -ne 0){throw 'TypeScript check failed'}
  & node Sync-Phone.mjs --check
  if($LASTEXITCODE -ne 0){throw 'Phone synchronization failed'}
+ & node Phone-UX-Checks.mjs
+ if($LASTEXITCODE -ne 0){throw 'Phone mobile UX contract checks failed'}
  & node build.mjs
  if($LASTEXITCODE -ne 0){throw 'UI bundle failed'}
  & ./Build-Desktop.ps1
