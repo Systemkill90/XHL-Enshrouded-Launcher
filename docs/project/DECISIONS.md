@@ -23,6 +23,7 @@
 | D-17 | Oct 20 | Owner authorized one server and launcher restart; it was completed and query-confirmed. | That one-time server restart is consumed. Subsequent sizing/unit corrections were launcher-only updates; no automatic repeat server restart. |
 | D-18 | Oct 20 | Owner requests minimum window sizing, uncovered View players and proper megabytes. | Native minimum protects 1100 × 900 CSS content with DPI/zoom adjustment; actions and metrics use separate rows. Display decimal MB with actual conversion, and label unchanged binary safety limits MiB. |
 | D-19 | Oct 20 | Owner requests New server beside the selected-realm box, opening a create/scan wizard or guide. | Keep both top controls visible; show a dedicated Server setup guide with direct new-server form and discovery choices. No automatic real-server creation, selection or restart. |
+| D-20 | Oct 20 | **Native iOS App Store companion canceled.** Owner instead authorized a substantial UI overhaul of the **existing private-LAN web phone companion**. | Stage a mobile-first redesign with an owner-confirmed working top-level HTTPS GameVault map action and preserve existing authenticated controls. Wider phone feature development remains paused; no automatic deployment or server restart is approved. |
 
 ## Security / publishing rule
 
