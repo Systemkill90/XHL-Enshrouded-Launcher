@@ -13,15 +13,15 @@ assert(start>=0&&end>start,'Expected embedded C# page');
 const synchronized=phoneSource.slice(0,start)+'const string Page=@"'+html.replaceAll('"','""')+phoneSource.slice(end);
 assert.equal(phoneSource,synchronized,'Standalone and embedded phone pages must match exactly');
 
-const scripts=[...html.matchAll(/<script(?:\\s[^>]*)?>([\\s\\S]*?)<\\/script>/g)];
+const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
 assert.equal(scripts.length,1,'Exactly one internal phone UI script');
 new Function(scripts[0][1]); // Syntax check only; no DOM, network or privileged operation.
-const ids=[...html.matchAll(/\\bid="([^"]+)"/g)].map(m=>m[1]);
+const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
 assert.equal(new Set(ids).size,ids.length,'No duplicate HTML element IDs');
 for(const id of ['dashboardView','playersView','activityView','mapView','overviewTab','playersTab','activityTab','mapTab','roster','knownPlayers','activity','stateText','lastBackup','backup','start','restart','stop','autoBackup','recovery','openWorldMap','gameMap']){
  assert(ids.includes(id),'Expected dynamic control: '+id);
 }
-assert.equal((html.match(/\\brole="tab"/g)||[]).length,4,'Four accessible phone sections');
+assert.equal((html.match(/\brole="tab"/g)||[]).length,4,'Four accessible phone sections');
 assert(html.includes('env(safe-area-inset-bottom')&&html.includes('prefers-reduced-motion'),'Safe area and reduced motion styling required');
 assert(html.includes('class="control-details"')&&html.includes("run('Restart')")&&html.includes("run('Stop')"),'Existing guarded game controls preserved');
 assert(html.includes('id="openWorldMap" href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"'),'Working HTTPS map is first-class safe action');
