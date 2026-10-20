@@ -8,7 +8,7 @@
 <p align="center">
   <a href="docs/start/README.md"><strong>Get started</strong></a> &nbsp;·&nbsp;
   <a href="docs/start/features.md"><strong>Explore features</strong></a> &nbsp;·&nbsp;
-  <a href="docs/project/README.md"><strong>What's ready?</strong></a> &nbsp;·&nbsp;
+  <a href="docs/project/CURRENT-STATE.md"><strong>Current status</strong></a> &nbsp;·&nbsp;
   <a href="docs/areas/README.md"><strong>Browse the project</strong></a>
 </p>
 
@@ -26,6 +26,8 @@
 
 > [!IMPORTANT]
 > **There is no supported public installer yet.** The owner has a working public server, but the latest 2.0 code is still on development branches. You can explore the code and previews without touching your own installation.
+
+> **Continuing ShroudForge development?** The shared GitHub record for phone ChatGPT, desktop Work and Codex starts at [Current state](docs/project/CURRENT-STATE.md), then [Session handoff](docs/project/SESSION-HANDOFF.md). [Decisions](docs/project/DECISIONS.md), [work history](docs/project/WORK-LOG.md), and [issues](docs/project/ISSUE-REGISTER.md) are kept separately from the installed/live server. Conversations themselves are not automatically copied into GitHub.
 
 ## Find your way
 
