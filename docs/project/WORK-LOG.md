@@ -16,7 +16,7 @@
 | Oct 19 | Updated staged phone tab to default Compatibility while preserving Protected toggle and click-to-load. | [Draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31); actual owner's installed phone page **not confirmed updated**. |
 | Oct 19 | New reviewed PR #31 source committed, passing **172 fixtures**, native checks, Windows build and artifact upload. | [Windows CI run #135](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39357907800); reviewed head `a5fcf210054dfea7d09ad4ae5c8f6df0cab2ec36`. Recheck if head advances. |
 | Oct 19 | Created a new desktop Work/Codex handoff with explicit no-server-shutdown instructions. | **Session creation was acknowledged**, but desktop connection, work execution and installed updates **weren't independently confirmed in this chat**. Never mark host work done based on handoff acceptance. |
-| Oct 19 | Consolidated a public cross-session project record on `main`. | The [current state](CURRENT-STATE.md), [handoff](SESSION-HANDOFF.md), [decisions](DECISIONS.md), [issue register](ISSUE-REGISTER.md) and [AI workflow](AI-WORKFLOW.md) are deliberately independent of live-server deployment. |
+| Oct 19 | Consolidated a public cross-session project record on `main`; linked root README, AGENTS, roadmap, documentation hub and tracker. Reconciled outdated Issues #12 and #10 to ShroudForge branding and closed canceled quest-tracker Issue #23 as not planned. | The [current state](CURRENT-STATE.md), [handoff](SESSION-HANDOFF.md), [decisions](DECISIONS.md), [issue register](ISSUE-REGISTER.md) and [AI workflow](AI-WORKFLOW.md) are deliberately independent of live-server deployment. |
 
 ## Document a future session
 
