@@ -1,0 +1,13 @@
+{
+  "exe_sha256": "B627639CE4A3F8C940FE90AFA1D36ED59DB3FF9CED24E935890EB7C99B04D5BF",
+  "system_name": "stamina_depletion_glider",
+  "registration_name_rva": "0x136cb90",
+  "registration_function_pointer_rva": "0x13699c0",
+  "function_rva": "0xd7f40",
+  "function_length": 786,
+  "original_function_sha256": "716BD4DB785D59DF8D7629CE82E8CB8635B9558A411B742B76B0A3E8187A78C3",
+  "patch_rva": "0xd818f",
+  "original": "f30f59f7",
+  "replacement": "0f57f690",
+  "scope": "Zero calculated gliding contribution before shared accumulation; preserve other stamina drain. Gameplay pending."
+}

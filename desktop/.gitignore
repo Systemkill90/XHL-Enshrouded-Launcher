@@ -1,0 +1,11 @@
+**/node_modules/
+**/build/
+**/test-results/
+**/*-results/
+**/Manager Data/
+**/*.exe
+**/*.dll
+webview-sdk/
+field-audit-build/
+*.zip
+react-launcher/classic-source/
