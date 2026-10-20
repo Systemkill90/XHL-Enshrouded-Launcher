@@ -13,7 +13,7 @@
 | P1 | Guarded backup/restore and crash recovery | Simulate and recover on disposable world, verify integrity and rollback, no blind restarts | Management UI and fixtures exist; release acceptance incomplete |
 | P1 | Companion phone map's exact installed-page compatibility | Test full ShroudForge phone UI on iPhone after isolated launcher build/approved update, not just standalone diagnostic | Compatibility iframe **owner-verified**; default fix staged and CI passed, installation unverified |
 | P2 | Release packaging, dependency and installation cleanup | Safe detection of existing directories, human-readable folders, copy/rollback strategy, signed or clearly labeled preview artifact | [Release issue #10](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/10); no production-ready installer |
-| P2 | Public repository clarity and branding | Align active ShroudForge name across non-breaking docs, links and release descriptions | [Branding issue #12](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/12) contains **outdated proposed name**: use ShroudForge, not its earlier 'Enshrouded Server Companion' suggestion |
+| P2 | Public repository clarity and branding | Align active ShroudForge name across non-breaking docs, links and release descriptions | [Branding issue #12](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/12) now uses **ShroudForge**; its prior 'Enshrouded Server Companion' text is retained only as historical context |
 | P2 | Prevent stale docs or status inflation across sessions | Update GitHub handoff/status with exact branch, SHA, tests and device evidence | Repository memory consolidation created; ongoing practice |
 
 ## Explicitly not active
