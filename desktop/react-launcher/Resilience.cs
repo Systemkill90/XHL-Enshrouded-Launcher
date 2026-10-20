@@ -16,6 +16,10 @@ namespace XHLLauncher {
   void Save(){try{Directory.CreateDirectory(Path.GetDirectoryName(path));string tmp=path+".pending";File.WriteAllText(tmp,new JavaScriptSerializer().Serialize(State));if(File.Exists(path))File.Replace(tmp,path,path+".bak");else File.Move(tmp,path);}catch{Locked=true;State.Pending=false;State.Armed=false;State.Phase="Needs review";State.Detail="Recovery journal could not be saved. Automatic starts are blocked.";}}
   public void ManualStop(){State.ManualPause=true;State.Pending=false;State.Armed=false;healthySince=DateTime.MinValue;State.Phase="Paused";State.Detail="You stopped the server. Recovery will not undo that choice.";Save();}
   public void ManualStart(){State.ManualPause=false;State.Pending=false;State.Armed=false;healthySince=DateTime.MinValue;State.Detail="Manual start requested; waiting for query-confirmed stability.";Save();}
+  public bool Poll(bool enabled,ProcessObservation observation,bool responsive,bool busy,DateTime now){
+   if(observation==ProcessObservation.Failed||observation==ProcessObservation.Unknown){healthySince=DateTime.MinValue;State.Phase="Observation unavailable";State.Detail="Process absence is unconfirmed. Recovery waits for a successful observation.";return false;}
+   return Poll(enabled,observation==ProcessObservation.Running,responsive,busy,now);
+  }
   public bool Poll(bool enabled,bool running,bool responsive,bool busy,DateTime now){
    State.Attempts.RemoveAll(t=>now-t>TimeSpan.FromHours(1));
    if(!enabled&&(State.Armed||State.Pending)){State.Armed=false;State.Pending=false;Save();}

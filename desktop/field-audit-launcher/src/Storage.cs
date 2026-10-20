@@ -68,7 +68,7 @@ namespace XHLLauncher
             return baseDir;
         }
 
-        public static List<PlayerSession> ReadSessions(string serverRoot)
+        public static List<PlayerSession> ReadSessions(string serverRoot, bool strict = false)
         {
             List<PlayerSession> result = new List<PlayerSession>();
             string[] candidates = new string[] {
@@ -96,11 +96,11 @@ namespace XHLLauncher
                     }
                 }
             }
-            catch { }
+            catch { if(strict) throw; }
             return result;
         }
 
-        public static List<ActivityItem> ReadRecentPlayerEvents(string serverRoot, int count)
+        public static List<ActivityItem> ReadRecentPlayerEvents(string serverRoot, int count, bool strict = false)
         {
             List<ActivityItem> all = new List<ActivityItem>();
             string path = Path.Combine(serverRoot, "XHL-Diagnostic-Logs", "XHL-PLAYER-EVENTS.csv");
@@ -118,7 +118,7 @@ namespace XHLLauncher
                     all.Add(new ActivityItem(dt, "Info", text));
                 }
             }
-            catch { }
+            catch { if(strict) throw; }
             return all;
         }
 

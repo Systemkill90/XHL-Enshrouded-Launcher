@@ -309,6 +309,7 @@ namespace XHLLauncher
             backup.CheckedChanged += delegate { settings.AutoBackup = backup.Checked; nextBackup = DateTime.UtcNow.AddMinutes((double)interval.Value); Storage.SaveSettings(appBase, settings); };
             interval.ValueChanged += delegate { settings.BackupIntervalMinutes = (int)interval.Value; nextBackup = DateTime.UtcNow.AddMinutes((double)interval.Value); Storage.SaveSettings(appBase, settings); };
             recoveryOption = new CheckBox { Text = "Restart after an unexpected stop (60-second delay)", Checked = settings.AutoRestartOnCrash, AutoCheck = controlsEnabled, TabStop = controlsEnabled, ForeColor = Theme.Muted, AutoSize = true, Location = new Point(20, 96) };
+            if (!RecoveryPolicy.Available) { recoveryOption.Text="Automatic recovery runs in the modern control center"; recoveryOption.Checked=false; recoveryOption.Enabled=false; recoveryOption.AutoCheck=false; recoveryOption.TabStop=false; }
             card.Controls.Add(recoveryOption);
             recoveryOption.CheckedChanged += delegate { settings.AutoRestartOnCrash = recoveryOption.Checked; recovery.Disarm(); Storage.SaveSettings(appBase, settings); };
             Body(card, "Recovery makes one attempt after an observed running session.\r\nStop turns recovery off. Start still requires all compatibility checks.\r\n\r\nBackups copy the configured server saves and configuration only.\r\nLive copies are byte-checked, but may span multiple game save cycles.\r\nClient-side character saves outside that folder are not included.", 140, 10, Theme.Muted);

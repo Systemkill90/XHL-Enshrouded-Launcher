@@ -32,6 +32,7 @@ namespace XHLLauncher
         private readonly object gate = new object();
         private readonly string appBase;
         private readonly LauncherSettings settings;
+        private readonly Func<Process> discoverProcess;
         private readonly Dictionary<int, PlayerState> players = new Dictionary<int, PlayerState>();
         private readonly Dictionary<string, PlayerState> peers = new Dictionary<string, PlayerState>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<int, PlayerState> machines = new Dictionary<int, PlayerState>();
@@ -73,10 +74,11 @@ namespace XHLLauncher
         public event Action<string> LogFileChanged;
         public event Action<ActivityItem> ActivityAdded;
 
-        public TelemetryService(string appBase, LauncherSettings settings)
+        public TelemetryService(string appBase, LauncherSettings settings, Func<Process> discoverProcess = null)
         {
             this.appBase = appBase;
             this.settings = settings;
+            this.discoverProcess = discoverProcess ?? (()=>new ServerControl(settings.ServerRoot, settings).GetServerProcess());
             config = ConfigReader.Read(settings.ServerRoot);
             if (!string.IsNullOrEmpty(config.Name)) settings.ServerName = config.Name;
             foreach (ActivityItem item in Storage.ReadRecentPlayerEvents(settings.ServerRoot, 12)) activity.Add(item);
@@ -131,8 +133,10 @@ namespace XHLLauncher
             lock (gate)
             {
                 HostState h = new HostState();
-                h.SampledUtc=host.SampledUtc;h.LastQueryUtc=host.LastQueryUtc;h.QueryResponsive=host.ServerRunning&&host.QueryResponsive&&DateTime.UtcNow-host.LastQueryUtc<TimeSpan.FromSeconds(15);
+                h.Observation=host.Observation;h.ObservationError=host.ObservationError;h.ObservationAttemptUtc=host.ObservationAttemptUtc;
+                h.SampledUtc=host.SampledUtc;h.LastQueryUtc=host.LastQueryUtc;h.QueryResponsive=host.Observation==ProcessObservation.Running&&host.ServerRunning&&host.QueryResponsive&&DateTime.UtcNow-host.LastQueryUtc<TimeSpan.FromSeconds(15);
                 h.ServerRunning = host.ServerRunning; h.Pid = host.Pid; h.Uptime = host.Uptime; h.CpuPercent = host.CpuPercent; h.RamBytes = host.RamBytes; h.TotalRamBytes = host.TotalRamBytes; h.UploadMbps = host.UploadMbps; h.DownloadMbps = host.DownloadMbps; h.NicErrors = host.NicErrors; h.NicDiscards = host.NicDiscards; h.AdapterName = host.AdapterName; h.AdapterDescription = host.AdapterDescription; h.LocalIp = host.LocalIp; h.Gateway = host.Gateway; h.Dns = host.Dns; h.LinkSpeed = host.LinkSpeed; h.PublicIp = host.PublicIp; h.PublicIpv4 = host.PublicIpv4; h.PublicIpv6 = host.PublicIpv6; h.Isp = host.Isp; h.Asn = host.Asn; h.ApproxLocation = host.ApproxLocation; h.NetworkType = host.NetworkType; h.VpnStatus = host.VpnStatus; h.DiskFreeBytes = host.DiskFreeBytes; h.DiskTotalBytes = host.DiskTotalBytes;
+                if(h.SampledUtc==DateTime.MinValue||DateTime.UtcNow-h.SampledUtc>TimeSpan.FromSeconds(15)){h.Observation=ProcessObservation.Unknown;h.ObservationError="No recent successful process observation. "+host.ObservationError;h.QueryResponsive=false;}
                 return h;
             }
         }
@@ -194,21 +198,25 @@ namespace XHLLauncher
             list.Add(value); while (list.Count > 600) list.RemoveAt(0);
         }
 
-        private void UpdateProcess()
+        private void UpdateProcess() { ObserveProcess(discoverProcess); }
+
+        internal void ObserveProcess(Func<Process> discover)
         {
             Process p = null;
-            try { p = new ServerControl(settings.ServerRoot, settings).GetServerProcess(); } catch { }
+            try { p = discover(); }
+            catch (Exception ex) { lock(gate) { MarkObservationFailed(host, ex.Message); } return; }
             lock (gate)
             {
-                host.SampledUtc=DateTime.UtcNow; host.ServerRunning = p != null;
+                host.ObservationAttemptUtc=DateTime.UtcNow;
                 if (p == null)
                 {
+                    host.Observation=ProcessObservation.Stopped;host.ObservationError="";host.SampledUtc=DateTime.UtcNow;host.ServerRunning=false;
                     host.Pid = 0; host.Uptime = TimeSpan.Zero; host.CpuPercent = 0; host.RamBytes = 0; lastPid = 0; prevProcSample = DateTime.MinValue;host.QueryResponsive=false;host.LastQueryUtc=DateTime.MinValue;lastRosterSuccess=DateTime.MinValue;lastInfoSuccess=DateTime.MinValue; return;
                 }
                 try
                 {
-                    p.Refresh();if(lastPid!=p.Id){foreach(var old in players.Values){old.Connected=false;old.PingMs=-1;old.PingHistory.Clear();old.LastNetworkSample=DateTime.MinValue;}host.QueryResponsive=false;host.LastQueryUtc=DateTime.MinValue;lastRosterSuccess=DateTime.MinValue;lastInfoSuccess=DateTime.MinValue;} host.Pid = p.Id;processStarted=p.StartTime; host.Uptime = DateTime.Now - p.StartTime; host.RamBytes = p.WorkingSet64;
-                    DateTime now = DateTime.Now; TimeSpan cpu = p.TotalProcessorTime;
+                    p.Refresh();int pid=p.Id;DateTime started=p.StartTime;long ram=p.WorkingSet64;TimeSpan cpu=p.TotalProcessorTime;if(lastPid!=pid){foreach(var old in players.Values){old.Connected=false;old.PingMs=-1;old.PingHistory.Clear();old.LastNetworkSample=DateTime.MinValue;}host.QueryResponsive=false;host.LastQueryUtc=DateTime.MinValue;lastRosterSuccess=DateTime.MinValue;lastInfoSuccess=DateTime.MinValue;} host.Pid = pid;processStarted=started; host.Uptime = DateTime.Now - started; host.RamBytes = ram;
+                    DateTime now = DateTime.Now;
                     if (prevProcSample != DateTime.MinValue && lastPid == p.Id)
                     {
                         double elapsed = (now - prevProcSample).TotalMilliseconds;
@@ -216,10 +224,17 @@ namespace XHLLauncher
                         if (elapsed > 0) host.CpuPercent = Math.Max(0, Math.Min(100, used / elapsed / Math.Max(1, Environment.ProcessorCount) * 100.0));
                     }
                     prevProcCpu = cpu; prevProcSample = now; lastPid = p.Id;
+                    host.ServerRunning=true;host.Observation=ProcessObservation.Running;host.ObservationError="";host.SampledUtc=DateTime.UtcNow;
                 }
-                catch { }
+                catch (Exception ex) { MarkObservationFailed(host, ex.Message); }
                 finally {p.Dispose();}
             }
+        }
+
+        internal static void MarkObservationFailed(HostState state, string error)
+        {
+            state.Observation=ProcessObservation.Failed;state.ObservationError=error;
+            state.ObservationAttemptUtc=DateTime.UtcNow;state.QueryResponsive=false;
         }
 
         private void UpdateDiskAndMemory()

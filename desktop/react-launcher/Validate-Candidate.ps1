@@ -4,6 +4,9 @@ $Evidence=[IO.Path]::GetFullPath($Evidence)
 New-Item -ItemType Directory -Path $Evidence -Force|Out-Null
 Push-Location $PSScriptRoot
 try {
+ $sourceBefore=& ./Build-Provenance.ps1 -Mode Identity
+ $oldRecord=Join-Path $PSScriptRoot 'build/build-provenance.json'
+ if(Test-Path -LiteralPath $oldRecord){Remove-Item -LiteralPath $oldRecord}
  & node node_modules/typescript/bin/tsc --noEmit
  if($LASTEXITCODE -ne 0){throw 'TypeScript check failed'}
  & node Sync-Phone.mjs --check
@@ -18,5 +21,7 @@ try {
  foreach($suite in @(@('Test.ps1','regression'),@('Test-Fields.ps1','fields'),@('Test-Mods.ps1','mods'),@('Test-Native.ps1','native'))){
   & (Join-Path $core $suite[0]) -OutputDirectory (Join-Path $Evidence $suite[1]) *> (Join-Path $Evidence ($suite[1]+'.txt'))
  }
- Write-Output 'PASS Windows builds, TypeScript, exact phone synchronization and isolated desktop/core/resilience/field/mod/native checks.'
+ & ./Test-Provenance.ps1
+ & ./Build-Provenance.ps1 -Mode Record -ExpectedSource $sourceBefore
+ Write-Output 'PASS Windows builds, TypeScript, exact phone synchronization and isolated desktop/core/resilience/field/mod/native checks; build provenance recorded.'
 } finally {Pop-Location}

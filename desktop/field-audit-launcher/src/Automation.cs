@@ -11,12 +11,17 @@ namespace XHLLauncher
     // One attempt per session prevents a broken installation entering a restart loop.
     internal sealed class RecoveryPolicy
     {
+#if CLASSIC_TOOLS
+        internal static readonly bool Available = false;
+#else
+        internal static readonly bool Available = true;
+#endif
         bool armed;
         DateTime stopped = DateTime.MinValue;
         internal void Disarm() { armed = false; stopped = DateTime.MinValue; }
         internal bool Poll(bool enabled, bool running, bool busy, DateTime now)
         {
-            if (!enabled) { Disarm(); return false; }
+            if (!Available || !enabled) { Disarm(); return false; }
             if (busy) return false;
             if (running) { armed = true; stopped = DateTime.MinValue; return false; }
             if (!armed) return false;

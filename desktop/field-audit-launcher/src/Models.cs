@@ -125,9 +125,14 @@ namespace XHLLauncher
         public readonly List<DateTime> BadPerformanceEvents = new List<DateTime>();
     }
 
+    public enum ProcessObservation { Unknown, Running, Stopped, Failed }
+
     public class HostState
     {
         public DateTime SampledUtc;
+        public ProcessObservation Observation;
+        public string ObservationError = "";
+        public DateTime ObservationAttemptUtc;
         public bool ServerRunning;
         public bool QueryResponsive;
         public DateTime LastQueryUtc;

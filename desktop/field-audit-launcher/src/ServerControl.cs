@@ -24,6 +24,8 @@ namespace XHLLauncher
 
         public Process GetServerProcess()
         {
+            Exception failure = null;
+            Process selected = null;
             try
             {
                 string expected = Path.GetFullPath(Path.Combine(root, "enshrouded_server.exe"));
@@ -32,13 +34,15 @@ namespace XHLLauncher
                     try
                     {
                         if (string.Equals(Path.GetFullPath(p.MainModule.FileName), expected, StringComparison.OrdinalIgnoreCase))
-                            return p;
+                        { if(selected==null) { selected = p; continue; } }
                     }
-                    catch { /* A different process may not be accessible. Never control it by name alone. */ }
+                    catch (Exception ex) { failure = ex; }
                     try { p.Dispose(); } catch { }
                 }
             }
-            catch { }
+            catch (Exception ex) { failure = ex; }
+            if (selected != null) return selected;
+            if (failure != null) throw new IOException("Server process observation failed; absence is unconfirmed.", failure);
             return null;
         }
 
