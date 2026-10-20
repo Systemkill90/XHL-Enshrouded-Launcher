@@ -109,6 +109,11 @@ static class Checks
                 string mapPage=c.DownloadString(phone.Url);
                 Require(mapPage.Contains("id=\"mapSecureHint\"")&&mapPage.Contains("window.isSecureContext===false"),"Phone page diagnoses insecure LAN ancestry before embedded map load");
                 Require(mapPage.Contains("rel=\"noopener noreferrer\"")&&mapPage.Contains("referrerpolicy=\"no-referrer\"")&&mapPage.Contains("https://enshrouded.gamevault.in/map"),"Phone map provides a standalone HTTPS link without leaking the private parent URL");
+                Require(mapPage.Contains("id=\"openWorldMap\"")&&mapPage.Contains("Open interactive 3D map")&&mapPage.Contains("target=\"_blank\""),"Phone map primary action opens the verified top-level HTTPS map instead of embedding it");
+                foreach(string panel in new[]{"dashboardView","playersView","activityView","mapView"})Require(mapPage.Contains("id=\""+panel+"\""),"Mobile companion includes "+panel+" panel");
+                foreach(string tab in new[]{"overviewTab","playersTab","activityTab","mapTab"})Require(mapPage.Contains("id=\""+tab+"\""),"Mobile companion includes "+tab+" navigation");
+                Require(mapPage.Contains("class=\"control-details\"")&&mapPage.Contains("run('Restart')")&&mapPage.Contains("run('Stop')"),"Destructive server controls remain available behind an explicit disclosure");
+                Require(mapPage.Contains("id=\"gameMap\"")&&mapPage.Contains("class=\"map-experiment\"")&&mapPage.Contains("function loadMap(reload)"),"In-page iframe remains optional and separate from the working HTTPS map action");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
                 bool rejected=false;try{c.DownloadString(phone.Url.Replace("test-secret","wrong"));}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects requests without private key");
                 rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects unsupported write requests");

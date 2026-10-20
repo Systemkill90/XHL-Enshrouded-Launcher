@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#121416"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="ShroudForge"><title>ShroudForge Launcher · Realm control</title><style>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101819"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="ShroudForge"><title>ShroudForge · Realm Companion</title><style>
 :root{color-scheme:dark}*{box-sizing:border-box}body{background:#121416;color:#e5dfd1;font:15px system-ui;margin:0}main{max-width:850px;margin:auto;padding:28px 18px 48px}header{display:flex;justify-content:space-between;align-items:center;margin:0 0 24px}h1{font:32px Georgia;margin:6px 0}h2{font-size:16px;margin:0 0 18px}small,.muted{color:#a5a8a5;font-size:12px;line-height:1.6}.eyebrow{color:#c2a66d;letter-spacing:.16em;font-size:10px;text-transform:uppercase}.sigil{color:#c2a66d;font:36px Georgia;border:1px solid #65573d;padding:8px 15px}.panel{background:#1c1f20;border:1px solid #353936;border-radius:12px;padding:20px;margin:14px 0}.hero{border-top:2px solid #a58b57}.state{font:24px Georgia;margin:8px 0}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#909590;margin-right:9px}.online .dot{background:#91b99c;box-shadow:0 0 12px #91b99c55}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}.metric{background:#222627;border-radius:8px;padding:14px 12px}.metric strong{display:block;font-size:19px;font-weight:500;margin-top:8px}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}button{min-height:46px;border:1px solid #55584f;background:#292e2c;color:#e5dfd1;padding:11px 15px;border-radius:7px;font:inherit;cursor:pointer}button.primary{border-color:#a58b57;background:#393528}button.danger{border-color:#795953}button:disabled{opacity:.4;cursor:default}button:focus-visible{outline:2px solid #d6b777;outline-offset:3px}.row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid #333735}.row:last-child{border:0}.row strong{overflow-wrap:anywhere;min-width:0;display:block;font-weight:500;margin-bottom:4px}.switch{flex-shrink:0;min-width:66px}.switch[aria-pressed=true]{color:#a9d0ae;border-color:#6d9273;background:#27362b}.result{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;margin:14px 0 0;color:#c9c2b2}.working{border-left:3px solid #c2a66d;padding-left:12px}.empty{padding:14px 0;color:#a5a8a5}.badge{font-size:11px;border:1px solid #454940;border-radius:20px;padding:5px 9px;color:#c2a66d}.columns{display:grid;grid-template-columns:1fr 1fr;gap:14px}.columns .panel{margin:0}footer{text-align:center;margin:24px 0;color:#8b908a;font-size:11px}@media(max-width:600px){.metrics{grid-template-columns:1fr 1fr}.columns{grid-template-columns:1fr}.actions{gap:7px}main{padding:22px 14px}.panel{padding:17px}}
 
 [hidden]{display:none!important}
@@ -39,30 +39,166 @@ nav.tabs{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;z-inde
 .mapTroubleActions a{background:#b4975c;color:#111819;font-weight:700}
 .mapTroubleActions button{border:1px solid #5b625d;background:#2e3432;color:#ece5d6}
 .mapStart{min-height:55vh}.mapControls a{flex:1}header h1{font-size:28px}main{padding-top:18px}}
-</style></head><body><main><header><div><div class="eyebrow">ShroudForge Launcher / Enshrouded</div><h1 id="name">Your realm</h1><small>Private network · Server controls</small></div><span class="sigil" aria-hidden="true">◆</span></header>
-<nav class="tabs" role="tablist" aria-label="Phone companion sections"><button id="overviewTab" role="tab" aria-selected="true" aria-controls="dashboardView" onclick="showTab('overview')">Overview</button><button id="mapTab" role="tab" aria-selected="false" aria-controls="mapView" onclick="showTab('map')">Map</button></nav>
-<div id="dashboardView" class="view" role="tabpanel" aria-labelledby="overviewTab">
-<section class="panel hero"><span class="eyebrow">Realm status</span><div id="state" class="state"><span class="dot"></span><span id="stateText">Connecting…</span></div><small id="updated">Waiting for the host</small><div class="metrics"><div class="metric"><small>UPTIME</small><strong id="uptime">—</strong></div><div class="metric"><small>PLAYERS</small><strong id="count">—</strong></div><div class="metric"><small>HOST CPU SHARE</small><strong id="cpu">—</strong></div><div class="metric"><small>MEMORY</small><strong id="memory">—</strong></div></div><div class="actions"><button id="start" class="primary" disabled onclick="run('Start')">Start</button><button id="restart" disabled onclick="run('Restart')">Restart</button><button id="stop" class="danger" disabled onclick="run('Stop')">Stop</button></div><p id="result" class="result" role="status" aria-live="polite"></p><p class="muted">Restart only restarts the server. It never wipes the world. Stop and Restart disconnect players.</p></section>
-<div class="columns"><section class="panel"><h2>Players online <span id="playerBadge" class="badge">0</span></h2><div id="roster" class="empty">Waiting for player information</div><small>Session times are observed by the launcher.</small></section><section class="panel"><h2>World protection</h2><div class="eyebrow">Last recorded completed copy</div><p id="lastBackup">Checking…</p><button id="backup" class="primary" disabled onclick="run('Backup')">Back up now</button><p id="backupResult" class="result" role="status"></p><p class="muted">Copies and verifies your saves. Existing backups are kept. Live copies may span game save cycles.</p></section></div>
-<section class="panel"><h2>World information</h2><div class="row"><span>Save-folder files (includes backups)</span><strong id="worldFiles">Checking</strong></div><div class="row"><span>Save folder size</span><strong id="worldSize">—</strong></div><div class="row"><span>Last file write</span><strong id="worldSaved">—</strong></div><div class="row"><span>Bases observed</span><strong id="bases">—</strong></div></section><section class="panel"><h2>Known player records</h2><div id="knownPlayers" class="empty"></div><p class="muted">Names come from server logs and session history. These records do not prove a separate player-save file exists. The host cannot list character saves stored on other players’ PCs.</p></section><section class="panel"><h2>Recent server activity</h2><div id="activity" class="empty">Waiting for recorded events</div><p class="muted">Events are from the launcher and server logs; exact location is not available.</p></section>
-<section class="panel"><h2>Automation</h2><div class="row"><div><strong>Automatic backups</strong><small id="backupSchedule">While this launcher is open</small></div><button id="autoBackup" class="switch" aria-pressed="false" disabled onclick="run(current.autoBackup?'AutoBackupOff':'AutoBackupOn')">Off</button></div><div class="row"><div><strong>Crash recovery</strong><small>Up to two attempts per hour after an observed exit. Manual Stop pauses recovery.</small></div><button id="recovery" class="switch" aria-pressed="false" disabled onclick="run(current.recovery?'RecoveryOff':'RecoveryOn')">Off</button></div></section><footer>Keep the host launcher open · Keep this link private</footer></div>
-<div id="mapView" class="view" role="tabpanel" aria-labelledby="mapTab" hidden>
-<section class="panel"><div class="mapHeading"><div><div class="eyebrow">ShroudForge / Cartography</div><h2>Explore Embervale</h2></div><span class="badge">1.0 terrain</span></div>
-<p class="mapNote">Real community map data, not a simulated landscape. Use the map's own 3D view and filters for roads, landmarks, chests, quests and resources. Pinch to zoom; drag to explore.</p>
-<div class="mapWindow"><div id="mapStart" class="mapStart"><span class="sigil" aria-hidden="true">◇</span><strong>Explore Embervale</strong><p>Load the interactive 3D world map only when you need it. A connection to the map provider is required.</p><button class="primary" onclick="loadMap()">Load interactive map</button></div><iframe id="gameMap" title="External interactive Embervale 3D map by GameVault" referrerpolicy="no-referrer" allow="fullscreen; gyroscope; accelerometer" allowfullscreen hidden></iframe><div id="mapTrouble" class="mapTrouble" role="status" hidden><strong>Map still showing white?</strong><p>This map belongs to another website, which may prevent embedding or fail in iPhone Safari. ShroudForge cannot inspect or bypass its frame restrictions. You can open the full interactive map without affecting the server.</p><div class="mapTroubleActions"><a href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open full 3D map ↗</a><button type="button" onclick="loadMap(true)">Try again</button><button id="mapHelpMode" type="button" onclick="toggleMapMode()">Try Protected mode</button><button type="button" onclick="dismissMapHelp()">Map works / Hide</button></div></div></div>
-<div class="mapControls"><button id="reloadMap" onclick="loadMap(true)">Reload map</button><button id="mapMode" type="button" aria-pressed="true" onclick="toggleMapMode()">Use Protected mode</button><button id="mapTroubleshoot" type="button" onclick="showMapTrouble()">Map blank?</button><a href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open full map ↗</a></div>
-<p class="mapNote" id="mapSecureHint" role="status" hidden><strong>This connection may prevent the 3D map from loading.</strong> ShroudForge serves its private-network phone controls over HTTP. Browsers can block secure features such as Web Crypto inside an HTTPS map embedded by an HTTP page, resulting in blank terrain or a crypto.subtle.digest error. <a href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open the 3D map directly over HTTPS ↗</a>. This opens only the map provider, not your private server link.</p>
-<p class="mapNote" id="mapHelp" role="status">Compatibility mode is the default because it rendered successfully in iPhone Safari. This loads an external map only after you tap Load. The provider stays on its own website and receives no ShroudForge key, private URL, save or player data. For stricter iframe controls, select Protected mode.</p>
-<p class="mapNote">3D terrain and map markers provided by GameVault's Companion for Enshrouded. Not affiliated with Keen Games. Map loading is independent of your server controls.</p>
-</section></div>
+
+
+/* ShroudForge mobile experience · October 2026. Uses the existing authenticated API. */
+:root{--ink:#0c1112;--surface:#171d1e;--elevated:#202829;--hairline:#354044;--warm:#e9e4d7;--dim:#a5aea9;--gold:#d0ac72;--gold-muted:#8c734d;--live:#8dc6a6;--warn:#d9aa81;--radius:17px}
+html{background:var(--ink);scroll-behavior:smooth}
+body{background:radial-gradient(ellipse 80% 360px at 55% -80px,#29383370,transparent 72%),linear-gradient(155deg,#101819 0%,#0b1113 70%);color:var(--warm);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;min-height:100dvh}
+main{max-width:820px;margin:auto;padding:0 15px calc(96px + env(safe-area-inset-bottom,0px))}
+.app-header{position:relative;display:flex;align-items:center;justify-content:space-between;margin:0 -15px 0;padding:calc(18px + env(safe-area-inset-top,0px)) 20px 17px;border-bottom:1px solid #53605c45;background:linear-gradient(100deg,#101a1b,#151b1b)}
+.brand-lockup{display:flex;gap:12px;align-items:center}.brand-mark{display:grid;place-items:center;width:40px;height:44px;color:var(--gold);font:27px Georgia,serif;border:1px solid #a58a5d55;background:#c9a66d0a;clip-path:polygon(0 0,100% 0,100% 84%,50% 100%,0 84%)}
+.brand-name{font:600 21px Georgia,"Times New Roman",serif;letter-spacing:.035em}.app-header .eyebrow{font-size:9px;letter-spacing:.22em;color:#9facaa;margin-bottom:3px}.header-tag{font-size:9px;font-weight:700;letter-spacing:.14em;color:#b5c0b7;border:1px solid #576660;padding:8px 9px;border-radius:100px;white-space:nowrap}
+.section-kicker{color:var(--gold);text-transform:uppercase;letter-spacing:.18em;font-size:10px;font-weight:700}
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0 14px}.section-heading h2{font:500 27px Georgia,serif;margin:0;letter-spacing:-.035em}.section-heading small{font-size:11px}
+.view{padding-top:23px;animation:reveal .22s ease-out}
+@keyframes reveal{from{opacity:.65;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.card,.panel{background:linear-gradient(150deg,#1a2223,#161c1e);border:1px solid #4e59503c;border-radius:var(--radius);padding:19px;margin:0 0 13px;box-shadow:0 12px 28px #00000024}
+.panel h2{font:500 22px Georgia,serif;margin:0 0 13px;letter-spacing:-.02em}
+.hero{position:relative;overflow:hidden;padding:24px 21px 20px;border:1px solid #a58a5d61;background:radial-gradient(ellipse at top right,#354c3a45,transparent 65%),linear-gradient(125deg,#222a27,#151d1f)}
+.hero::after{content:'◆';position:absolute;right:-13px;top:4px;font:120px Georgia,serif;color:#cda66a09;pointer-events:none}
+.hero-content{position:relative;z-index:1}.hero h1{font:500 clamp(28px,7vw,40px) Georgia,serif;letter-spacing:-.045em;margin:14px 0 10px;overflow-wrap:anywhere}
+.state{display:flex;gap:8px;align-items:center;font:500 16px -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui;margin:0 0 10px;color:#dccab2}
+.dot{flex:none;width:8px;height:8px;margin:0;background:var(--warn)}.online .dot{background:var(--live);box-shadow:0 0 10px #8dc6a677}.online{color:var(--live)}
+#updated{display:block;font-size:12px;color:#b1bbb2}
+.metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0 0}
+.metric{position:relative;min-width:0;padding:15px 13px;background:linear-gradient(130deg,#283130,#202829);border:1px solid #5a645a38;border-radius:12px}
+.metric small{font-size:10px;font-weight:700;letter-spacing:.1em;color:#aeb9b5}
+.metric strong{font-size:clamp(19px,5vw,25px);font-weight:600;letter-spacing:-.04em;color:#f1ebdb;line-height:1.3;overflow-wrap:anywhere}
+.columns{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:13px}.columns .panel{margin:0}.columns .panel+ .panel{margin:0}
+button,.mapControls a,.mapTroubleActions a{transition:background .15s ease,border-color .15s ease,transform .15s ease}
+button{border-radius:11px;background:#27302f;border-color:#57635d;min-height:46px;color:#f0e8d8;font-size:13px;font-weight:600}
+button.primary,.primary-link{background:linear-gradient(115deg,#bb965c,#d9b77e);border:1px solid #edd2a6;color:#151916;font-weight:750}
+button.danger{border-color:#916f67;background:#3b2a2a;color:#f2b8a8}
+button:active,.primary-link:active{transform:translateY(1px)}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e3c891;outline-offset:3px}
+button:disabled{opacity:.45}
+.control-details{margin:14px 0 0;border:1px solid #6d74554f;background:#13191a99;border-radius:12px;overflow:hidden}
+.control-details summary,.map-experiment summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:16px 15px;cursor:pointer;font-weight:650;list-style:none}
+.control-details summary::-webkit-details-marker,.map-experiment summary::-webkit-details-marker{display:none}
+.control-details summary::after,.map-experiment summary::after{content:'⌄';color:var(--gold);font-size:19px}
+.control-details[open] summary::after,.map-experiment[open] summary::after{content:'⌃'}
+.control-body{padding:0 14px 15px;border-top:1px solid #3d484253}
+.actions{margin:15px 0;gap:7px}
+.control-body .muted{font-size:11px;line-height:1.6}
+.live-note{font-size:12px;color:#a7b8ad;line-height:1.6;margin:7px 0 0}
+.row{padding:13px 0;border-color:#41504a68}
+.row span{color:#c4cbc4;font-size:12px}.row strong{font-size:12px;max-width:54%;text-align:right}
+.row div strong{text-align:left;max-width:none}.row small{display:block;color:var(--dim);font-size:11px;line-height:1.5}
+.result{color:#e4d6b4}.empty{line-height:1.7}.playerRow{padding:16px 0}.playerTop strong{font-size:15px}.playerBadge{background:#23403259;border-color:#688e76;color:#b1dec2}.playerDetails span{background:#293533;font-size:11px}
+.switch[aria-pressed=true]{color:#bae4be;background:#274832;border-color:#729b79}
+.automation-title{margin-bottom:8px}.caption{font-size:11px;color:var(--dim);line-height:1.6}.muted{line-height:1.6}
+.section-intro{color:#b5beb7;margin:0 0 16px;font-size:13px;line-height:1.7}
+.event-row{border-bottom:1px solid #43514c68;padding:13px 0}
+.event-row:last-child{border:0}
+#activity .row{align-items:flex-start;gap:12px}
+#activity .row small{flex:none;max-width:95px;text-align:right}
+.app-footer{font-size:10px;line-height:1.6;padding:12px 0 3px;text-align:center;color:#939f98;letter-spacing:.05em}
+nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;z-index:30;padding:7px max(14px,calc((100vw - 780px)/2)) calc(8px + env(safe-area-inset-bottom,0px));background:#121a1af4;border-top:1px solid #5160586d;box-shadow:0 -14px 36px #0006;backdrop-filter:blur(20px)}
+.tabs button{background:transparent;border:1px solid transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:53px;padding:6px 2px;font-size:10px;color:#aebdb5}
+.tabs button .tab-symbol{font:22px Georgia,serif;line-height:1.1;color:#84978d}
+.tabs button[aria-selected=true]{background:linear-gradient(135deg,#5f563839,#332e243b);border-color:#aa8e5a6b;color:#efd4a1}
+.tabs button[aria-selected=true] .tab-symbol{color:#d8b781}
+.primary-link{display:flex;align-items:center;justify-content:center;text-align:center;gap:10px;text-decoration:none;border-radius:13px;padding:17px 15px;min-height:57px;font-size:15px;margin:18px 0 10px}
+.map-card{position:relative;overflow:hidden;background:radial-gradient(ellipse at 70% 15%,#45665370,transparent 60%),linear-gradient(130deg,#263731,#141e20);border:1px solid #bd9c615f;border-radius:var(--radius);padding:26px 20px 20px;margin-bottom:16px}
+.map-art{font:66px Georgia,serif;color:#e9c79377;text-align:center;margin:8px 0}
+.map-card h2{font:500 28px Georgia,serif;text-align:center;margin:8px 0}
+.map-card p{line-height:1.7;color:#c0cdc6;text-align:center}
+.map-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin:16px 0 0}
+.map-badges span{border:1px solid #6f857463;border-radius:20px;padding:6px 10px;font-size:10px;color:#c4d5c8}
+.map-experiment{border:1px solid #55635d60;background:#182020;border-radius:13px;margin:15px 0}
+.map-experiment summary{font-size:13px}
+.map-experiment-content{padding:0 12px 14px}
+.mapWindow{min-height:0;border-color:#67745f55}.mapWindow iframe{width:100%;height:400px;min-height:300px}
+.mapStart{min-height:210px}.mapStart strong{font-size:22px}
+.mapControls{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.mapControls button,.mapControls a{flex:1 1 auto;min-width:125px;min-height:44px;font-size:12px}
+.mapTrouble{position:static;background:#292d2b;margin:8px;border:1px solid #8f744f}
+#mapSecureHint{border-left:2px solid #c5a267;padding:11px;background:#26291f;color:#e2d6c1}
+.mapNote{overflow-wrap:anywhere}
+[data-section] .section-kicker{margin:0}
+@media(max-width:600px){main{padding:0 12px calc(93px + env(safe-area-inset-bottom,0px))}.app-header{margin:0 -12px;padding-left:17px;padding-right:17px}.panel,.card{padding:17px}.columns{grid-template-columns:1fr}.hero{padding:22px 18px}.metrics{gap:9px}.header-tag{font-size:8px}.brand-name{font-size:19px}.mapWindow{margin:0}.mapWindow iframe{height:clamp(280px,56dvh,700px);min-height:0}.mapTrouble{position:static}.tabs button{min-height:52px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+</style></head><body><main>
+<header class="app-header">
+ <div class="brand-lockup"><span class="brand-mark" aria-hidden="true">◆</span><div><div class="eyebrow">REALM MANAGEMENT</div><div class="brand-name">ShroudForge</div></div></div>
+ <span class="header-tag">PRIVATE NETWORK</span>
+</header>
+<div id="dashboardView" class="view" role="tabpanel" aria-labelledby="overviewTab" data-section="overview">
+ <section class="panel hero" aria-labelledby="name">
+  <div class="hero-content"><div class="section-kicker">CURRENT REALM</div><h1 id="name">Your realm</h1>
+   <div id="state" class="state" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="stateText">Connecting…</span></div>
+   <small id="updated">Waiting for the host</small>
+   <div class="metrics" aria-label="Server measurements">
+    <div class="metric"><small>UPTIME</small><strong id="uptime">—</strong></div>
+    <div class="metric"><small>PLAYERS</small><strong id="count">—</strong></div>
+    <div class="metric"><small>HOST CPU</small><strong id="cpu">—</strong></div>
+    <div class="metric"><small>MEMORY</small><strong id="memory">—</strong></div>
+   </div>
+   <details class="control-details"><summary>Server controls <small>Start · Restart · Stop</small></summary>
+    <div class="control-body"><p class="live-note">These actions affect your live server. Stop and Restart disconnect players.</p>
+     <div class="actions"><button id="start" class="primary" disabled onclick="run('Start')">Start</button><button id="restart" disabled onclick="run('Restart')">Restart</button><button id="stop" class="danger" disabled onclick="run('Stop')">Stop</button></div>
+    </div>
+   </details>
+   <p id="result" class="result" role="status" aria-live="polite"></p>
+  </div>
+ </section>
+ <div class="section-heading"><h2>Realm overview</h2><small>Live host readings</small></div>
+ <div class="columns">
+  <section class="panel"><div class="section-kicker">WORLD PROTECTION</div><h2>Backups</h2><p class="caption">Last completed verified copy</p><p id="lastBackup">Checking…</p><button id="backup" class="primary" disabled onclick="run('Backup')">Back up now</button><p id="backupResult" class="result" role="status"></p><p class="caption">Save copies are retained. Live copies can span a save cycle.</p></section>
+  <section class="panel"><div class="section-kicker">WORLD STATUS</div><h2>World information</h2><div class="row"><span>Save folder files</span><strong id="worldFiles">Checking</strong></div><div class="row"><span>Save folder size</span><strong id="worldSize">—</strong></div><div class="row"><span>Last file write</span><strong id="worldSaved">—</strong></div><div class="row"><span>Bases observed</span><strong id="bases">—</strong></div></section>
+ </div>
+ <section class="panel"><div class="section-kicker automation-title">AUTOMATION</div><div class="row"><div><strong>Automatic backups</strong><small id="backupSchedule">While this launcher is open</small></div><button id="autoBackup" class="switch" aria-pressed="false" disabled onclick="run(current.autoBackup?'AutoBackupOff':'AutoBackupOn')">Off</button></div><div class="row"><div><strong>Crash recovery</strong><small>Limited attempts after an observed exit. Manual Stop pauses recovery.</small></div><button id="recovery" class="switch" aria-pressed="false" disabled onclick="run(current.recovery?'RecoveryOff':'RecoveryOn')">Off</button></div></section>
+</div>
+<div id="playersView" class="view" role="tabpanel" aria-labelledby="playersTab" data-section="players" hidden>
+ <div class="section-kicker">REALM ROSTER</div><div class="section-heading"><h2>Players</h2><span id="playerBadge" class="badge">0</span></div><p class="section-intro">Sessions and connection measurements observed by the launcher—not live character inventories or positions.</p>
+ <section class="panel"><h2>Currently connected</h2><div id="roster" class="empty">Waiting for player information</div></section>
+ <section class="panel"><h2>Known player history</h2><div id="knownPlayers" class="empty"></div><p class="caption">Records come from server logs and session history. Characters stored on player devices are not accessible to this launcher.</p></section>
+</div>
+<div id="activityView" class="view" role="tabpanel" aria-labelledby="activityTab" data-section="activity" hidden>
+ <div class="section-kicker">OBSERVED EVENTS</div><div class="section-heading"><h2>Activity</h2></div>
+ <p class="section-intro">Recent launcher and server events. No invented coordinates, town names or unobserved player actions.</p>
+ <section class="panel"><h2>Event feed</h2><div id="activity" class="empty">Waiting for recorded events</div></section>
+</div>
+<div id="mapView" class="view" role="tabpanel" aria-labelledby="mapTab" data-section="map" hidden>
+ <div class="section-kicker">CARTOGRAPHY</div><div class="section-heading"><h2>Embervale</h2><span class="badge">3D WORLD MAP</span></div>
+ <section class="map-card"><div class="map-art" aria-hidden="true">◇</div><h2>Explore the Shroud</h2>
+  <p>Open the complete interactive GameVault map with terrain, landmarks, filters and touch navigation. This direct HTTPS view is the mode already confirmed working on iPhone.</p>
+  <a class="primary-link" id="openWorldMap" href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open interactive 3D map ↗</a>
+  <div class="map-badges"><span>Live map data</span><span>Pinch &amp; zoom</span><span>Opens securely</span></div>
+ </section>
+ <p class="caption">Map content is maintained by GameVault, independently of your server. Opening it does not send your private ShroudForge address or server key.</p>
+ <details class="map-experiment"><summary>Experimental: embed the map here</summary><div class="map-experiment-content">
+  <p class="mapNote">ShroudForge's private HTTP page cannot guarantee browser Web Crypto within an HTTPS iframe. If you see a crypto.subtle.digest error, use the direct map link above.</p>
+  <div class="mapWindow"><div id="mapStart" class="mapStart"><span class="sigil" aria-hidden="true">◇</span><strong>Embedded map</strong><p>May fail in iPhone Safari. Loading is optional.</p><button class="primary" onclick="loadMap()">Try embedded view</button></div>
+   <iframe id="gameMap" title="External interactive Embervale 3D map by GameVault" referrerpolicy="no-referrer" allow="fullscreen; gyroscope; accelerometer" allowfullscreen hidden></iframe>
+   <div id="mapTrouble" class="mapTrouble" role="status" hidden><strong>Map still showing white?</strong><p>Try the standalone HTTPS map for full 3D terrain.</p><div class="mapTroubleActions"><a href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open full 3D map ↗</a><button type="button" onclick="loadMap(true)">Try again</button><button id="mapHelpMode" type="button" onclick="toggleMapMode()">Try Protected mode</button><button type="button" onclick="dismissMapHelp()">Hide help</button></div></div>
+  </div>
+  <div class="mapControls"><button id="reloadMap" onclick="loadMap(true)">Reload map</button><button id="mapMode" type="button" aria-pressed="true" onclick="toggleMapMode()">Use Protected mode</button><button id="mapTroubleshoot" type="button" onclick="showMapTrouble()">Map blank?</button></div>
+  <p class="mapNote" id="mapSecureHint" role="status" hidden><strong>Insecure page context.</strong> The embedded map can fail to build due to crypto.subtle.digest. <a href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open the 3D map directly over HTTPS ↗</a>.</p>
+  <p class="mapNote" id="mapHelp" role="status">Compatibility mode is default for the iframe, but the direct HTTPS link above is more reliable.</p>
+ </div></details>
+ <p class="caption">3D terrain and landmarks provided by GameVault's Companion for Enshrouded. Not affiliated with Keen Games.</p>
+</div>
+<footer class="app-footer">ShroudForge · Private realm companion · Keep this link private</footer>
+<nav class="tabs" role="tablist" aria-label="Phone companion sections">
+ <button id="overviewTab" role="tab" aria-selected="true" aria-controls="dashboardView" onclick="showTab('overview')"><span class="tab-symbol" aria-hidden="true">⌂</span>Overview</button>
+ <button id="playersTab" role="tab" aria-selected="false" aria-controls="playersView" onclick="showTab('players')"><span class="tab-symbol" aria-hidden="true">♙</span>Players</button>
+ <button id="activityTab" role="tab" aria-selected="false" aria-controls="activityView" onclick="showTab('activity')"><span class="tab-symbol" aria-hidden="true">≋</span>Activity</button>
+ <button id="mapTab" role="tab" aria-selected="false" aria-controls="mapView" onclick="showTab('map')"><span class="tab-symbol" aria-hidden="true">◇</span>Map</button>
+</nav>
 </main><script>
 let current={},sending=false,notice='',mapLoaded=false,mapAssistTimer=null,mapCompatibility=true;const el=id=>document.getElementById(id);
 function showTab(which){
- const map=which==='map';el('dashboardView').hidden=map;el('mapView').hidden=!map;
- el('overviewTab').setAttribute('aria-selected',String(!map));
- el('mapTab').setAttribute('aria-selected',String(map));
- if(map)updateMapSecurityHint();
- if(location.hash!==(map?'#map':'#overview'))history.replaceState(null,'',map?'#map':'#overview');
+ const views={overview:'dashboardView',players:'playersView',activity:'activityView',map:'mapView'};
+ const chosen=Object.prototype.hasOwnProperty.call(views,which)?which:'overview';
+ Object.keys(views).forEach(key=>{
+  const selected=key===chosen;el(views[key]).hidden=!selected;
+  el(key+'Tab').setAttribute('aria-selected',String(selected));
+ });
+ if(chosen==='map')updateMapSecurityHint();
+ if(location.hash!=='#'+chosen)history.replaceState(null,'','#'+chosen);
 }
 function dismissMapHelp(){el('mapTrouble').hidden=true;}
 function showMapTrouble(){
@@ -113,5 +249,16 @@ async function refresh(){try{let r=await fetch('status',{cache:'no-store'});if(!
  row.append(top,session,details);if(p.lastIssue){let issue=document.createElement('small');issue.textContent='Last issue: '+p.lastIssue;row.append(issue);}list.append(row);
 });if(!list.children.length)list.textContent=s.online?'No named players currently observed.':'Server offline';['worldFiles','worldSize','worldSaved','bases'].forEach(id=>text(id,s[id]||'Not observed'));const known=el('knownPlayers');known.replaceChildren();(s.knownPlayers||[]).forEach(p=>{let row=document.createElement('div');row.className='row';let name=document.createElement('strong');name.textContent=p.name;let evidence=document.createElement('small');evidence.textContent=p.evidence;row.append(name,evidence);known.append(row);});if(!known.children.length)known.textContent='No identifiable player records in the available history.';const events=el('activity');events.replaceChildren();(s.activity||[]).forEach(e=>{let row=document.createElement('div');row.className='row';let message=document.createElement('span');message.className='activityText';message.textContent=e.message;let when=document.createElement('small');when.textContent=e.time;row.append(message,when);events.append(row);});if(!events.children.length)events.textContent='No recent activity available.';
 text('lastBackup',(s.backupCount>=0?s.backupCount+' completion markers · ':'')+s.lastBackup);text('backupSchedule','Every '+s.backupMinutes+' minutes'+(s.backupPaused?' · Paused for review':s.controls&&s.autoBackup?' · Next '+s.nextBackup:' · Currently off'));text('backupResult',s.backupStatus||'');text('result',s.operation||notice||'Ready for your next action');el('result').className='result'+(s.busy?' working':'');['autoBackup','recovery'].forEach(id=>{el(id).setAttribute('aria-pressed',s[id]?'true':'false');text(id,s.controls?(id==='recovery'&&s.recoveryPaused?'Paused':s[id]?'On':'Off'):'Paused');});const busy=s.busy||!s.controls||sending;el('start').disabled=busy||s.online;el('stop').disabled=el('restart').disabled=busy||!s.online;['backup','autoBackup','recovery'].forEach(id=>el(id).disabled=busy);}catch(e){lock();text('stateText','Connection lost');text('updated','Check the host launcher and Wi-Fi.');}}
-async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}syncMapMode();showTab(location.hash==='#map'?'map':'overview');refresh();setInterval(refresh,1000);
+async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}document.querySelector('nav.tabs').addEventListener('keydown',event=>{
+ const keys=['ArrowLeft','ArrowRight','Home','End'];
+ if(!keys.includes(event.key))return;
+ const tabs=[...document.querySelectorAll('nav.tabs [role="tab"]')];
+ const at=tabs.indexOf(document.activeElement);
+ if(at<0)return;
+ event.preventDefault();
+ const target=event.key==='Home'?0:event.key==='End'?tabs.length-1:(at+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+ tabs[target].focus();
+ showTab(tabs[target].id.slice(0,-3));
+});
+syncMapMode();showTab(location.hash.slice(1));refresh();setInterval(refresh,1000);
 </script></body></html>
