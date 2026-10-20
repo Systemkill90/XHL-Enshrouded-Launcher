@@ -1,8 +1,47 @@
 # Install and update ShroudForge
 
-This first installation-polish slice improves updates to an **existing launcher**.
-Fresh-machine onboarding and moving old installation folders are still separate
-work. The game server does not need to restart for a launcher-only update.
+Includes launcher-only updates, close warnings, and server creation/discovery.
+The game server does not need to restart for a launcher-only update.
+
+## Closing and choosing servers
+
+Closing the modern launcher while its selected server is running offers **Keep
+server running**, **Stop server and exit**, or **Cancel**. Stopping uses the
+existing graceful shutdown; failure leaves the launcher open. An unavailable
+process observation warns and offers launcher-only exit or cancel. Monitoring,
+scheduled backups and automatic recovery pause while the launcher is closed.
+An installer update explicitly closes only the launcher, retaining the running
+server, and still refuses closure during an active operation.
+
+Use the server name in the sidebar, **Tools → Servers · create or scan**, or the
+System page to open server setup. Scanning reads Steam libraries, the current
+folder and folders you choose, up to four directory levels / 3,000 directories.
+Errors and incomplete scans are shown. Files are never moved or started by a scan.
+Selection saves a preference and reopens the launcher. The previous server keeps
+running but is no longer monitored by this launcher until you switch back.
+
+Creating requires a separate empty folder and an existing official `steamcmd.exe`.
+It downloads dedicated-server app 2278520 with anonymous SteamCMD, requires a
+confirmed successful download, and writes a fresh configuration with the chosen
+name, administrator join password, UDP query port and slots. Use a distinct port
+for each concurrent server; router/firewall setup remains manual. No game, world
+or mod files are copied from the current server and nothing starts automatically.
+Failed creation leaves partial files only in the new folder; choose another empty
+folder after reviewing them. SteamCMD needs internet access and sufficient disk space.
+
+New and explicitly adopted standard servers have separate world, backup/recovery
+journals and telemetry history. Automation starts disabled on first selection;
+returning to a prior server restores its backup/recovery preferences. Existing
+managed/modded installations retain their verified wrapper startup path. Known
+mod loaders block standard enrollment. Standard enrollment records fingerprints
+of the three game files, **not a vendor signature or mod compatibility claim**.
+Changed files block startup until independently reviewed and explicitly enrolled
+again (preserve the old registration record outside the server folder first).
+The classic tools remain available; create/scan and close choices are modern UI features.
+
+The generated configuration follows [Keen's configuration reference](https://enshrouded.zendesk.com/hc/en-us/articles/16055441447709-Dedicated-Server-Configuration)
+and [server roles](https://enshrouded.zendesk.com/hc/en-us/articles/19191581489309-Server-Roles-Configuration).
+Fresh Windows dependency installation and relocating existing installations remain separate work.
 
 ## What stays where
 

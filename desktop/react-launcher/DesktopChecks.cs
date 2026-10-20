@@ -29,7 +29,7 @@ class DesktopChecks {
   bool observationRejected=false;try{new ServerControl("\0",settings).GetServerProcess();}catch(IOException){observationRejected=true;}Check(observationRejected,"Process discovery failure propagates instead of confirming absence");
   using(var reporting=new DesktopEngine(app,settings,true,()=>null)){reporting.Report(ActionResult.Fail("fixture failure"));Check(reporting.OperationFailed&&reporting.Operation=="fixture failure","Operation failure sets message and failure together");reporting.Report(ActionResult.Ok("fixture success"));Check(!reporting.OperationFailed&&reporting.Operation=="fixture success","Operation success clears an earlier failure");}
   Check(File.ReadAllText(Path.Combine(server,"enshrouded_server.json"))==cfg&&InstallationAudit.Hash(Path.Combine(server,"savegame","world.ksd"))==hash,"Preview leaves configuration and world bytes unchanged");
-  CheckPlayerHistory(root);
+  CheckPlayerHistory(root);ServerSetupChecks.Run(root,Check);
   string log=Path.Combine(root,"private.log");File.WriteAllText(log,"{\"password\":\"secret with spaces\"}\nPhoneViewKey=abcdef\nhttp://127.0.0.1:8765/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/status");string tail=IncidentEvidence.Tail(log,4096);Check(!tail.Contains("secret with spaces")&&!tail.Contains("abcdef")&&!tail.Contains("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"),"Evidence redacts quoted credentials and private phone URL paths");Console.WriteLine(count+" desktop safety checks passed.");
  }
  static void CheckPlayerHistory(string root){
@@ -66,3 +66,4 @@ class DesktopChecks {
   string preview=Path.Combine(root,"history-preview");Directory.CreateDirectory(preview);File.WriteAllText(archived,text);var previewStore=new PlayerHistoryStore(preview,server);Check(previewStore.Read(parsed,false).Length>0&&Directory.GetFiles(Storage.DataDir(preview),"player-history-*.json").Length==0,"Read-only preview can backfill profiles without persisting player metadata");
  }
 }
+

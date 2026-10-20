@@ -42,6 +42,17 @@ static class NativeChecks
                         ", status=" + status + ", wrapper-marker=" + markerWritten);
                 File.WriteAllText(report, "PASS exact-path process detection\r\nPASS different installation excluded\r\nPASS native Ctrl+C delivered to isolated dummy\r\nPASS dummy exited gracefully without force-kill\r\nPASS existing-wrapper invocation with isolated script\r\nPASS duplicate bootstrap blocked\r\nPASS nonzero wrapper exit reported without false online status\r\n");
             }
+            string standard=Path.Combine(root,"standard");Directory.CreateDirectory(standard);
+            File.Copy(stub,Path.Combine(standard,"enshrouded_server.exe"));
+            File.WriteAllText(Path.Combine(standard,"XHL-TEST-FIXTURE.marker"),"Disposable dummy only");
+            File.WriteAllText(Path.Combine(standard,"enshrouded_server.json"),"{\"name\":\"Native standard fixture\"}");
+            File.WriteAllText(Path.Combine(standard,"enshrouded_server.kfc"),"fixture");File.WriteAllText(Path.Combine(standard,"enshrouded_server.kfc_resources"),"fixture");
+            var enrolled=VanillaServer.Register(standard);if(!enrolled.Success)throw new Exception(enrolled.Message);
+            var plain=new ExistingServerRuntime(standard,new LauncherSettings{ServerRoot=standard});
+            var started=plain.Start();if(!started.Success||!plain.IsRunning||plain.StartupPending)throw new Exception("Standard dummy start/detection failed: "+started.Message);
+            if(plain.Start().Success)throw new Exception("Duplicate standard server launch was allowed");
+            var stop=plain.Stop();if(!stop.Success||plain.IsRunning||!File.Exists(Path.Combine(standard,"graceful-signal.txt")))throw new Exception("Standard dummy graceful exit failed: "+stop.Message);
+            File.AppendAllText(report,"PASS standard enrollment and direct start of disposable dummy\r\nPASS standard duplicate start blocked\r\nPASS standard dummy graceful stop without force-kill\r\n");
         }
         catch (Exception ex) { File.WriteAllText(report, "FAIL " + ex); }
     }

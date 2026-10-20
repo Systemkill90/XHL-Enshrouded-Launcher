@@ -8,6 +8,7 @@ namespace XHLLauncher
     public class LauncherSettings
     {
         public string ServerRoot = "";
+        public string LegacyServerRoot = ""; // Existing automation journals remain bound to their original server.
         public string PreferredServerRoot = ""; // Explicit choice for next launch, never changed automatically.
         public string ServerName = "VELARIS";
         public string SteamCmdPath = "";

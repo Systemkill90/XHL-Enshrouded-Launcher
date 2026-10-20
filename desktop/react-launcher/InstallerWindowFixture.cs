@@ -9,6 +9,8 @@ static class InstallerWindowFixture
     {
         readonly string root;
         readonly DateTime started=DateTime.UtcNow;
+        [System.Runtime.InteropServices.DllImport("user32.dll",CharSet=System.Runtime.InteropServices.CharSet.Unicode)]static extern uint RegisterWindowMessage(string value);
+        protected override void WndProc(ref Message message){if(message.Msg==(int)RegisterWindowMessage("ShroudForge.Update.CloseLauncherOnly")){message.Result=new IntPtr(1);File.WriteAllText(Path.Combine(root,"maintenance.marker"),"Acknowledged launcher-only update");BeginInvoke(new Action(()=>Close()));return;}base.WndProc(ref message);}
         protected override void SetVisibleCore(bool visible) { base.SetVisibleCore(false); }
         internal Window(string directory)
         {

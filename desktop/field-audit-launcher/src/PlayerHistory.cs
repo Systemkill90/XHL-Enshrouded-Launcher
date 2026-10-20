@@ -148,7 +148,8 @@ namespace XHLLauncher
             string settings = Path.Combine(Storage.DataDir(app), "settings.xml");
             // The legacy CSV has no server key. Import only when saved settings bind it to this server.
             if (!File.Exists(settings) || !string.Equals(Path.GetFullPath(Storage.LoadSettings(app).ServerRoot), server, StringComparison.OrdinalIgnoreCase)) return;
-            string file = Path.Combine(Storage.DataDir(app), "player-health.csv");
+            var savedSettings=Storage.LoadSettings(app);
+            string file = Path.Combine(Storage.DataDir(ServerSetup.HistoryApp(app,savedSettings)), "player-health.csv");
             if (!File.Exists(file)) return;
             using (var input = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
             {

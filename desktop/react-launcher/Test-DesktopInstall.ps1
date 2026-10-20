@@ -60,7 +60,7 @@ try {
  $hidden=StartFixture $windowApp
  if($hidden.MainWindowHandle -ne 0){throw 'Expected hidden window fixture'}
  & (Join-Path $PSScriptRoot 'Install-Desktop.ps1') -Destination $windowApp -Package $fake -RollbackRoot (Join-Path $root 'hidden-rollback') -NoLaunch -CloseTimeoutSeconds 3
- if(!$hidden.HasExited -or !(Test-Path (Join-Path $windowApp 'closed.marker')) -or $other.HasExited){throw 'Normal hidden close or exact-path exclusion failed'}
+ if(!$hidden.HasExited -or !(Test-Path (Join-Path $windowApp 'closed.marker')) -or !(Test-Path (Join-Path $windowApp 'maintenance.marker')) -or $other.HasExited){throw 'Normal hidden maintenance close or exact-path exclusion failed'}
  Write-Output 'PASS hidden launcher closes normally; different installation remains running'
  Copy-Item -LiteralPath (Join-Path $otherApp 'ShroudForge-Launcher.exe') -Destination $windowApp -Force
  Remove-Item -LiteralPath (Join-Path $windowApp 'ready.marker'),(Join-Path $windowApp 'closed.marker')

@@ -7,7 +7,7 @@ Set-Content -LiteralPath (Join-Path $fixture 'XHL-TEST-FIXTURE.marker') -Value '
 $compiler=Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 & $compiler /nologo /target:exe /platform:x64 ('/out:'+(Join-Path $fixture 'enshrouded_server.exe')) (Join-Path $PSScriptRoot 'DummyServer.cs')
 if($LASTEXITCODE -ne 0){throw 'Dummy compilation failed'}
-$sources=@('ServerLifecycle.cs','ServerControl.cs','InstallationAudit.cs','Models.cs') | ForEach-Object {Join-Path $PSScriptRoot ('src\'+$_)}
+$sources=@('ServerLifecycle.cs','VanillaServer.cs','ServerLocation.cs','ServerControl.cs','InstallationAudit.cs','Models.cs') | ForEach-Object {Join-Path $PSScriptRoot ('src\'+$_)}
 $harness=Join-Path $fixture 'NativeChecks.exe'
 & $compiler /nologo /target:winexe /platform:x64 ('/out:'+$harness) /reference:System.dll /reference:System.Core.dll /reference:System.Web.Extensions.dll (Join-Path $PSScriptRoot 'NativeChecks.cs') @sources
 if($LASTEXITCODE -ne 0){throw 'Native harness compilation failed'}

@@ -82,7 +82,7 @@ namespace XHLLauncher
 
         public TelemetryService(string appBase, LauncherSettings settings, Func<Process> discoverProcess = null)
         {
-            this.appBase = appBase;
+            this.appBase = ServerSetup.HistoryApp(appBase,settings);
             this.settings = settings;
             this.discoverProcess = discoverProcess ?? (()=>new ServerControl(settings.ServerRoot, settings).GetServerProcess());
             config = ConfigReader.Read(settings.ServerRoot);

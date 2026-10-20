@@ -50,6 +50,7 @@ namespace XHLLauncher
         }
         internal static ActionResult CheckInstallation(string root)
         {
+            if(VanillaServer.Managed(root))return VanillaServer.Check(root);
             InstallationAudit audit = InstallationAudit.Inspect(root);
             if (!audit.CanStart) return ActionResult.Fail("Start blocked by compatibility checks.\r\n\r\n" + audit.Details);
             foreach (string name in new[] { "enshrouded_server.json", "XHL-Diagnostic-Wrapper.ps1", "XHL-Safe-Start.ps1", "XHL-1.0-compat-manifest.json" })
@@ -89,6 +90,7 @@ namespace XHLLauncher
             lock (gate)
             {
             if (IsRunning || StartupPending) return ActionResult.Fail("Server or startup wrapper is already running.");
+            if(VanillaServer.Managed(root))return VanillaServer.Start(root);
             string script = Path.Combine(root, "XHL-Diagnostic-Wrapper.ps1");
             if (!File.Exists(script)) return ActionResult.Fail("Existing startup wrapper is missing. No direct launch attempted.");
             string powershell = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
