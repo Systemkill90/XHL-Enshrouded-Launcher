@@ -117,6 +117,7 @@ nav.tabs{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;z-inde
 <p class=""mapNote"">Real community map data, not a simulated landscape. Use the map's own 3D view and filters for roads, landmarks, chests, quests and resources. Pinch to zoom; drag to explore.</p>
 <div class=""mapWindow""><div id=""mapStart"" class=""mapStart""><span class=""sigil"" aria-hidden=""true"">◇</span><strong>Explore Embervale</strong><p>Load the interactive 3D world map only when you need it. A connection to the map provider is required.</p><button class=""primary"" onclick=""loadMap()"">Load interactive map</button></div><iframe id=""gameMap"" title=""External interactive Embervale 3D map by GameVault"" referrerpolicy=""no-referrer"" allow=""fullscreen; gyroscope; accelerometer"" allowfullscreen hidden></iframe><div id=""mapTrouble"" class=""mapTrouble"" role=""status"" hidden><strong>Map still showing white?</strong><p>This map belongs to another website, which may prevent embedding or fail in iPhone Safari. ShroudForge cannot inspect or bypass its frame restrictions. You can open the full interactive map without affecting the server.</p><div class=""mapTroubleActions""><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full 3D map ↗</a><button type=""button"" onclick=""loadMap(true)"">Try again</button><button id=""mapHelpMode"" type=""button"" onclick=""toggleMapMode()"">Try Protected mode</button><button type=""button"" onclick=""dismissMapHelp()"">Map works / Hide</button></div></div></div>
 <div class=""mapControls""><button id=""reloadMap"" onclick=""loadMap(true)"">Reload map</button><button id=""mapMode"" type=""button"" aria-pressed=""true"" onclick=""toggleMapMode()"">Use Protected mode</button><button id=""mapTroubleshoot"" type=""button"" onclick=""showMapTrouble()"">Map blank?</button><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full map ↗</a></div>
+<p class=""mapNote"" id=""mapSecureHint"" role=""status"" hidden><strong>This connection may prevent the 3D map from loading.</strong> ShroudForge serves its private-network phone controls over HTTP. Browsers can block secure features such as Web Crypto inside an HTTPS map embedded by an HTTP page, resulting in blank terrain or a crypto.subtle.digest error. <a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open the 3D map directly over HTTPS ↗</a>. This opens only the map provider, not your private server link.</p>
 <p class=""mapNote"" id=""mapHelp"" role=""status"">Compatibility mode is the default because it rendered successfully in iPhone Safari. This loads an external map only after you tap Load. The provider stays on its own website and receives no ShroudForge key, private URL, save or player data. For stricter iframe controls, select Protected mode.</p>
 <p class=""mapNote"">3D terrain and map markers provided by GameVault's Companion for Enshrouded. Not affiliated with Keen Games. Map loading is independent of your server controls.</p>
 </section></div>
@@ -126,6 +127,7 @@ function showTab(which){
  const map=which==='map';el('dashboardView').hidden=map;el('mapView').hidden=!map;
  el('overviewTab').setAttribute('aria-selected',String(!map));
  el('mapTab').setAttribute('aria-selected',String(map));
+ if(map)updateMapSecurityHint();
  if(location.hash!==(map?'#map':'#overview'))history.replaceState(null,'',map?'#map':'#overview');
 }
 function dismissMapHelp(){el('mapTrouble').hidden=true;}
@@ -138,6 +140,11 @@ function syncMapMode(){
  el('mapMode').textContent=mapCompatibility?'Use Protected mode':'Use Compatibility mode';
  el('mapMode').setAttribute('aria-pressed',String(mapCompatibility));
  el('mapHelpMode').textContent=mapCompatibility?'Try Protected mode':'Try Compatibility';
+}
+function updateMapSecurityHint(){
+ const insecure=window.isSecureContext===false;
+ el('mapSecureHint').hidden=!insecure;
+ return insecure;
 }
 function toggleMapMode(){
  mapCompatibility=!mapCompatibility;
@@ -154,9 +161,10 @@ function loadMap(reload){
  frame.hidden=false;
  if(mapCompatibility)frame.removeAttribute('sandbox');
  else frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups');
+ const insecureParent=updateMapSecurityHint();
  if(!mapLoaded||reload){
   mapLoaded=true;frame.src='https://enshrouded.gamevault.in/map';
-  text('mapHelp',mapCompatibility?'Compatibility mode is active: this external map uses normal cross-origin iframe rules and no-referrer. Select Map blank? only if you need help.':'Protected mode is active: stricter iframe permissions might produce white terrain. Switch back to Compatibility if needed.');
+  text('mapHelp',insecureParent?'This private-network HTTP page is not a secure context. The embedded HTTPS map may fail when it calls crypto.subtle.digest. Use the direct HTTPS map link above. Server controls remain on this private page.':mapCompatibility?'Compatibility mode is active: this external map uses normal cross-origin iframe rules and no-referrer. Select Map blank? only if you need help.':'Protected mode is active: stricter iframe permissions might produce white terrain. Switch back to Compatibility if needed.');
  }
  // Cross-origin iframe failure is not reliably observable in Safari.
  // Never show a misleading success indicator just because the iframe fires ""load"".
