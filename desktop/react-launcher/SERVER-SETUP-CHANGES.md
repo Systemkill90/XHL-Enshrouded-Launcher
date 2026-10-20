@@ -11,7 +11,12 @@ Window-sizing follow-up: compact overview spacing and charts fit the supported
 1100 × 900 CSS content area without page scrollbars. The native window refuses
 smaller content sizes, accounting for display DPI and WebView zoom. Long data pages
 and error details retain scrolling. Browser viewport checks cover supported windowed
-sizes; native screenshot capture was unavailable during verification.
+sizes; native screenshot capture was unavailable during verification. A subsequent
+1440 × 900 overlap report exposed the fixed-position metrics strip covering the
+bottom of View players. Actions and metrics now occupy separate layout rows.
+Twenty width/height combinations verify a gap of at least 14 px, contained metrics,
+no page scrolling and no footer overlap. All four button corners and its center
+are unobstructed; clicking View players opens Players in the isolated browser preview.
 
 Size-unit follow-up: memory cards and charts display decimal **MB** (1 MB =
 1,000,000 bytes). File, world and player-transfer sizes use decimal B/kB/MB/GB/TB

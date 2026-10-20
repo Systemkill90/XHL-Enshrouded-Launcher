@@ -15,7 +15,7 @@ aside{width:100%;height:83px;inset:0 0 auto;flex-direction:row;align-items:cente
 /* Fit the overview to supported desktop windows before allowing any further shrink. */
 @media(min-width:1080px) and (max-height:1500px){
  aside{height:70px}nav button,.toolMenu summary{padding-top:8px;padding-bottom:8px}main{padding-top:70px}header{height:32px}
- .overviewPage{display:flex;flex-direction:column;gap:10px;padding:14px 24px 50px}
+ .overviewPage{display:flex;flex-direction:column;gap:8px;padding:10px 24px 43px}
  .overviewPage>.pageHeading{display:none}.overviewPage>.notice{padding:6px 12px;margin:0;font-size:11px;line-height:1.5}
  .overviewPage .realmStage{height:clamp(250px,30vh,330px);flex-shrink:0;margin:0}
  .overviewPage .stageTop{padding:12px 22px}.overviewPage .stageCopy{margin:0 22px}
@@ -32,3 +32,12 @@ aside{width:100%;height:83px;inset:0 0 auto;flex-direction:row;align-items:cente
  .overviewPage .eventStream{padding:8px 2px}.overviewPage .eventStream>p{font-size:10px}
 }
 .notice>span,.notice>div,.realmShortcuts>button>div{min-width:0;overflow-wrap:anywhere}
+
+/* Keep actions and metrics in separate rows even when text or DPI changes their height. */
+.realmStage{display:grid;grid-template-rows:auto 1fr auto;height:auto;min-height:439px}
+.stageCopy{margin-bottom:20px}.stageMetrics{position:relative;bottom:auto;left:auto;right:auto}
+.stageSignature{pointer-events:none}
+@media(min-width:1080px) and (max-height:1500px){
+ .overviewPage .realmStage{height:auto;min-height:clamp(250px,30vh,330px)}
+ .overviewPage .stageCopy{margin-bottom:14px}
+}
