@@ -106,6 +106,9 @@ static class Checks
             phone.Start(System.Net.IPAddress.Loopback,0);phone.Publish(new {name="Fixture",online=true});
             using(var c=new System.Net.WebClient()) {
                 Require(c.DownloadString(phone.Url).Contains("Server controls"), "Phone page serves server controls");
+                string mapPage=c.DownloadString(phone.Url);
+                Require(mapPage.Contains("id=\"mapSecureHint\"")&&mapPage.Contains("window.isSecureContext===false"),"Phone page diagnoses insecure LAN ancestry before embedded map load");
+                Require(mapPage.Contains("rel=\"noopener noreferrer\"")&&mapPage.Contains("referrerpolicy=\"no-referrer\"")&&mapPage.Contains("https://enshrouded.gamevault.in/map"),"Phone map provides a standalone HTTPS link without leaking the private parent URL");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
                 bool rejected=false;try{c.DownloadString(phone.Url.Replace("test-secret","wrong"));}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects requests without private key");
                 rejected=false;try{c.UploadString(phone.Url,"POST","");}catch(System.Net.WebException){rejected=true;}Require(rejected,"Phone rejects unsupported write requests");
