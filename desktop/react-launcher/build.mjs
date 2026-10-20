@@ -1,0 +1,2 @@
+import {build} from 'esbuild';import {mkdir,copyFile} from 'node:fs/promises';
+await mkdir('build/ui',{recursive:true});await build({entryPoints:['ui/main.tsx'],bundle:true,minify:true,sourcemap:false,outfile:'build/ui/app.js',target:'chrome120'});await copyFile('ui/index.html','build/ui/index.html');await copyFile('ui/style.css','build/ui/style.css');await copyFile('ui/realm-cinematic.png','build/ui/realm-cinematic.png');

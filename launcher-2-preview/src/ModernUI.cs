@@ -9,9 +9,9 @@ using System.Collections.Generic;
 
 namespace XHLLauncher {
  public sealed partial class ControlRoom {
-  Label liveActivity, backupResult;
+  Label liveActivity, backupResult, readinessInfo, recentEvents;
   DataGridView backupGrid;
-  DashboardTrend cpuTrend, memoryTrend; Label backupOverview; DateTime lastBackupOverview=DateTime.MinValue;
+  DashboardTrend cpuTrend, memoryTrend; Label backupOverview; DateTime lastBackupOverview=DateTime.MinValue; int markedBackupCount=-1;
   void ConfigureTray(){
    var tray=new NotifyIcon{Text="ShroudForge Launcher 2.0 • "+settings.ServerName,Icon=Icon,Visible=true};var menu=new ContextMenuStrip();
    Action show=delegate{Show();WindowState=FormWindowState.Normal;Activate();};
@@ -21,16 +21,27 @@ namespace XHLLauncher {
   void BuildModernShell() {
    var shell=new TableLayoutPanel {Dock=DockStyle.Fill,ColumnCount=2,RowCount=1,Margin=Padding.Empty};
    shell.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,190));shell.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));shell.RowStyles.Add(new RowStyle(SizeType.Percent,100));Controls.Add(shell);
-   var side=new Panel{Dock=DockStyle.Fill,BackColor=Theme.Sidebar,Margin=Padding.Empty};shell.Controls.Add(side,0,0);
-   side.Controls.Add(new BrandLockup{Location=new Point(19,28),Size=new Size(157,48)});
-   var subtitle=TextLabel("REALM COMPANION",7.5f,Theme.Cyan,true);subtitle.Location=new Point(23,78);side.Controls.Add(subtitle);
-   var realm=TextLabel("YOUR REALM",7,Theme.Muted2,true);realm.Location=new Point(23,123);side.Controls.Add(realm);
+   // Keep the identity and footer visible while page links scroll on compact displays.
+   var side=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=1,RowCount=3,BackColor=Theme.Sidebar,Margin=Padding.Empty};
+   side.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+   side.RowStyles.Add(new RowStyle(SizeType.Absolute,143));
+   side.RowStyles.Add(new RowStyle(SizeType.Percent,100));
+   side.RowStyles.Add(new RowStyle(SizeType.Absolute,58));
+   shell.Controls.Add(side,0,0);
+   var brand=new Panel{Dock=DockStyle.Fill,BackColor=Theme.Sidebar,Margin=Padding.Empty};side.Controls.Add(brand,0,0);
+   brand.Controls.Add(new BrandLockup{Location=new Point(19,28),Size=new Size(157,48)});
+   var subtitle=TextLabel("REALM COMPANION",7.5f,Theme.Cyan,true);subtitle.Location=new Point(23,78);brand.Controls.Add(subtitle);
+   var realm=TextLabel("YOUR REALM",7,Theme.Muted2,true);realm.Location=new Point(23,123);brand.Controls.Add(realm);
+   var navScroll=new Panel{Dock=DockStyle.Fill,BackColor=Theme.Sidebar,Margin=Padding.Empty,AutoScroll=true};
+   side.Controls.Add(navScroll,0,1);
    string[] names={"Overview","Players","World","Mods","Logs","Backups","Automation","Updates","Settings","Installation","Files","Phone"};
    string[] labels={"Dashboard","Players & history","World","Mods","Live console","Backups & restore","Automation","Updates","Server settings","System checks","Files & folders","Phone access"};
    for(int i=0;i<names.Length;i++){
-    string page=names[i];var b=Theme.Button(labels[i],Theme.Border);b.SetBounds(10,151+i*37,170,33);b.TextAlign=ContentAlignment.MiddleLeft;b.Padding=new Padding(12,0,0,0);b.FlatAppearance.BorderSize=0;b.Font=Theme.Font(9,FontStyle.Regular);b.Click+=delegate{Navigate(page);};side.Controls.Add(b);navigation.Add(page,b);
+    string page=names[i];var b=Theme.NavigationButton(labels[i]);b.SetBounds(10,8+i*37,158,33);
+    b.Click+=delegate{Navigate(page);};navScroll.Controls.Add(b);navigation.Add(page,b);
    }
-   side.Controls.Add(new Label{Dock=DockStyle.Bottom,Height=48,Padding=new Padding(23,8,0,0),Text="SHROUDFORGE LAUNCHER\r\n2.0  /  VELARIS\r\nCreated by SystemKill",ForeColor=Theme.Muted2,Font=Theme.Font(7.5f,FontStyle.Regular)});
+   navScroll.AutoScrollMinSize=new Size(0,12+names.Length*37);
+   side.Controls.Add(new Label{Dock=DockStyle.Fill,Padding=new Padding(23,8,0,0),Text="SHROUDFORGE LAUNCHER\r\n2.0  /  VELARIS\r\nCreated by SystemKill",ForeColor=Theme.Muted2,Font=Theme.Font(7.5f,FontStyle.Regular)},0,2);
    var main=new Panel{Dock=DockStyle.Fill,Margin=Padding.Empty};shell.Controls.Add(main,1,0);
    host=new Panel{Dock=DockStyle.Fill,Padding=new Padding(26,22,26,16)};main.Controls.Add(host);
    var top=new Panel{Dock=DockStyle.Top,Height=72,BackColor=Theme.Sidebar};main.Controls.Add(top);
@@ -65,13 +76,27 @@ namespace XHLLauncher {
    var health=Card(page,"INSTALLATION & MODS",668,486,332,138);auditSummary=Body(health,"Checking",40,9,Theme.Text);auditSummary.Height=25;auditDetail=Body(health,"",68,8,Theme.Muted);auditDetail.Height=30;
    ActionButton(health,"Review checks",18,100,128,delegate{Navigate("Installation");});ActionButton(health,"Mods",154,100,78,delegate{Navigate("Mods");});
    liveActivity=TextLabel("Waiting for live telemetry",8,Theme.Muted,false);liveActivity.SetBounds(0,638,1000,30);liveActivity.AutoSize=false;page.Controls.Add(liveActivity);
-   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;};
+   readinessInfo=TextLabel("READINESS / Checking pinned files and backup markers",8,Theme.Muted,false);readinessInfo.SetBounds(0,674,1000,28);readinessInfo.AutoSize=false;page.Controls.Add(readinessInfo);
+   var recent=Card(page,"RECENT RECORDED ACTIVITY",0,716,650,236);
+   recentEvents=Body(recent,"Waiting for recorded server events",48,9,Theme.Text);recentEvents.Height=132;
+   ActionButton(recent,"Open event feed",18,184,166,delegate{parsedEvents=true;if(eventModeButton!=null)eventModeButton.Text="Show raw log";Navigate("Logs");});
+   var shortcuts=Card(page,"REALM NAVIGATION",664,716,336,236);
+   ActionButton(shortcuts,"Player profiles",18,39,190,delegate{Navigate("Players");});
+   ActionButton(shortcuts,"Live console",18,87,190,delegate{Navigate("Logs");});
+   ActionButton(shortcuts,"World records",18,135,190,delegate{Navigate("World");});
+   ActionButton(shortcuts,"Verified backups",18,183,190,delegate{Navigate("Backups");});
+   page.AutoScrollMinSize=new Size(0,972);
+   page.Resize+=delegate{int w=Math.Max(720,page.ClientSize.Width-20);hero.Width=stats.Width=activity.Width=operationStatus.Width=liveActivity.Width=readinessInfo.Width=w;int third=(w-28)/3;world.Width=backup.Width=third;backup.Left=third+14;health.Left=2*(third+14);health.Width=w-health.Left;recent.Width=Math.Max(450,(int)(w*.65)-14);shortcuts.Left=recent.Width+14;shortcuts.Width=Math.Max(200,w-shortcuts.Left);};
    return page;
   }
   void UpdateModernDetails() {
    if(liveActivity!=null){var h=telemetry.GetHost();cpuTrend.UpdateSamples(telemetry.CpuHistory,h.ServerRunning);memoryTrend.UpdateSamples(telemetry.RamHistory,h.ServerRunning);liveActivity.Text=h.ServerRunning?"LIVE  /  PID "+h.Pid+"  •  Trends show actual process samples from this launcher session":"OFFLINE  /  Live trends unavailable. Saved world and backup records remain available.";
+    readinessInfo.Text="READINESS / "+SafeSupportReport.Readiness(h,audit,markedBackupCount);
+    if(recentEvents!=null){var observed=telemetry.GetActivity(4);
+     recentEvents.Text=observed.Count==0?"No recorded events yet. Open the live console to see server logs.":string.Join("\r\n",observed.Select(e=>e.Time.ToString("h:mm tt")+"   /   "+(e.Level??"Event")+"   /   "+(e.Text??"").Replace("\r"," ").Replace("\n"," ").Trim()).ToArray());
+    }
     if((DateTime.Now-lastBackupOverview).TotalSeconds<10)return;lastBackupOverview=DateTime.Now;
-    try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>d.CreationTimeUtc).ToArray():new DirectoryInfo[0];backupOverview.Text=snapshots.Length+" verified snapshots"+(snapshots.Length>0?"\r\nLatest  "+snapshots[0].CreationTime.ToString("MMM d, h:mm tt"):"\r\nNo verified snapshot found")+"\r\nAutomatic backups  "+(settings.AutoBackup?"Every "+settings.BackupIntervalMinutes+" min":"Off");}catch{backupOverview.Text="Backup history unavailable";}
+    try{var snapshots=Directory.Exists(BackupRoot)?new DirectoryInfo(BackupRoot).GetDirectories().Where(d=>File.Exists(Path.Combine(d.FullName,"VERIFIED.txt"))).OrderByDescending(d=>d.CreationTimeUtc).ToArray():new DirectoryInfo[0];markedBackupCount=snapshots.Length;backupOverview.Text=snapshots.Length+" verified snapshots"+(snapshots.Length>0?"\r\nLatest  "+snapshots[0].CreationTime.ToString("MMM d, h:mm tt"):"\r\nNo verified snapshot found")+"\r\nAutomatic backups  "+(settings.AutoBackup?"Every "+settings.BackupIntervalMinutes+" min":"Off");}catch{markedBackupCount=-1;backupOverview.Text="Backup history unavailable";}
    }
   }
   Control BuildBackups() {

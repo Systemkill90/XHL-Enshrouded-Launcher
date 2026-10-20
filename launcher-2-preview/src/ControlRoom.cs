@@ -46,7 +46,8 @@ namespace XHLLauncher
         TextBox search;
         Button recheck;
         string current = "Overview";
-        bool auditBusy, paused;
+        bool auditBusy, paused, parsedEvents;
+        Button eventModeButton;
         int frames;
 
         public ControlRoom(string appBase, LauncherSettings settings, bool startMonitoring, bool enableOperations = false)
@@ -104,7 +105,14 @@ namespace XHLLauncher
         {
             current = page;
             foreach (var entry in pages) entry.Value.Visible = entry.Key == page;
-            foreach (var entry in navigation) { entry.Value.BackColor = entry.Key == page ? Theme.Panel3 : Theme.Sidebar; entry.Value.ForeColor = entry.Key == page ? Theme.Cyan : Theme.Muted; }
+            foreach (var entry in navigation)
+            {
+                bool selected = entry.Key == page;
+                entry.Value.Tag = selected;
+                entry.Value.BackColor = selected ? Theme.Panel3 : Theme.Sidebar;
+                entry.Value.ForeColor = selected ? Theme.Cyan : Theme.Muted;
+                entry.Value.Invalidate();
+            }
             UpdateState(); if (page == "Logs") ReadLogs(); if(page == "Backups") RefreshBackupList();
         }
         Panel Card(Control parent, string title, int x, int y, int width, int height)
@@ -124,13 +132,7 @@ namespace XHLLauncher
         }
 
         Control BuildOverview() { return BuildModernOverview(); }
-        Control BuildPlayers()
-        {
-            var page = Page("Players", "Players identified in server logs and queries. Character inventories remain on game clients.");
-            playerGrid = new DataGridView { Location = new Point(0, 78), Size = new Size(1000, 500), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ReadOnly = true };
-            Theme.StyleGrid(playerGrid); foreach (string column in new[] { "Player", "Ping", "Jitter", "Session", "Status" }) playerGrid.Columns.Add(column, column);
-            page.Controls.Add(playerGrid); page.Resize += delegate { playerGrid.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 90)); }; return page;
-        }
+        Control BuildPlayers() { return BuildPlayerProfiles(); }
         Control BuildWorld(){return BuildRichWorld();}
         Control BuildMods(){return BuildRichMods();}
         Control BuildLogs()
@@ -139,6 +141,11 @@ namespace XHLLauncher
             search = new TextBox { Location = new Point(0, 78), Width = 360, AccessibleName = "Search log text" }; Theme.StyleTextBox(search); search.TextChanged += delegate { if (!paused) ReadLogs(); }; page.Controls.Add(search);
             var pause = ActionButton(page, "Pause view", 376, 72, 130, delegate { paused = !paused; });
             pause.Click += delegate { pause.Text = paused ? "Resume view" : "Pause view"; if (!paused) ReadLogs(); };
+            eventModeButton = ActionButton(page, "Show events", 520, 72, 142, delegate {
+                parsedEvents = !parsedEvents;
+                eventModeButton.Text = parsedEvents ? "Show raw log" : "Show events";
+                ReadLogs();
+            });
             logBox = new TextBox { Location = new Point(0, 124), Size = new Size(1000, 450), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                 Multiline = true, ReadOnly = true, WordWrap = false, ScrollBars = ScrollBars.Both, BackColor = Theme.Panel2, ForeColor = Theme.Text, Font = new Font("Consolas", 9), BorderStyle = BorderStyle.FixedSingle };
             page.Controls.Add(logBox); page.Resize += delegate { logBox.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 140)); }; return page;
@@ -149,6 +156,7 @@ namespace XHLLauncher
             var path = TextLabel(settings.ServerRoot, 9, Theme.Muted, false); path.Location = new Point(0, 80); path.MaximumSize = new Size(850, 48); page.Controls.Add(path);
             recheck = ActionButton(page, "Check again", 0, 137, 145, async delegate { await InspectAsync(); });
             ActionButton(page, "Server folder", 160, 137, 145, delegate { try { Process.Start("explorer.exe", "\"" + settings.ServerRoot + "\""); } catch (Exception ex) { MessageBox.Show(ex.Message); } });
+            ActionButton(page, "Copy safe report", 320, 137, 180, delegate { CopySafeReport(); });
             auditBox = new TextBox { Location = new Point(0, 195), Size = new Size(1000, 380), Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right, ReadOnly = true,
                 Multiline = true, ScrollBars = ScrollBars.Both, WordWrap = false, BackColor = Theme.Panel2, ForeColor = Theme.Text, Font = new Font("Consolas", 10), BorderStyle = BorderStyle.FixedSingle, Text = "Checking installation..." };
             page.Controls.Add(auditBox); page.Resize += delegate { auditBox.Size = new Size(Math.Max(100, page.ClientSize.Width - 20), Math.Max(120, page.ClientSize.Height - 210)); }; return page;
@@ -498,15 +506,50 @@ namespace XHLLauncher
                 else if (!operationBusy && !string.IsNullOrEmpty(lifecycle.StartupStatus)) operationStatus.Text = lifecycle.StartupStatus;
                 else if(!operationBusy && (operationStatus.Text=="Checking the existing installation…"||operationStatus.Text.StartsWith("Ready •")||operationStatus.Text.StartsWith("Monitoring the running realm"))) operationStatus.Text=h.ServerRunning?"Monitoring the running realm • Server controls are ready":"Ready • Start uses the verified existing installation";
             }
-            if (current == "Players" && playerGrid != null)
+            if (current == "Players") UpdatePlayerProfiles();
+        }
+        void CopySafeReport()
+        {
+            int completionMarkers = 0;
+            DateTime latestMarked = DateTime.MinValue;
+            try
             {
-                playerGrid.Rows.Clear();
-                foreach (var p in telemetry.GetAllKnownPlayers().Where(p => !string.IsNullOrWhiteSpace(p.Name) && !p.Name.StartsWith("Player ")).OrderByDescending(p=>p.Connected)) playerGrid.Rows.Add(p.Name, p.PingMs < 0 ? "Unknown" : p.PingMs + " ms", p.Jitter.ToString("0") + " ms", p.JoinTime == DateTime.MinValue ? "Unknown" : FormatUtil.Duration(DateTime.Now - p.JoinTime), p.Connected ? p.SessionState : "Previously seen in log");
+                if (Directory.Exists(BackupRoot))
+                    foreach (string folder in Directory.GetDirectories(BackupRoot))
+                    {
+                        string marker = Path.Combine(folder, "VERIFIED.txt");
+                        if (!File.Exists(marker)) continue;
+                        completionMarkers++;
+                        DateTime time = File.GetLastWriteTime(marker);
+                        if (time > latestMarked) latestMarked = time;
+                    }
+            }
+            catch { completionMarkers = -1; latestMarked = DateTime.MinValue; }
+            string report = SafeSupportReport.Create(telemetry.GetHost(), telemetry.GetWorld(),
+                audit, completionMarkers, latestMarked, DateTime.Now);
+            try
+            {
+                Clipboard.SetText(report);
+                MessageBox.Show("A privacy-safe system summary was copied to the clipboard. No server files or configuration were changed.",
+                    "ShroudForge — Safe report", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Clipboard unavailable: " + ex.Message, "ShroudForge — Safe report",
+                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
+
         void ReadLogs()
         {
             if (logBox == null) return;
+            if (parsedEvents)
+            {
+                string recorded = ParsedEventView.Render(telemetry.GetActivity(200),
+                    search == null ? "" : search.Text, 200);
+                if (logBox.Text != recorded) logBox.Text = recorded;
+                return;
+            }
             try
             {
                 string path = telemetry.CurrentLogPath;

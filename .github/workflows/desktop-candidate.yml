@@ -1,0 +1,41 @@
+name: Modern desktop acceptance candidate
+on:
+  push:
+    branches: ['feat/ui-navigation-polish-*']
+    paths: ['desktop/**', '.github/workflows/desktop-candidate.yml']
+  pull_request:
+    branches: [feat/launcher-2-overhaul]
+    paths: ['desktop/**', '.github/workflows/desktop-candidate.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '10.17.1'
+      - name: Restore pinned dependencies
+        shell: pwsh
+        working-directory: desktop/react-launcher
+        run: |
+          ./Restore-BuildDependencies.ps1
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { throw 'Dependency restore failed' }
+      - name: Compile and run isolated checks
+        shell: pwsh
+        run: ./desktop/react-launcher/Validate-Candidate.ps1
+      - name: Package unsigned candidate
+        shell: pwsh
+        run: ./desktop/react-launcher/Package-Release.ps1 -Destination '${{ runner.temp }}/ShroudForge-3.0.0-private.2-candidate'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ShroudForge-3.0.0-private.2-candidate
+          path: ${{ runner.temp }}/ShroudForge-3.0.0-private.2-candidate
+          retention-days: 14

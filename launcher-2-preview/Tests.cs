@@ -123,6 +123,19 @@ static class Checks
                 Require(phonePage.Contains("Server controls"), "Phone page serves server controls");
                 Require(phonePage.Contains("id=\"mapTab\"") && phonePage.Contains("id=\"mapView\"") && phonePage.Contains("function loadMap(reload)"),"Phone includes user-activated interactive map tab");
                 Require(phonePage.Contains("https://enshrouded.gamevault.in/map") && phonePage.Contains("referrerpolicy=\"no-referrer\""),"Embedded map credits external source and does not refer private phone URL");
+                Require(phonePage.Contains("id=\"mapTrouble\"") && phonePage.Contains("Map still showing white?") &&
+                    phonePage.Contains("setTimeout(showMapTrouble,9000)") && phonePage.Contains("mapWindow [hidden]"),
+                    "Map tab presents an in-panel recovery state without showing hidden frames");
+                Require(phonePage.Contains("Open full 3D map") && phonePage.Contains("dismissMapHelp()"),
+                    "Map troubleshooting provides a working external link and dismiss control");
+                Require(phonePage.Contains("id=\"mapMode\"") && phonePage.Contains("toggleMapMode()") &&
+                    phonePage.Contains("mapCompatibility=true") && phonePage.Contains("referrerpolicy=\"no-referrer\""),
+                    "Phone map defaults to user-verified iPhone compatibility with protected mode available");
+                Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssandbox\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase) &&
+                    phonePage.Contains("else frame.setAttribute('sandbox'"),
+                    "Phone map loads with compatibility permissions and can restore restricted sandbox");
+                Require(phonePage.Contains("if(!mapCompatibility)mapAssistTimer=setTimeout(showMapTrouble,9000)"),
+                    "Successful compatibility viewing does not get obscured by automatic troubleshooting overlay");
                 Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssrc\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase),"External map is never loaded until the phone user requests it");
                 Require(phonePage.Contains("id=\"activity\"") && phonePage.Contains("details.className='playerDetails'"),"Phone includes activity and player health diagnostics");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
@@ -257,14 +270,83 @@ static class Checks
             Require(A2S.Decode(new byte[]{255,255,255,255,0x44,0}).Count==0,"Valid empty roster is a confirmed zero");
             bool invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x41,0});}catch(IOException){invalid=true;}Require(invalid,"Unsupported roster response is unavailable, never zero");
             invalid=false;try{A2S.Decode(new byte[]{255,255,255,255,0x44,1,0,65});}catch(IOException){invalid=true;}Require(invalid,"Truncated roster cannot clear online players");
+            var readOnlyEvents = new[] {
+                new ActivityItem(new DateTime(2026, 10, 17, 18, 1, 0), "Player", "Test ranger connected"),
+                new ActivityItem(new DateTime(2026, 10, 17, 18, 2, 0), "Warning", "Network congestion"),
+                new ActivityItem(new DateTime(2026, 10, 17, 18, 3, 0), "Warning", "Multiline" + "\n" + "spoofed log row")
+            };
+            string filteredEvents = ParsedEventView.Render(readOnlyEvents, "ranger", 50);
+            Require(filteredEvents.Contains("Test ranger connected") && !filteredEvents.Contains("Network congestion"),
+                "Read-only parsed events filter by observed event text");
+            string allEvents = ParsedEventView.Render(readOnlyEvents, "", 50);
+            Require(allEvents.IndexOf("Multiline") < allEvents.IndexOf("Test ranger connected") && 
+                !allEvents.Contains("\nspoofed log row"),
+                "Parsed events render latest first and flatten embedded newlines");
+            Require(ParsedEventView.Render(readOnlyEvents, "unmatched", 50).Contains("No matching"),
+                "Parsed event view differentiates absent matches");
+            var syntheticHost = new HostState {
+                ServerRunning=true, Uptime=TimeSpan.FromMinutes(33), CpuPercent=12.5,
+                RamBytes=1048576, DiskFreeBytes=10737418240L, DiskTotalBytes=21474836480L,
+                PublicIp="SECRET_PUBLIC_IP", AdapterDescription="SECRET_DEVICE"
+            };
+            var syntheticAudit = new InstallationAudit {
+                Summary="SECRET_INTERNAL_SUMMARY", Details="SECRET_PASSWORD",
+                FlightCompatible=true, StackMatches=true, LoadersIsolated=true
+            };
+            var syntheticWorld = new WorldState { LastSaveTime=DateTime.Now.AddMinutes(-3), WorldSaveBytes=1024 };
+            string safe = SafeSupportReport.Create(syntheticHost,syntheticWorld,syntheticAudit,2,
+                DateTime.Now.AddMinutes(-5),DateTime.Now);
+            Require(safe.Contains("Pinned build matches") && safe.Contains("Backup completion markers: 2") &&
+                safe.Contains("Observed running"), "Safe support snapshot reports only available process and file-check evidence");
+            Require(!safe.Contains("SECRET_") && !safe.Contains("SECRET_PASSWORD") && !safe.Contains("SECRET_PUBLIC_IP"),
+                "Safe support snapshot excludes raw audit text, network identity and credential-like fields");
+            string unavailable = SafeSupportReport.Create(null,null,null,-1,DateTime.MinValue,DateTime.Now);
+            Require(unavailable.Contains("Backup completion markers: Unavailable") &&
+                unavailable.Contains("Compatibility unknown") && unavailable.Contains("Not observed running"),
+                "Unknown checks and failed backup scans are not reported as healthy or zero");
             string sentinelHash = InstallationAudit.Hash(savePath);
             File.WriteAllText(Path.Combine(server, "enshrouded_server.json"), "{\"saveDirectory\":\"./savegame\",\"slotCount\":16}");
             var settings = new LauncherSettings { ServerRoot = server, ServerName = "VELARIS", PublicIpLookup = false };
+            var profileNow=DateTime.Now;
+            var observed=new PlayerState { Name="Fixture player", SteamId="76561198000000000", Peer="4(2)", MachineIndex=5, Handle="4(2)",
+                Connected=true, JoinTime=profileNow.AddMinutes(-18), PingMs=62, Jitter=4.2, OneMinuteAverage=60, OneMinutePeak=79,
+                FiveMinutePeak=103, HealthScore=91, HealthReason="Stable", LostTotal=3, TimeoutCount=1, CharacterSaveBytes=1024 };
+            var completed=new PlayerSession { Player="Fixture player", Joined=profileNow.AddHours(-2), Left=profileNow.AddHours(-1),
+                DurationSeconds=3600 };
+            var joined=new ActivityItem(profileNow.AddMinutes(-18),"Player","Fixture player connected");
+            var sheet=PlayerSheet.Create("Fixture player",observed,new[]{completed},new[]{joined},true,profileNow);
+            Require(sheet.Status.StartsWith("ONLINE") && sheet.Identity.Contains(observed.SteamId) && sheet.Identity.Contains("1 KB"),
+                "Player profile shows observed identity and save-transfer evidence, without reading inventory");
+            Require(sheet.Sessions.Contains("1h") && sheet.Sessions.Contains("18m") && sheet.Connection.Contains("62 ms"),
+                "Player profile shows completed visits, current session and ping");
+            Require(sheet.Incidents.Contains("1 observed") && sheet.Activity.Contains("Fixture player connected"),
+                "Player profile includes recorded connection issues and exact-name events");
+            Require(sheet.Limitations.Contains("inventory") && sheet.Limitations.Contains("matched by display name"),
+                "Player profile states unsupported character data and identity-matching limits");
+            var oldSheet=PlayerSheet.Create("Offline player",null,new[]{new PlayerSession { Player="Offline player",
+                Joined=profileNow.AddDays(-1),Left=profileNow.AddDays(-1).AddMinutes(25),DurationSeconds=1500 }},
+                new[]{new ActivityItem(profileNow,"Player","Offline player2 connected")},false,profileNow);
+            Require(oldSheet.Status.StartsWith("OFFLINE") && oldSheet.Identity.Contains("Not recorded")
+                && oldSheet.Activity.Contains("No matching") && oldSheet.Sessions.Contains("25m"),
+                "Offline player sheet uses historical visits, omits unknown fields and rejects prefix-name events");
             using (var form = new ControlRoom(root, settings, false))
             {
                 form.ClientSize = new Size(1384, 870);
                 form.ShowInTaskbar = false; form.Opacity = 0; form.Show(); Application.DoEvents();
                 form.SetAuditForTest(new InstallationAudit { Summary = "Compatibility needs attention", Details = "Fixture: unsupported executable. No live patch or save changes." });
+                var navField = typeof(ControlRoom).GetField("navigation", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                var navButtons = (System.Collections.Generic.Dictionary<string, Button>)navField.GetValue(form);
+                Require(navButtons.Count == 12 && navButtons.Values.All(b => b.TabStop && !string.IsNullOrEmpty(b.AccessibleName)),
+                    "All sidebar pages have keyboard focus and accessible names");
+                Require(((Panel)navButtons["Overview"].Parent).AutoScroll,
+                    "Sidebar navigation scrolls independently of branding and footer");
+                form.Navigate("Players");
+                var activeNav = navButtons["Players"];
+                typeof(Control).GetMethod("OnMouseEnter", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(activeNav, new object[] { EventArgs.Empty });
+                typeof(Control).GetMethod("OnMouseLeave", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(activeNav, new object[] { EventArgs.Empty });
+                Require(activeNav.BackColor == Theme.Panel3 && activeNav.ForeColor == Theme.Cyan &&
+                    activeNav.Tag is bool && (bool)activeNav.Tag,
+                    "Selected sidebar page stays highlighted after mouse hover");
                 foreach (string page in new[] { "Overview", "Players", "World", "Mods", "Logs", "Installation", "Files", "Automation", "Phone", "Backups", "Settings", "Updates" })
                 {
                     form.Navigate(page); form.PerformLayout(); Application.DoEvents();

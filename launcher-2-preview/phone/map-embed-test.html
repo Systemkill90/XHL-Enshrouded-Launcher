@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11191b">
+<meta name="referrer" content="no-referrer">
+<title>ShroudForge • Embervale Map Test</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#10171a;color:#eee8dc}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#233031 0%,#11181a 42%,#0d1315 100%);min-height:100dvh}
+main{max-width:1050px;margin:auto;padding:20px 15px calc(25px + env(safe-area-inset-bottom))}
+.eyebrow{font-size:10px;letter-spacing:.22em;color:#ceb787;text-transform:uppercase;font-weight:650}
+h1{font:normal clamp(27px,7vw,37px)/1.1 Georgia,serif;letter-spacing:-.02em;margin:7px 0 9px;color:#f4e9d4}
+.subtitle{color:#aabbb8;line-height:1.55;margin:0 0 18px;font-size:13px}
+header{display:flex;align-items:center;gap:13px;margin:0 0 17px}
+.mark{border:1px solid #917e53;width:47px;height:47px;border-radius:11px;display:grid;place-items:center;color:#d9bc75;font:29px Georgia;background:#182120;flex:none}
+.panel{border:1px solid #43514e;border-radius:14px;overflow:hidden;background:#192224;box-shadow:0 18px 38px #0005}
+.toolbar{padding:13px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #3d4846}
+.toolbar .label{color:#dfd4c0;font-size:12px;line-height:1.45;max-width:45ch}
+.controls{display:flex;flex-wrap:wrap;gap:7px}
+button,.link{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:43px;padding:9px 12px;border-radius:8px;background:#283331;border:1px solid #52615c;color:#f0e9d8;font-weight:600;font-size:12px;cursor:pointer;text-decoration:none}
+button[aria-pressed="true"]{background:#524732;border-color:#bda16a;color:#ffe3a5}
+button:focus-visible,a:focus-visible{outline:2px solid #e2c787;outline-offset:2px}
+.link{background:#b99b60;border-color:#b99b60;color:#0b1515}
+.viewport{position:relative;background:radial-gradient(ellipse,#243a33,#10191b 80%);height:clamp(390px,65dvh,760px);min-height:360px}
+#viewer{width:100%;height:100%;border:0;background:#10191b;display:block}
+[hidden]{display:none!important}
+.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;gap:12px}
+.loading .sigil{font:44px Georgia;color:#c7b17c}
+.loading p{max-width:34ch;color:#c9d2cb;font-size:13px;line-height:1.5}
+.loading .small{font-size:11px;color:#96a9a2}
+.help{position:absolute;z-index:2;bottom:12px;left:12px;right:12px;background:rgba(15,22,23,.97);border:1px solid #967e52;border-radius:11px;padding:14px;box-shadow:0 10px 35px #000b}
+.help h2{font:normal 19px Georgia;color:#ffdfad;margin:0 0 8px}
+.help p{font-size:12px;color:#d2d8d1;line-height:1.5;margin:0 0 12px}
+.help .buttons{display:flex;flex-wrap:wrap;gap:8px}
+.help .buttons button,.help .buttons a{flex:1;min-width:115px}
+.note{font-size:12px;color:#a7b9b1;line-height:1.5;margin:14px 0 0}
+.result{border:1px solid #3d4944;background:#182221;border-radius:10px;padding:14px;margin-top:13px;line-height:1.6;color:#d2dbd3;font-size:13px}
+.result strong{color:#e5cd9b}
+.result .line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+footer{margin-top:15px;color:#8d9f98;text-align:center;font-size:10px;line-height:1.5}
+@media(max-width:480px){main{padding:17px 10px calc(20px + env(safe-area-inset-bottom))}.toolbar{padding:10px}.controls{width:100%}.controls button{flex:1}.viewport{height:61dvh;min-height:410px}.help{left:7px;right:7px;bottom:7px;padding:12px}.help .buttons a,.help .buttons button{flex:1}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="mark" aria-hidden="true">◇</div><div><div class="eyebrow">ShroudForge / Phone Test</div><h1>Embervale Map</h1></div></header>
+<p class="subtitle">Standalone test of the real GameVault 2D/3D map inside the ShroudForge-sized window. No login, server access, game data, or ShroudForge control commands.</p>
+<section class="panel" aria-label="Map compatibility testing">
+ <div class="toolbar">
+  <div class="label"><span class="eyebrow">Embedding compatibility</span><div id="modeLabel">Compatibility frame (default phone experience)</div></div>
+  <div class="controls">
+   <button id="standard" type="button" aria-pressed="false">Protected</button>
+   <button id="compat" type="button" aria-pressed="true">Compatibility</button>
+   <button id="retry" type="button">Reload</button>
+  </div>
+ </div>
+ <div class="viewport">
+  <iframe id="viewer" title="GameVault Embervale interactive map" referrerpolicy="no-referrer" allow="fullscreen; gyroscope; accelerometer" allowfullscreen hidden></iframe>
+  <div class="loading" id="loading"><span class="sigil" aria-hidden="true">◇</span><strong>Ready to test the map</strong><p>Tap Load map to start. The map uses an external website, so it requires internet access.</p><button id="begin" type="button">Load map here</button><span class="small">This page is independent of the Velaris server.</span></div>
+  <div id="help" class="help" hidden role="status" aria-live="polite">
+   <h2 id="helpTitle">Still showing a white screen?</h2>
+   <p id="helpText">If the map is visible behind this message, tap “It works.” Otherwise try Compatibility. If both fail but the direct site works, the provider probably prevents embedding.</p>
+   <div class="buttons">
+    <button type="button" id="works">It works</button>
+    <button type="button" id="switch">Try Protected</button>
+    <a href="https://enshrouded.gamevault.in/map" class="link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open full map ↗</a>
+   </div>
+  </div>
+ </div>
+</section>
+<div class="result" aria-live="polite">
+ <div class="line"><strong id="state">Not started</strong><a class="link" href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open map directly ↗</a></div>
+ <div id="diag">Compatibility is now the default because it worked on your iPhone. Tap Load map here to test the integrated layout.</div>
+</div>
+<p class="note">Compatibility is the launcher’s default map mode after the successful iPhone test. Protected is an optional stricter diagnostic mode. It does not bypass the map provider’s security policies. An iframe loading event cannot confirm that its 3D graphics actually rendered; only you can verify that visually.</p>
+<footer>ShroudForge 2.2 candidate · Map compatibility diagnostic · No live-server connection</footer>
+</main>
+<script>
+(function(){
+'use strict';
+const mapUrl='https://enshrouded.gamevault.in/map';
+const policy='allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock allow-popups-to-escape-sandbox';
+const $=id=>document.getElementById(id);
+let mode='compatibility',begun=false,attempt=0,timeout=null;
+const set=(id,msg)=>$(id).textContent=msg;
+function load(){
+ begun=true;attempt+=1;const thisAttempt=attempt;
+ clearTimeout(timeout);
+ $('help').hidden=true;
+ $('loading').hidden=true;
+ const iframe=$('viewer');iframe.hidden=false;
+ iframe.removeAttribute('src');
+ if(mode==='protected')iframe.setAttribute('sandbox',policy);
+ else iframe.removeAttribute('sandbox');
+ $('standard').setAttribute('aria-pressed',String(mode==='protected'));
+ $('compat').setAttribute('aria-pressed',String(mode==='compat'));
+ set('modeLabel',mode==='protected'?'Protected frame (current launcher behavior)':'Compatibility frame (no iframe sandbox)');
+ set('state','Loading '+(mode==='protected'?'protected':'compatibility')+' map…');
+ set('diag','Loading the GameVault website inside this window. No ShroudForge token or player data is sent.');
+ iframe.onload=()=>{if(thisAttempt!==attempt)return;set('state','Frame responded — visual check required');set('diag','A frame response does not mean terrain rendered. If you see white, use Compatibility or the direct map link.');};
+ iframe.onerror=()=>{if(thisAttempt!==attempt)return;set('state','Frame load failed');showHelp();};
+ iframe.src=mapUrl;
+ timeout=setTimeout(()=>{if(thisAttempt===attempt)showHelp();},11000);
+}
+function showHelp(){
+ $('help').hidden=false;
+ if(mode==='compatibility'){
+  set('helpTitle','Does the full map work directly?');
+  set('helpText','If this pane is still white but the direct map opens, the provider is likely blocking or incompatible with embedding. ShroudForge cannot force the original map to render here.');
+  set('switch','Try Protected');
+ }else{
+  set('helpTitle','Still showing a white screen?');
+  set('helpText','If you can use the map, tap “It works.” Otherwise try Compatibility, which changes iframe permissions. The direct map link is always available.');
+  set('switch','Try Compatibility');
+ }
+}
+function setMode(value){mode=value;set('state',value==='protected'?'Protected mode selected':'Compatibility mode selected');if(begun)load();}
+$('begin').addEventListener('click',load);
+$('retry').addEventListener('click',load);
+$('standard').addEventListener('click',()=>setMode('protected'));
+$('compat').addEventListener('click',()=>setMode('compatibility'));
+$('switch').addEventListener('click',()=>setMode(mode==='protected'?'compatibility':'protected'));
+$('works').addEventListener('click',()=>{clearTimeout(timeout);$('help').hidden=true;set('state','You confirmed the map is visible in '+mode+' mode');set('diag','Use this result to select the corresponding integration strategy for the phone UI. This test does not connect to the server.');});
+})();
+</script>
+</body>
+</html>

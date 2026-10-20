@@ -22,6 +22,8 @@ Read the current branch source and actual test outputs before making progress cl
 
 ## Current development priority — October 19, 2026
 
+**October 20 owner update (supersedes the older priorities below):** Current UI acceptance, backup/restore/recovery, and mod/settings behavior are accepted as-is. Do not reopen them as completion gates or imply they were independently gameplay-certified. Start installation/update polish: reliable normal launcher close/relaunch, rollback, clear setup/update instructions, and compatible human-readable naming. Keep GitHub project/PR work open with running status updates; do not merge or close it as part of this work. Preserve working server behavior and existing installation paths.
+
 - Finish the **minimal dark-fantasy desktop launcher UI**: dashboard layout, navigation, coherent screens, restrained animations, usability.
 - Then validate player activity/profile displays, mod sliders, server settings, backups, console and recovery features against the **actual code and test evidence**.
 - **Canceled:** in-game GPS / quest-navigation replacement; flame altar rotation.
