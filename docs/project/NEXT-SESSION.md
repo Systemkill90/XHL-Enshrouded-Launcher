@@ -1,5 +1,8 @@
 # Next development session — ShroudForge 2.0
 
+> [!IMPORTANT]
+> **Superseded as the primary handoff by [SESSION-HANDOFF.md](SESSION-HANDOFF.md) and [CURRENT-STATE.md](CURRENT-STATE.md).** This page is retained as the October 19 *original UI-session plan*. Since then, [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) integrated the earlier player-profile and event-feed source, and the owner's iPhone map Compatibility result was recorded. Follow the newer documents and current GitHub HEAD, not the original branch-only instructions below.
+
 **Prepared October 19, 2026.** Intended to provide a low-overhead restart point for a new Work/Codex session. This is a task plan, not a claim that the latest development code is on the owner's Windows machine.
 
 ## Reliable reference points
