@@ -33,3 +33,7 @@ When an owner reverses a cancellation, changes production rules, or approves dep
 ## October 19, 11:50 PM EDT — explicit deployment authorization
 
 Owner: “Forget the test server … Pause phone stuff for today … Publish and restart live server and launcher now.” This supersedes the staged-only deployment boundary for this specific candidate. The owner waived test-server acceptance; it was not tested. Private.2 was installed with rollback and one graceful server restart verified. Phone development remains paused; no public release or merge was requested or performed.
+
+## October 20 — selective refactor and launcher-only deployment
+
+Owner first authorized the focused review refactor with no live access. After verified commit 507d86c, the owner explicitly authorized deployment, then preapproved related GitHub updates. The launcher-only deployment completed with rollback and installed hashes/readiness verified; the existing server process/files/settings stayed unchanged and no game-server restart was requested. Preserve existing working integration. Current authorization applies to the related work, not unrelated scope. Publish matching source plus exact validation/deployment limits; do not claim unresolved phone or gameplay acceptance passed.

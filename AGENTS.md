@@ -14,7 +14,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 **At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
 
-**Latest deployment note:** The owner explicitly authorized taking private.2 online and one server/launcher restart, waived a test server, and paused phone work for today. That deployment completed with query readiness, package hashes and rollback verified. This is not permission for further restarts or server changes. The iPhone GameVault crypto.subtle.digest defect remains unresolved. Read current state and handoff for the historical acceptance limits.
+**Latest deployment note:** October 20 selective refactor is published at 39684d2 (tree-identical to installed local 507d86c). Launcher-only replacement completed with installed hashes, query readiness, unchanged server process/files/settings and rollback verified; zero server restarts for this update. Local builds and 264 fixtures plus seven native checks passed; current-head CI is tracked in current state. Existing phone defect remains unresolved. The owner authorized this deployment and related GitHub updates; use the current task's scope for subsequent operations.
 
 ## Start here
 

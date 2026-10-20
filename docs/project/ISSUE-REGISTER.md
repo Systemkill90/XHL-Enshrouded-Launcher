@@ -34,3 +34,7 @@ Use GitHub Issues for independently actionable bugs with reproduction steps, exp
 ## Device defect / pause
 
 Owner screenshot shows GameVault crypto.subtle.digest unavailable; phone work paused today, defect unresolved. Private.2 installed by explicit authorization; test-server gate waived, not passed.
+
+## October 20 — engineering-review findings addressed
+
+Process observation failures no longer become confirmed absence; failed scans retain the last complete result with visible errors/age; stale or altered builds are rejected; classic tools use an explicit recovery capability; desktop host/UI contracts and operation results are typed/consistent. Source: [39684d2](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/commit/39684d20d05ce1f12f83562f5994c1cf2c3d6956), identical tree to installed local 507d86c. Local validation passed; current-head CI and remaining device/gameplay limits are tracked in current state. Existing Windows/.NET path-length limitation requires short fixture paths; no broad filesystem redesign was introduced.

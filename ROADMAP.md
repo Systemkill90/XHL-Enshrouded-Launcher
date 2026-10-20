@@ -1,6 +1,6 @@
 # Where we're going
 
-> **For the current implementation rather than the original planning baseline, use [CURRENT-STATE.md](docs/project/CURRENT-STATE.md) and [SESSION-HANDOFF.md](docs/project/SESSION-HANDOFF.md).** The merged UI/player/event source is staged in [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31); compilation and tests do not mean it was installed. The October 19 iPhone iframe Compatibility bug fix is a narrowly approved exception to the general phone-app pause.
+> **Current implementation:** the selective reliability refactor is published in [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) at 39684d2 and installed under explicit authorization. Its source tree matches local 507d86c. The launcher-only update preserved the running server and settings; see [current state](docs/project/CURRENT-STATE.md) and [handoff](docs/project/SESSION-HANDOFF.md) for exact tests, CI and unresolved device/gameplay limits.
 
 **Planning updated October 19, 2026.** This is a plain-English roadmap, not a list of features already installed on Velaris. See the [dated development tracker](docs/project/development-tracker.md) for provisional percentages and activity dates.
 
