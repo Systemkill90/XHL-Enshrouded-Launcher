@@ -14,7 +14,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 **At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
 
-**Current October 20 note:** Recovered/installed metadata is 3.0.0-private.1; the unified acceptance candidate is 3.0.0-private.2 in draft PR #31 under desktop/. The earlier 2.2 label was provisional. Local Windows builds, 247 fixtures and native dummy checks passed. Native DPI, exact iPhone terrain and disposable-game acceptance remain. Never stop or modify the live server. Consult current state for exact source/CI evidence.
+**Latest deployment note:** The owner explicitly authorized taking private.2 online and one server/launcher restart, waived a test server, and paused phone work for today. That deployment completed with query readiness, package hashes and rollback verified. This is not permission for further restarts or server changes. The iPhone GameVault crypto.subtle.digest defect remains unresolved. Read current state and handoff for the historical acceptance limits.
 
 ## Start here
 

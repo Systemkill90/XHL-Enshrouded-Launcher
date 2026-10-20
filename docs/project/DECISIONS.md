@@ -29,3 +29,7 @@ The repository is **public**. Do not put private LAN addresses/links, phone bear
 When an owner reverses a cancellation, changes production rules, or approves deployment: (1) date a new decision here; (2) update [CURRENT-STATE.md](CURRENT-STATE.md), [development tracker](development-tracker.md), and [ROADMAP.md](../../ROADMAP.md); (3) use a reviewable PR and record validation; (4) never infer permission for server changes from GitHub activity.
 
 [Current state](CURRENT-STATE.md) · [Work log](WORK-LOG.md) · [Session handoff](SESSION-HANDOFF.md)
+
+## October 19, 11:50 PM EDT — explicit deployment authorization
+
+Owner: “Forget the test server … Pause phone stuff for today … Publish and restart live server and launcher now.” This supersedes the staged-only deployment boundary for this specific candidate. The owner waived test-server acceptance; it was not tested. Private.2 was installed with rollback and one graceful server restart verified. Phone development remains paused; no public release or merge was requested or performed.

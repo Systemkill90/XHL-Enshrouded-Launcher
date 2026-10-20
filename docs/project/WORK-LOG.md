@@ -33,3 +33,10 @@ Phone ChatGPT chats, desktop Work and Codex sessions are **not** synced to GitHu
 ## October 20 — unified private candidate
 
 Reconciled recovered 3.0 desktop baseline 0873d2f with PR #31 a5fcf21. Published development head 3e868582d47f21df547fcc554e8ad172814c3ed2; main receives documentation only. Installed metadata verified as 3.0.0-private.1; candidate version 3.0.0-private.2. See CURRENT-STATE and the PR reconciliation report for changed features and exact validation. Both Windows builds, TypeScript/bundle, 247 fixtures and seven native dummy checks passed; browser routes and phone modes/fit checked. Native visual/DPI, physical iPhone terrain and disposable-game acceptance remain unverified. Separate checksummed candidate staged; installed launcher and live server untouched. Modern Windows run #4 and historical run #139 passed. Initial frozen-lock specifier mismatch was corrected before the successful rerun. Native startup/accessibility passed; screenshot capture/input geometry prevented full visual acceptance.
+
+## Live deployment — owner authorized October 19, 2026, 11:50 PM EDT
+
+The owner explicitly waived a separate test server, paused phone work for today, and authorized taking the candidate online with a server/launcher restart. **3.0.0-private.2 is now installed and running**, not merely staged. Exactly one graceful server restart was submitted; the server was query-confirmed online before and after the launcher replacement. Installed package file hashes matched; checked server executable/configuration/startup/controller files remained unchanged. Previous launcher files and manager state were retained privately for rollback. No game patch, mod replacement, save restoration or public GitHub release/PR merge was performed.
+
+The owner's iPhone screenshot shows GameVault failing with crypto.subtle.digest unavailable. Phone work is paused; this defect is **not fixed** or certified by the deployment. Native visual/DPI and gameplay acceptance remain limited as recorded below. The test-server acceptance gate was waived by the owner, not passed.
+

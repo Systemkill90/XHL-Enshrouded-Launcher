@@ -30,3 +30,7 @@ Use GitHub Issues for independently actionable bugs with reproduction steps, exp
 **Do not publish** server addresses, private phone links, bearer tokens, personal usernames, raw chat text, player records, saves or device fingerprints in a public issue.
 
 [Shared workflow](AI-WORKFLOW.md) · [Session handoff](SESSION-HANDOFF.md) · [Development tracker](development-tracker.md)
+
+## Device defect / pause
+
+Owner screenshot shows GameVault crypto.subtle.digest unavailable; phone work paused today, defect unresolved. Private.2 installed by explicit authorization; test-server gate waived, not passed.
