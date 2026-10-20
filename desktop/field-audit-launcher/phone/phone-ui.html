@@ -139,9 +139,9 @@ nav.tabs{position:fixed;top:auto;bottom:0;left:0;right:0;display:grid;grid-templ
    <details class="control-details"><summary>Server controls <small>Start · Restart · Stop</small></summary>
     <div class="control-body"><p class="live-note">These actions affect your live server. Stop and Restart disconnect players.</p>
      <div class="actions"><button id="start" class="primary" disabled onclick="run('Start')">Start</button><button id="restart" disabled onclick="run('Restart')">Restart</button><button id="stop" class="danger" disabled onclick="run('Stop')">Stop</button></div>
-     <p id="result" class="result" role="status" aria-live="polite"></p>
     </div>
    </details>
+   <p id="result" class="result" role="status" aria-live="polite"></p>
   </div>
  </section>
  <div class="section-heading"><h2>Realm overview</h2><small>Live host readings</small></div>
@@ -249,5 +249,16 @@ async function refresh(){try{let r=await fetch('status',{cache:'no-store'});if(!
  row.append(top,session,details);if(p.lastIssue){let issue=document.createElement('small');issue.textContent='Last issue: '+p.lastIssue;row.append(issue);}list.append(row);
 });if(!list.children.length)list.textContent=s.online?'No named players currently observed.':'Server offline';['worldFiles','worldSize','worldSaved','bases'].forEach(id=>text(id,s[id]||'Not observed'));const known=el('knownPlayers');known.replaceChildren();(s.knownPlayers||[]).forEach(p=>{let row=document.createElement('div');row.className='row';let name=document.createElement('strong');name.textContent=p.name;let evidence=document.createElement('small');evidence.textContent=p.evidence;row.append(name,evidence);known.append(row);});if(!known.children.length)known.textContent='No identifiable player records in the available history.';const events=el('activity');events.replaceChildren();(s.activity||[]).forEach(e=>{let row=document.createElement('div');row.className='row';let message=document.createElement('span');message.className='activityText';message.textContent=e.message;let when=document.createElement('small');when.textContent=e.time;row.append(message,when);events.append(row);});if(!events.children.length)events.textContent='No recent activity available.';
 text('lastBackup',(s.backupCount>=0?s.backupCount+' completion markers · ':'')+s.lastBackup);text('backupSchedule','Every '+s.backupMinutes+' minutes'+(s.backupPaused?' · Paused for review':s.controls&&s.autoBackup?' · Next '+s.nextBackup:' · Currently off'));text('backupResult',s.backupStatus||'');text('result',s.operation||notice||'Ready for your next action');el('result').className='result'+(s.busy?' working':'');['autoBackup','recovery'].forEach(id=>{el(id).setAttribute('aria-pressed',s[id]?'true':'false');text(id,s.controls?(id==='recovery'&&s.recoveryPaused?'Paused':s[id]?'On':'Off'):'Paused');});const busy=s.busy||!s.controls||sending;el('start').disabled=busy||s.online;el('stop').disabled=el('restart').disabled=busy||!s.online;['backup','autoBackup','recovery'].forEach(id=>el(id).disabled=busy);}catch(e){lock();text('stateText','Connection lost');text('updated','Check the host launcher and Wi-Fi.');}}
-async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}syncMapMode();showTab(location.hash.slice(1));refresh();setInterval(refresh,1000);
+async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}document.querySelector('nav.tabs').addEventListener('keydown',event=>{
+ const keys=['ArrowLeft','ArrowRight','Home','End'];
+ if(!keys.includes(event.key))return;
+ const tabs=[...document.querySelectorAll('nav.tabs [role="tab"]')];
+ const at=tabs.indexOf(document.activeElement);
+ if(at<0)return;
+ event.preventDefault();
+ const target=event.key==='Home'?0:event.key==='End'?tabs.length-1:(at+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;
+ tabs[target].focus();
+ showTab(tabs[target].id.slice(0,-3));
+});
+syncMapMode();showTab(location.hash.slice(1));refresh();setInterval(refresh,1000);
 </script></body></html>
