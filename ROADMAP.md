@@ -1,6 +1,6 @@
 # Where we're going
 
-> **Current priority:** installation/update polish, started in [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) at acc49e5. The owner accepts current UI, backup/recovery and mod/settings behavior as-is. GitHub work stays open for running updates. The first updater/guide slice is tested and staged; the running offline-history build remains f6d5715 / a6c1db8. See [current state](docs/project/CURRENT-STATE.md).
+> **Current priority:** continue installation/update polish and open GitHub updates. Close warnings, create/scan, DPI/zoom-aware window minimum, unobstructed View players and decimal MB are implemented, verified and installed at 75952a5 / local 5f35199. Current UI/recovery/mod behavior stays accepted as-is. Real SteamCMD/fresh-machine/new-server gameplay checks remain unverified; do not treat them as owner-approved automatic operations. [Current state](docs/project/CURRENT-STATE.md) has exact evidence.
 
 **Planning updated October 19, 2026.** This is a plain-English roadmap, not a list of features already installed on Velaris. See the [dated development tracker](docs/project/development-tracker.md) for provisional percentages and activity dates.
 

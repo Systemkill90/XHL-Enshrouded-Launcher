@@ -1,5 +1,16 @@
 # ShroudForge — verified development and decision chronology
 
+## October 20 — close/server setup, sizing correction and MB units installed
+
+Published source **75952a5ec4e2461c89e6d783d289ad0ac32b5349**, local **5f351990b92da1c4f49df5df07cb160e50438dd5**, identical tree **9e1cf8c6081b5a5d41c6e6b1a0e982e4fa9f346c**, on dev/server-setup-and-close-prompt and the open PR #31 feature branch. Earlier feature source e49bfcdf/local49115cf is included.
+
+Implemented close choices, bounded scan and separate-server creation, per-server automation/history, a 1100 × 900 CSS minimum with DPI/zoom adjustment, normal-flow hero actions/metrics, and decimal MB cards/charts/file sizes. The first fit check missed a 12 px overlap at 1440 × 900; the owner report was reproduced, then corrected. Twenty viewport combinations now pass geometry/scroll/footer checks; button hit tests and Players navigation pass. Native screenshot capture remained unavailable.
+
+**317 fixtures, 10 native dummy checks, 15 installer checks, both Windows builds, TypeScript, bundling, phone synchronization and provenance passed.** Installer also passed PS5.1; full package fixture installation passed. Current-head [modern #18](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39421833951) and [historical #153](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39421833866) both passed and uploaded artifacts.
+
+Installed with private rollback retained. One later explicitly authorized graceful server and launcher restart completed; subsequent launcher-only updates kept that server process running. Final package hashes, unchanged selected settings/server/mod script hashes, query readiness, Running observation, clean inventory scan and MB output verified. No second server restart was issued. No live player/private path data is published here. Real SteamCMD download, fresh-machine dependency installation, new-server gameplay and native-dialog interaction remain unverified. Installation polish and GitHub updates remain open; accepted items 1–3 are not reopened.
+
+
 **Public project history, consolidated October 19, 2026.** This is a selective engineering record, **not** a copy of private conversations, local desktop history or sensitive server telemetry. Where testing occurred only in CI or as an owner's observation, that distinction is explicit.
 
 | Date | What happened | Evidence / limitations |

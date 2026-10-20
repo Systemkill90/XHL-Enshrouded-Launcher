@@ -19,6 +19,9 @@
 | D-13 | Oct 19 | External 3D GameVault map **visually works in iPhone Safari Compatibility iframe**; restrictive iframe produces white. | Default the staged map tab to Compatibility, retain Protected setting, click-to-load and no-referrer. Validate actual hosted phone page before claiming installed. |
 | D-14 | Oct 15–19 | Backups/restores, crash recovery and server controls must be guarded and reversible; player progress takes priority. | CI-only fixtures aren't sufficient for a production rollback, world restore or game update. |
 | D-15 | Oct 19 | Development history must be transparent: percentages are **planning estimates**, not proof. | Record started/last active dates, commit SHA, tests, visually verified behavior, installation and release separately. |
+| D-16 | Oct 20 | Owner requests running-server close choices and separate create/scan functionality. | Add explicit modern UI prompts and bounded read-only discovery; create in separate empty folders, no automatic start or world migration. Preserve existing managed wrapper behavior. |
+| D-17 | Oct 20 | Owner authorized one server and launcher restart; it was completed and query-confirmed. | That one-time server restart is consumed. Subsequent sizing/unit corrections were launcher-only updates; no automatic repeat server restart. |
+| D-18 | Oct 20 | Owner requests minimum window sizing, uncovered View players and proper megabytes. | Native minimum protects 1100 × 900 CSS content with DPI/zoom adjustment; actions and metrics use separate rows. Display decimal MB with actual conversion, and label unchanged binary safety limits MiB. |
 
 ## Security / publishing rule
 

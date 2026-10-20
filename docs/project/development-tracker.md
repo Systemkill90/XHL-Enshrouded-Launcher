@@ -2,7 +2,7 @@
 
 **For latest source/test/install state:** see [CURRENT-STATE.md](CURRENT-STATE.md) and [SESSION-HANDOFF.md](SESSION-HANDOFF.md). This table intentionally preserves the owner/assistant **October 19 historical planning estimates**; its numeric percentages must not be silently recalculated from passing CI or newly written documentation. Read the [issue register](ISSUE-REGISTER.md) for priority and blockers.
 
-**Latest owner scope (October 20):** Items 1–3 (Windows UI, backup/recovery, mods/settings) are accepted as-is. Item 4 installation/update polish is in progress; first slice acc49e5 is tested and staged, not installed. Item 5 GitHub closeout stays open with running updates. Exact current evidence is in CURRENT-STATE.md; the historical percentages below are not a current remaining-work checklist.
+**Latest verified update — October 20:** Close choices, create/scan server setup, responsive overview with an enforced DPI/zoom-aware minimum, unobstructed View players, and correct decimal MB displays are installed. Source **75952a5** / local **5f35199**, identical tree **9e1cf8c6081b5a5d41c6e6b1a0e982e4fa9f346c**. Current-head CI #18/#153 passed. One explicitly authorized server restart was completed and must not be repeated automatically. Existing UI/recovery/mod behavior stays accepted as-is; installation polish remains in progress and PR #31 stays open. See [current state](CURRENT-STATE.md) for evidence and unverified limits.
 
 **Owner planning baseline: October 19, 2026.** This tracker consolidates the October 19 development discussion. It is **not** a source-code audit, deployment manifest, or proof that each feature works on the live server.
 

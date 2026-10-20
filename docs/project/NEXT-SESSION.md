@@ -1,5 +1,7 @@
 # Next development session — ShroudForge 2.0
 
+**Latest verified update — October 20:** Close choices, create/scan server setup, responsive overview with an enforced DPI/zoom-aware minimum, unobstructed View players, and correct decimal MB displays are installed. Source **75952a5** / local **5f35199**, identical tree **9e1cf8c6081b5a5d41c6e6b1a0e982e4fa9f346c**. Current-head CI #18/#153 passed. One explicitly authorized server restart was completed and must not be repeated automatically. Existing UI/recovery/mod behavior stays accepted as-is; installation polish remains in progress and PR #31 stays open. See [current state](CURRENT-STATE.md) for evidence and unverified limits.
+
 > [!IMPORTANT]
 > **Superseded as the primary handoff by [SESSION-HANDOFF.md](SESSION-HANDOFF.md) and [CURRENT-STATE.md](CURRENT-STATE.md).** This page is retained as the October 19 *original UI-session plan*. Since then, [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) integrated the earlier player-profile and event-feed source, and the owner's iPhone map Compatibility result was recorded. Follow the newer documents and current GitHub HEAD, not the original branch-only instructions below.
 

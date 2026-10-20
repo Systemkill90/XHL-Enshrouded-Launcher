@@ -4,7 +4,7 @@
 
 | Priority | Work item | Evidence to finish it | Known state |
 | :-- | :-- | :-- | :-- |
-| Completed | Reconcile source and installed build | Exact source/tree, deployment and current CI recorded | Reconciliation and offline metadata are implemented; current installation is local f6d5715 / published a6c1db8. |
+| Completed | Reconcile source and installed build | Exact source/tree, deployment and current CI recorded | Reconciliation and offline metadata are implemented; current installation is local 5f35199 / published 75952a5 with identical tree; close/setup, sizing/overlap and MB corrections are installed. |
 | Accepted | Current Windows launcher UI | Owner accepts as-is on October 20 | No further visual/DPI/keyboard acceptance work requested; this does not claim new independent tests. |
 | P0 | Maintain live Velaris and the three proven mods throughout testing | Dedicated-process/readiness checks before/after only authorized launcher work, no lost progress | Owner-confirmed working Oct 19; no broad host acceptance of PR #31 |
 | P1 | Player profiles and activity information | Confirm log-derived identity/session/event mapping, accurate empty states and privacy limits | Modern profiles now expose existing observed sheets/session history; local checks passed. Inventory/level/location remain unavailable. |
@@ -12,7 +12,7 @@
 | Accepted | Current settings and sleep behavior | Owner accepts as-is on October 20 | No further verification gate requested; do not imply newly performed gameplay tests. |
 | Accepted | Current backup/restore and recovery behavior | Owner accepts as-is on October 20 | No additional rehearsal required for completion under current scope. |
 | P1 | Companion phone map's exact installed-page compatibility | Test full ShroudForge phone UI on iPhone after isolated launcher build/approved update, not just standalone diagnostic | Compatibility default and mode/fit tests passed in browser; physical iPhone terrain/touch on exact page remains. |
-| Active | Installation/update polish | Continue safe existing-install updates and clear setup guidance | First slice acc49e5 adds packaged updater/guide, normal hidden-window close, rollback and compatible shortcut naming; 15 installer checks plus real-package fixture passed. Fresh-machine setup remains separate. |
+| Active | Installation/update polish | Continue safe updates and owner feedback on setup | Close choices, create/scan, per-server scopes, DPI-aware minimum, corrected View players overlap and decimal MB installed at 75952a5 / local 5f35199. 317 fixtures, 10 native, installer/provenance and both current-head CI workflows passed. Real SteamCMD/fresh-machine/new-server gameplay remains unverified. |
 | P2 | Public repository clarity and branding | Align active ShroudForge name across non-breaking docs, links and release descriptions | [Branding issue #12](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/12) now uses **ShroudForge**; its prior 'Enshrouded Server Companion' text is retained only as historical context |
 | Ongoing | GitHub running updates | Keep exact source/test/install status current | Owner explicitly keeps PRs/project work open; do not merge/close as project closeout. |
 

@@ -1,5 +1,36 @@
 # ShroudForge — current verified development state
 
+## Latest: close choices, server setup, window sizing and MB units — October 20, 2026
+
+**Installed and locally verified.** Published source [75952a5](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/commit/75952a5ec4e2461c89e6d783d289ad0ac32b5349) on `dev/server-setup-and-close-prompt` and `feat/ui-navigation-polish-20261019`; local installed commit `5f351990b92da1c4f49df5df07cb160e50438dd5` has identical tree `9e1cf8c6081b5a5d41c6e6b1a0e982e4fa9f346c`. The initial feature commit is published `e49bfcdf96f3f518e13d4dab025784ffc817a9bd` / local `49115cf009de3918b1ef214eee29872ea791fb77`, tree `0cb757f21f50985081591bd76ed4b243295ec473`. Connected-app publication preserves remote ancestry.
+
+### Changes available in the modern launcher
+
+- Closing while the selected server runs offers **Keep server running**, **Stop server and exit** (graceful), or **Cancel**. Failed/unknown observation warns; failed stop leaves the launcher open. Monitoring and launcher automation pause while closed. Installer handover explicitly closes only the launcher and still honors busy guards.
+- Server selector, Tools → Servers and System page provide bounded read-only discovery and separate standard-server creation. Creation requires a separate empty folder, an official SteamCMD selected by the owner, and confirmed app download. It writes current role-based configuration and leaves the new world unstarted. Existing/nonempty/overlapping destinations are rejected; partial failures stay in the new folder.
+- Selection confirms a reopen and leaves the previous server running. Backup/recovery preferences, journals and telemetry are scoped per server; first selection starts automation off. Existing managed/modded servers retain the verified wrapper path. Standard enrollment records game-file fingerprints, rejects known mod loaders and blocks startup after changes; it does not prove vendor authenticity or arbitrary mod compatibility.
+- The overview uses compact spacing/charts in supported windows. Native minimum protects **1100 × 900 CSS content pixels**, adjusted for display DPI and WebView zoom. A reproduced 12 px overlap at 1440 × 900 was corrected by placing actions and metrics in separate rows. Twenty width/height combinations from 1100 × 900 through 1920 × 1440 pass no page scrolling, contained metrics, no footer overlap and at least 14 px of separation below View players. Button corners/center are unobstructed and navigation works; six navigation pages also fit minimum width. Long data pages and error details retain scrolling.
+
+- Memory cards and charts use decimal **MB** (1 MB = 1,000,000 bytes), with converted chart values. File/world/player-transfer sizes use matching decimal B/kB/MB/GB/TB. Binary safety limits keep their thresholds and are labeled MiB; internal GiB history and incident schema stay compatible.
+
+### Evidence and installation
+
+Modern/classic builds, strict TypeScript, UI bundling, phone synchronization, **317 fixture checks** (93 desktop, 160 core, 24 resilience, 14 fields, 26 mods), **10 native dummy checks**, 15 installer checks and missing/stale/tampered provenance rejection passed. Installer compatibility also passed in Windows PowerShell 5.1. The full package installed into a disposable fixture before host installation. Exact-head CI: modern [run #18](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39421833951) and historical [run #153](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39421833866) both passed on the exact published head, including package artifacts.
+
+The owner approved related deployment and later **one server and one launcher restart**. The initial launcher-only install preserved the running server. The single subsequent graceful server restart and launcher restart were verified query-ready, with unchanged server/configuration/mod script fingerprints and matching installed package. The sizing, overlap and MB follow-ups were then installed as launcher-only updates; that same restarted server process remained running, selected settings and server-file hashes stayed unchanged, process observation was Running, inventory scan had no error, and installed memory output used MB. Rollback/private manager data are retained locally. The one server-restart authorization has been consumed; do not repeat it automatically.
+
+### Continuing scope and limits
+
+Items 1–3 (existing UI, backup/recovery and mod/settings behavior) remain owner-accepted as-is. Item 4 installation polish remains in progress; item 5 GitHub stays **open for running updates**, including draft [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31). Do not merge or close. Phone expansion stays paused; GPS and altar rotation remain canceled.
+
+Real SteamCMD download, fresh-machine dependencies, router/firewall setup, new-server gameplay and manual interaction with the new native dialogs remain unverified. Native screenshot capture timed out; browser viewport/layout measurements and compiled policy checks do not replace owner visual validation. No claim of new gameplay/mod compatibility certification is made. The version label remains private.2; exact commit/provenance identifies the build.
+
+[Setup/update guide](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/desktop/react-launcher/INSTALL-UPDATE.md) · [Change log](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/desktop/react-launcher/SERVER-SETUP-CHANGES.md)
+
+
+
+## Historical notes — superseded by the latest record above
+
 ## Owner scope update and installation polish — October 20, 2026
 
 | Item | Current status |

@@ -1,5 +1,7 @@
 # What's ready, and what's still being built?
 
+**Latest verified update — October 20:** Close choices, create/scan server setup, responsive overview with an enforced DPI/zoom-aware minimum, unobstructed View players, and correct decimal MB displays are installed. Source **75952a5** / local **5f35199**, identical tree **9e1cf8c6081b5a5d41c6e6b1a0e982e4fa9f346c**. Current-head CI #18/#153 passed. One explicitly authorized server restart was completed and must not be repeated automatically. Existing UI/recovery/mod behavior stays accepted as-is; installation polish remains in progress and PR #31 stays open. See [current state](CURRENT-STATE.md) for evidence and unverified limits.
+
 **Status consolidated: October 19, 2026.**
 
 ShroudForge distinguishes **code written**, **tests passing**, **working on the live server**, and **publicly released**. They are not the same thing.
