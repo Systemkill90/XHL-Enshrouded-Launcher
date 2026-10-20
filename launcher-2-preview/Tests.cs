@@ -128,8 +128,14 @@ static class Checks
                     "Map tab presents an in-panel recovery state without showing hidden frames");
                 Require(phonePage.Contains("Open full 3D map") && phonePage.Contains("dismissMapHelp()"),
                     "Map troubleshooting provides a working external link and dismiss control");
-                Require(phonePage.Contains("onclick=\"tryCompatibility()\"") && phonePage.Contains("mapCompatibility"),
-                    "Phone map includes a user-activated compatibility option");
+                Require(phonePage.Contains("id=\"mapMode\"") && phonePage.Contains("toggleMapMode()") &&
+                    phonePage.Contains("mapCompatibility=true") && phonePage.Contains("referrerpolicy=\"no-referrer\""),
+                    "Phone map defaults to user-verified iPhone compatibility with protected mode available");
+                Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssandbox\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase) &&
+                    phonePage.Contains("else frame.setAttribute('sandbox'"),
+                    "Phone map loads with compatibility permissions and can restore restricted sandbox");
+                Require(phonePage.Contains("if(!mapCompatibility)mapAssistTimer=setTimeout(showMapTrouble,9000)"),
+                    "Successful compatibility viewing does not get obscured by automatic troubleshooting overlay");
                 Require(!System.Text.RegularExpressions.Regex.IsMatch(phonePage,"<iframe[^>]+\\ssrc\\s*=",System.Text.RegularExpressions.RegexOptions.IgnoreCase),"External map is never loaded until the phone user requests it");
                 Require(phonePage.Contains("id=\"activity\"") && phonePage.Contains("details.className='playerDetails'"),"Phone includes activity and player health diagnostics");
                 Require(c.DownloadString(phone.Url+"status").Contains("Fixture"), "Phone status returns published data");
