@@ -1,6 +1,6 @@
 # Where we're going
 
-> **Current implementation:** offline player metadata and the selective reliability refactor are published in [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31), with a6c1db8 tree-identical to installed local f6d5715. Offline profiles retain recorded identity, sessions and network evidence. Launcher-only deployment preserved the running game server and settings. See [current state](docs/project/CURRENT-STATE.md) and [handoff](docs/project/SESSION-HANDOFF.md) for exact tests, CI and remaining limits.
+> **Current priority:** installation/update polish, started in [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) at acc49e5. The owner accepts current UI, backup/recovery and mod/settings behavior as-is. GitHub work stays open for running updates. The first updater/guide slice is tested and staged; the running offline-history build remains f6d5715 / a6c1db8. See [current state](docs/project/CURRENT-STATE.md).
 
 **Planning updated October 19, 2026.** This is a plain-English roadmap, not a list of features already installed on Velaris. See the [dated development tracker](docs/project/development-tracker.md) for provisional percentages and activity dates.
 
@@ -15,9 +15,9 @@
 
 ## Right now
 
-Recovered modern desktop source is reconciled in draft PR #31. Both Windows builds, 247 local fixtures and native dummy checks passed; physical-device, native DPI and disposable-game acceptance remain. No deployment or public release.
+The owner accepts the existing UI, backup/recovery and mod/settings behavior as-is. Installation/update polish is now in progress; the first slice adds normal hidden-window close, rollback protections, compatible shortcut naming and packaged update guidance. It is tested and staged, not newly deployed.
 
-The immediate priority is finishing the **launcher UI and user experience**, then auditing feature claims against the actual development branch and running Velaris host. The owner reported the server and three mods working on October 19; that does not verify proposed branch changes. Preserve the live server, validate any changes safely, and keep experiments separate from approved public releases. The companion phone app is paused, and flame altar rotation was canceled.
+Continue installation/setup improvements without moving existing folders or changing working server/mod behavior. Keep GitHub PRs and project tracking open with running updates. Fresh-machine onboarding remains separate from the first updater slice. The companion phone app remains paused, and GPS/altar rotation stay canceled.
 
 Want the details? [Project status](docs/project/README.md) · [Live branches and areas](docs/areas/README.md) · [Open development work](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pulls) · [Main page](README.md)
 

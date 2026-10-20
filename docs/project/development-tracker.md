@@ -2,7 +2,7 @@
 
 **For latest source/test/install state:** see [CURRENT-STATE.md](CURRENT-STATE.md) and [SESSION-HANDOFF.md](SESSION-HANDOFF.md). This table intentionally preserves the owner/assistant **October 19 historical planning estimates**; its numeric percentages must not be silently recalculated from passing CI or newly written documentation. Read the [issue register](ISSUE-REGISTER.md) for priority and blockers.
 
-**Latest checked evidence (October 19 EDT / October 20 UTC):** private.2 is installed and running from source 3e86858 in draft PR #31. Owner-authorized server and launcher restart completed once; query readiness and package hashes verified, rollback retained. Both Windows CI workflows, 247 local fixtures and seven native checks passed. Test-server acceptance was explicitly waived. Phone work is paused; actual iPhone crypto.subtle.digest map failure remains unresolved. Native visual/DPI review remains unverified. Historical percentages below remain planning estimates.
+**Latest owner scope (October 20):** Items 1–3 (Windows UI, backup/recovery, mods/settings) are accepted as-is. Item 4 installation/update polish is in progress; first slice acc49e5 is tested and staged, not installed. Item 5 GitHub closeout stays open with running updates. Exact current evidence is in CURRENT-STATE.md; the historical percentages below are not a current remaining-work checklist.
 
 **Owner planning baseline: October 19, 2026.** This tracker consolidates the October 19 development discussion. It is **not** a source-code audit, deployment manifest, or proof that each feature works on the live server.
 
@@ -111,3 +111,36 @@ A private, server-scoped metadata cache survives launcher restarts and log rotat
 **Limits:** recoverable fields depend on retained evidence. Archived log-write time is labeled as evidence time when an exact sample timestamp is unavailable. Session totals are matched by display name and can be affected by renames/reused names. Inventory, level, equipment and position remain unsupported. Native visual/DPI/keyboard review, actual iPhone behavior and real-game recovery/mod/restore acceptance remain unverified. The known GameVault crypto.subtle.digest defect is unresolved; phone expansion stays paused and GPS/altar rotation stay canceled.
 
 [Offline history details and changelog](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/desktop/react-launcher/PLAYER-HISTORY.md).
+
+## Owner scope update and installation polish — October 20, 2026
+
+| Item | Current status |
+| :-- | :-- |
+| 1. Windows UI acceptance | **Accepted as-is by the owner.** No further acceptance work requested. |
+| 2. Backup/restore and recovery | **Accepted as-is by the owner.** Do not hold completion open for an additional rehearsal. |
+| 3. Mod and settings behavior | **Accepted as-is by the owner.** Preserve existing working behavior. |
+| 4. Installation/update polish | **In progress. First implementation slice is tested and published.** |
+| 5. GitHub/project closeout | **Keep open for running updates.** Do not merge/close PRs or declare project closeout. |
+
+Owner acceptance is recorded as an owner decision; it is not a claim of newly performed independent gameplay, restore, visual or device tests. Earlier lists of acceptance gaps remain historical evidence, not blockers overriding this instruction.
+
+### First installation-polish slice
+
+Normal launcher closure now supports hidden windows while honoring busy-operation close guards. No forced termination or game-server action is used. Updates validate package paths/hashes/sizes, reject overlapping folders and reused rollback locations, preserve private Manager Data (including offline player history), and restore already replaced files after an update failure. The updater creates `Open ShroudForge.lnk` and preserves/updates the existing `Open XHL 2.0.lnk`; existing folders/executable/private-data paths remain compatible.
+
+Portable packages now include the updater, normal-close helper and [install/update guide](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/desktop/react-launcher/INSTALL-UPDATE.md). Fresh-machine onboarding and automatic installation-folder migration are not included in this first slice. Further installation polish stays open.
+
+### Exact source, package and running installation
+
+- Published source: [`acc49e5`](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/commit/acc49e5806ca0e3d58bb122d67624a1dc8c7ffaa), on `dev/installation-polish` and `feat/ui-navigation-polish-20261019`, [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31).
+- Local commit: `3f57ec163f8c5826e9d1167ee29baea02101f9d7`; matching source tree `e306b55f07f70894575ec6dc7cd2076dd43ca415` verified before publication. Connected-app publication retains existing remote ancestry.
+- Updated package is staged and tested with the included installer in a disposable directory. **No live update, launcher relaunch, game-server restart, settings change or folder migration was performed for this installation-tooling work.**
+- Running installation remains the offline-history build: local `f6d5715`, published matching source `a6c1db8`. Do not label the new installer/tooling source as installed.
+
+### Validation
+
+Modern/classic Windows builds, strict TypeScript, UI bundle, phone synchronization and the existing 279 fixture checks/seven native dummy-server checks passed. **15 installer checks passed under both PowerShell 7 and built-in Windows PowerShell 5.1**, covering hidden/busy windows, exact-path exclusion, normal relaunch, rollback retention, failed-copy rollback, shortcut compatibility, package tampering, unsafe/duplicate paths and directory overlap. The complete real package also installed into an isolated fixture with every manifest hash verified and no launcher execution.
+
+Current-head modern Windows [run #10](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39416441249) and historical Windows [run #145](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39416441239) both passed on this exact head, including fresh dependencies, builds, installer checks, packaging and artifact upload. These checks maintain build/install integrity; they do not reopen owner-accepted items 1–3.
+
+Phone expansion remains paused and the known GameVault crypto.subtle.digest defect stays recorded. GPS and altar rotation remain canceled. Public release/signing are separate future work.

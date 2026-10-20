@@ -4,17 +4,17 @@
 
 | Priority | Work item | Evidence to finish it | Known state |
 | :-- | :-- | :-- | :-- |
-| P0 | Reconcile actual desktop checkout and interrupted Work-session UI with [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) | Check branch/commit, uncommitted code and installed version; compare without overwriting local files | **Source reconciled** in PR #31 at 3e86858; installed metadata 3.0.0-private.1, candidate private.2 |
-| P0 | Verify refined launcher UI on Windows, narrow widths, DPI/keyboard and multi-page navigation | Screenshots/real UI acceptance of Dashboard, Players, Logs, Settings, World and Backups | All twelve synthetic browser pages and minimum width checked; native WebView2/DPI acceptance remains |
+| Completed | Reconcile source and installed build | Exact source/tree, deployment and current CI recorded | Reconciliation and offline metadata are implemented; current installation is local f6d5715 / published a6c1db8. |
+| Accepted | Current Windows launcher UI | Owner accepts as-is on October 20 | No further visual/DPI/keyboard acceptance work requested; this does not claim new independent tests. |
 | P0 | Maintain live Velaris and the three proven mods throughout testing | Dedicated-process/readiness checks before/after only authorized launcher work, no lost progress | Owner-confirmed working Oct 19; no broad host acceptance of PR #31 |
 | P1 | Player profiles and activity information | Confirm log-derived identity/session/event mapping, accurate empty states and privacy limits | Modern profiles now expose existing observed sheets/session history; local checks passed. Inventory/level/location remain unavailable. |
-| P1 | Mod controls, flight pitch-hold/stamina and game-version compatibility | Disposable-game tests and real observed mod behavior, preserve working installed binaries | Mixed historical testing/requests; don't assume current controls are fixed |
-| P1 | Settings and one-player / 60× sleep behavior | Exact game-build validation and safe test of config behavior | Editor code exists; sleep behavior still an open game-compatibility question |
-| P1 | Guarded backup/restore and crash recovery | Simulate and recover on disposable world, verify integrity and rollback, no blind restarts | Management UI and fixtures exist; release acceptance incomplete |
+| Accepted | Existing mod controls and compatibility behavior | Owner accepts as-is on October 20 | Preserve working mods/settings; no further gameplay acceptance gate requested. |
+| Accepted | Current settings and sleep behavior | Owner accepts as-is on October 20 | No further verification gate requested; do not imply newly performed gameplay tests. |
+| Accepted | Current backup/restore and recovery behavior | Owner accepts as-is on October 20 | No additional rehearsal required for completion under current scope. |
 | P1 | Companion phone map's exact installed-page compatibility | Test full ShroudForge phone UI on iPhone after isolated launcher build/approved update, not just standalone diagnostic | Compatibility default and mode/fit tests passed in browser; physical iPhone terrain/touch on exact page remains. |
-| P2 | Release packaging, dependency and installation cleanup | Safe detection of existing directories, human-readable folders, copy/rollback strategy, signed or clearly labeled preview artifact | [Release issue #10](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/10); unsigned portable candidate with dependencies/checksums/rollback staged; native/device/game acceptance remains |
+| Active | Installation/update polish | Continue safe existing-install updates and clear setup guidance | First slice acc49e5 adds packaged updater/guide, normal hidden-window close, rollback and compatible shortcut naming; 15 installer checks plus real-package fixture passed. Fresh-machine setup remains separate. |
 | P2 | Public repository clarity and branding | Align active ShroudForge name across non-breaking docs, links and release descriptions | [Branding issue #12](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/issues/12) now uses **ShroudForge**; its prior 'Enshrouded Server Companion' text is retained only as historical context |
-| P2 | Prevent stale docs or status inflation across sessions | Update GitHub handoff/status with exact branch, SHA, tests and device evidence | Repository memory consolidation created; ongoing practice |
+| Ongoing | GitHub running updates | Keep exact source/test/install status current | Owner explicitly keeps PRs/project work open; do not merge/close as project closeout. |
 
 ## Explicitly not active
 
@@ -42,3 +42,7 @@ Process observation failures no longer become confirmed absence; failed scans re
 ## October 20 — offline metadata retention addressed
 
 Previous-session identity and connection metadata no longer disappears when a member is offline or the launcher restarts. Retained logs/health history backfill private server-scoped records, session sources are combined/deduplicated, and historical values are labeled. Source a6c1db8 matches installed local f6d5715 by exact tree. 279 fixtures and seven native checks passed locally; current-head CI and deployment evidence are in current state. Information absent from every retained source cannot be reconstructed and remains Not recorded. No player records or raw operational evidence are published.
+
+## October 20 — owner acceptance and new focus
+
+Current UI, backup/recovery and mod/settings behavior is accepted as-is by the owner. Earlier independent-verification gaps are not active completion blockers. Installation/update polish is now the active workstream; GitHub/project closeout remains deliberately open for running updates. See current state for exact first-slice evidence. No live installation was changed during this slice.

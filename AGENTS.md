@@ -14,7 +14,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 **At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
 
-**Latest deployment note:** October 20 offline player-history metadata is published at a6c1db8, tree-identical to installed local f6d5715. Prior-session identity/session/network details now fill offline profiles with historical labels and private server-scoped persistence. The launcher-only deployment verified installed hashes, metadata import, query readiness and unchanged server process/files/settings; zero game-server restarts. Local builds and 279 fixtures plus seven native checks passed; current-head CI is linked in current state. The owner preapproved related work. Existing phone/device/gameplay limits remain.
+**Latest scope/status:** The owner accepts the current Windows UI, backup/restore/recovery, and mod/settings behavior as-is. Those are not open completion gates and are not newly independently certified by that acceptance. Current priority is installation/update polish. First slice acc49e5 (local 3f57ec1, identical tree) is built, fixture-tested and staged; it is not a new live deployment. The running offline-history build remains local f6d5715 / published a6c1db8. Keep GitHub PRs/tracking open with running updates; do not merge or close for project closeout. Preserve existing server behavior, paths, private metadata and rollback.
 
 ## Start here
 
@@ -38,7 +38,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 ## Current scope (October 19, 2026)
 
-- **Top priority:** complete the dark-fantasy launcher UI, dashboard, navigation and usability improvements.
+- **Top priority (October 20 owner update):** installation/update polish. Current UI, backup/recovery and mod/settings behavior is accepted as-is; keep GitHub work open for running updates.
 - Then: player activity displays, mod and server configuration controls, backups, reliability, installation experience and verifiable release processes.
 - **Canceled:** GPS / replacement quest navigation; flame altar rotation.
 - **Paused:** phone companion app.

@@ -37,3 +37,7 @@ Owner: “Forget the test server … Pause phone stuff for today … Publish and
 ## October 20 — selective refactor and launcher-only deployment
 
 Owner first authorized the focused review refactor with no live access. After verified commit 507d86c, the owner explicitly authorized deployment, then preapproved related GitHub updates. The launcher-only deployment completed with rollback and installed hashes/readiness verified; the existing server process/files/settings stayed unchanged and no game-server restart was requested. Preserve existing working integration. Current authorization applies to the related work, not unrelated scope. Publish matching source plus exact validation/deployment limits; do not claim unresolved phone or gameplay acceptance passed.
+
+## October 20 — accept existing behavior, start installation polish, keep GitHub open
+
+The owner accepts items 1–3 from the remaining-work list (current Windows UI, backup/restore/recovery and mod/settings) as they are. Record acceptance without inventing new independent verification. Start item 4 installation/update polish while preserving working server behavior and compatible paths. Keep item 5 open with ongoing GitHub updates; do not merge/close PRs or declare project closeout. The first tooling slice is tested/staged and not a new live deployment.
