@@ -36,3 +36,24 @@ The owner confirmed that **https://enshrouded.gamevault.in/map works on iPhone**
 5. Only after owner approval, perform a **launcher-only** update with rollback. Confirm the game server process remains unchanged, no user commands were triggered, and original manager data is retained.
 
 **Not verified here:** physical iPhone layout, native host installation, private-LAN network behavior and embedded map success. Do not mark those completed from static checks alone.
+
+
+## Final Windows validation — exact candidate head
+
+Published source head `3445a5b90507efb23b55fcdcb841a84f87a8ad6b` passed both Windows Actions workflows:
+
+- [Modern desktop candidate](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39438883682): build, TypeScript, exact phone HTML synchronization, the new **Phone-UX-Checks.mjs** syntax/layout/auth-path/map assertions, desktop/core/resilience/installer/field/mod/native checks, package provenance and unsigned candidate artifact all **passed**.
+- [Windows historical preview](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39438883680): build, fixtures, dummy native checks and unsigned preview artifact **passed**.
+
+The new C# integration assertions are part of the core fixture set. Source inspection verified all existing authentication/command URLs, a single inline script, four real tabs, unique IDs, user-triggered experimental iframe, safe external HTTPS link, keyboard tabs and no external UI scripts. These tests do not certify a live iPhone session.
+
+## Minimal launcher-only HTML update (optional; requires owner interaction on Windows)
+
+The existing `PhoneView.PhonePage()` reads `phone/phone-ui.html` from the launcher's application directory **on each new page request**; it falls back to embedded HTML if the file is absent or unreadable. This makes a reversible single-file phone UI update possible without rebuilding, restarting or touching the game server.
+
+1. Identify the **current running launcher's actual folder** and locate **`phone/phone-ui.html` under that launcher**, not the game/server installation. If uncertain, do not guess.
+2. Back up the existing HTML file privately outside the server folder. Download the **exact** [staged HTML](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-phone-refresh-20261020/desktop/field-audit-launcher/phone/phone-ui.html) from GitHub and replace **only** that one file. Keep the `.html` extension; preserve the entire launcher folder, private manager data, mods and configuration.
+3. Open the existing authenticated phone companion URL in Safari again and reload it. Confirm four tabs, server status/players/commands, and that **Open interactive 3D map** opens the independently working external HTTPS page.
+4. If anything regresses, restore the backed-up HTML and reload Safari. No game restart is necessary for either action.
+
+A GitHub commit does **not** perform step 2 on the user's computer. This page-update option requires direct Windows access/authorization and must not be described as already deployed.
