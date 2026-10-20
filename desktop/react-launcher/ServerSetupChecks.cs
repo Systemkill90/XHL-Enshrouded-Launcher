@@ -1,6 +1,9 @@
 using System;using System.IO;using System.Linq;using System.Collections.Generic;using System.Web.Script.Serialization;using XHLLauncher;
 static class ServerSetupChecks {
  internal static void Run(string root,Action<bool,string> check){
+  check(DesktopWindow.MinimumClient(96,1)==new System.Drawing.Size(1100,900),"Desktop minimum protects the measured compact content area");
+  check(DesktopWindow.MinimumClient(120,1)==new System.Drawing.Size(1375,1125),"Window minimum accounts for 125 percent display scaling");
+  check(DesktopWindow.MinimumClient(144,1.25)==new System.Drawing.Size(2063,1688),"Window minimum accounts for display scaling combined with WebView zoom");
   foreach(var observation in new[]{ProcessObservation.Unknown,ProcessObservation.Failed})check(LauncherClosing.Evaluate(new HostState{Observation=observation,ServerRunning=true},false,false,false)==CloseState.Unknown,"Uncertain process observation warns before launcher exit: "+observation);
   check(LauncherClosing.Evaluate(new HostState{Observation=ProcessObservation.Running},false,false,false)==CloseState.Running,"Running server requires an explicit close choice");
   check(LauncherClosing.Evaluate(new HostState{Observation=ProcessObservation.Stopped},false,false,false)==CloseState.Exit,"Confirmed stopped server permits normal exit");

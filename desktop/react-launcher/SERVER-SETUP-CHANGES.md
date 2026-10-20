@@ -7,15 +7,22 @@
 - Standard servers use explicit enrollment and game-file fingerprints; changed files block start. Existing managed/modded servers retain their verified wrapper path and exact-build guards. Standard enrollment rejects known mod/startup components and does not certify arbitrary mod absence or vendor authenticity.
 - Installer updates explicitly request launcher-only closure and still honor busy-operation refusal. No force-kill or server restart is introduced.
 
-Validation: 82 desktop checks (27 added), 160 core checks, 24 resilience checks,
+Window-sizing follow-up: compact overview spacing and charts fit the supported
+1100 × 900 CSS content area without page scrollbars. The native window refuses
+smaller content sizes, accounting for display DPI and WebView zoom. Long data pages
+and error details retain scrolling. Browser viewport checks cover supported windowed
+sizes; native screenshot capture was unavailable during verification.
+
+Validation: 85 desktop checks (30 added), 160 core checks, 24 resilience checks,
 14 field checks, 26 mod checks; 10 isolated native checks (3 added); 15 installer
 checks; modern/classic builds, strict TypeScript, UI bundling, phone synchronization
 and missing/stale/tampered provenance rejection. Installer checks also run under
 Windows PowerShell 5.1. Final package provenance binds to the committed source.
 
 Limits: real SteamCMD download, fresh-machine dependencies, router/firewall setup,
-and new-server gameplay are not covered by fixtures. No existing server/world is
-created, stopped or restarted to validate this feature. New-server setup and close
+and new-server gameplay are not covered by fixtures. Initial validation used only
+fixtures; the owner subsequently authorized one graceful existing-server restart
+and one launcher restart, both query-confirmed. New-server setup and close
 choices are modern UI features. GitHub PR stays open for continuing updates.
 
 See [setup and update instructions](INSTALL-UPDATE.md).

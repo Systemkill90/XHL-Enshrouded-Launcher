@@ -5,6 +5,11 @@ The game server does not need to restart for a launcher-only update.
 
 ## Closing and choosing servers
 
+The modern window requires at least **1100 × 900 CSS pixels of content**. Its
+native minimum includes the window frame, display DPI and WebView zoom, so resizing
+cannot squeeze the interface below that layout. The overview uses compact spacing
+and charts at windowed sizes; long data pages and error details can still scroll.
+
 Closing the modern launcher while its selected server is running offers **Keep
 server running**, **Stop server and exit**, or **Cancel**. Stopping uses the
 existing graceful shutdown; failure leaves the launcher open. An unavailable
