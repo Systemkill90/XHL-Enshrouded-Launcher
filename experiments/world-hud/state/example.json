@@ -1,0 +1,12 @@
+{
+  "_comment": "SYNTHETIC EXAMPLE ONLY, not a real game reading.",
+  "updatedAt": "2000-01-01T00:00:00Z",
+  "source": "manual-preview-only",
+  "worldTime": "14:20",
+  "weather": "rain",
+  "player": { "x": 0, "z": 0, "heading": 45 },
+  "map": {
+    "imageUrl": "/maps/embervale.png",
+    "bounds": { "minX": -100, "maxX": 100, "minZ": -100, "maxZ": 100 }
+  }
+}

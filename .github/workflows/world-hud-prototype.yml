@@ -1,0 +1,30 @@
+name: World HUD prototype checks
+
+on:
+  pull_request:
+    paths:
+      - "experiments/world-hud/**"
+      - ".github/workflows/world-hud-prototype.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: JavaScript tests
+        run: node --test experiments/world-hud/tests/hud.test.mjs
+      - name: ASP.NET host compilation
+        run: dotnet build experiments/world-hud/ShroudForge.WorldHud/ShroudForge.WorldHud.csproj -c Release
