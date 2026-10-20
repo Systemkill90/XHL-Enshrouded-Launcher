@@ -6,14 +6,16 @@
 
 | Focus | What success looks like | Status |
 | :-- | :-- | :-- |
-| **A reliable desktop launcher** | One clear home for server status, settings, activity, backups and updates | Active 2.0 development |
+| **A reliable desktop launcher** | One clear home for server status, settings, activity, backups and updates | 3.0.0-private.2 acceptance candidate |
 | **Protect live player progress** | Exact version checks, reversible changes and safer recovery | Ongoing release-process review |
 | **Smooth, consistent flight** | Keep the working flight, gifting and stacking mods stable through game updates | Build-specific |
-| **Clearer multiplayer information** | Event activity and honest player/session history without invented data | Development drafts |
+| **Clearer multiplayer information** | Event activity and honest player/session history without invented data | Observed profiles/events in unified candidate |
 | **Quest/map research (historical)** | Preserve exploratory work as reference; do not pursue the canceled GPS concept | Removed from active scope |
 | **Public releases** | Downloadable, tested Windows packages with checksums and setup instructions | Not released |
 
 ## Right now
+
+Recovered modern desktop source is reconciled in draft PR #31. Both Windows builds, 247 local fixtures and native dummy checks passed; physical-device, native DPI and disposable-game acceptance remain. No deployment or public release.
 
 The immediate priority is finishing the **launcher UI and user experience**, then auditing feature claims against the actual development branch and running Velaris host. The owner reported the server and three mods working on October 19; that does not verify proposed branch changes. Preserve the live server, validate any changes safely, and keep experiments separate from approved public releases. The companion phone app is paused, and flame altar rotation was canceled.
 

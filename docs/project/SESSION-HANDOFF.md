@@ -1,50 +1,22 @@
-# ShroudForge — session handoff
+# ShroudForge — acceptance handoff
 
-**Prepared October 19, 2026.** This is the short restart point for phone ChatGPT, desktop Work and Codex. **Do not mistake a handoff for work executed.** Consult [CURRENT-STATE.md](CURRENT-STATE.md) before making claims.
+Prepared October 20, 2026. First read AGENTS.md, CURRENT-STATE.md and DECISIONS.md. Do not re-plan or downgrade to the old 2.2 candidate.
 
-## Mandatory orientation — keep it fast
+## Exact source
 
-1. Read [root AGENTS.md](../../AGENTS.md), [CURRENT-STATE.md](CURRENT-STATE.md), and the dated [decision log](DECISIONS.md). No full chat-history reread needed.
-2. Identify the exact repo, local checkout, active branch/commit, uncommitted work, and target build **before modifying files**. Main = public documentation. Launcher baseline = `feat/launcher-2-overhaul` ([draft #18](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/18)). Latest consolidated UI candidate = `feat/ui-navigation-polish-20261019` ([draft #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31)).
-3. Verify current PR head and CI; the reviewed candidate `a5fcf210054dfea7d09ad4ae5c8f6df0cab2ec36` passed [Windows run #135](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39357907800) with 172 fixtures, native tests and a temporary preview upload. This is not a deployment record.
-4. The user's interrupted desktop Work/Codex code and installed launcher may differ from GitHub. **Never overwrite newer local source, assume the repo's 2.2 label is real, or assume a handoff reached the desktop.** Capture a non-sensitive source diff and reconcile it first.
+Installed binary metadata: **3.0.0-private.1** (file version 3.0.0.0), inspected read-only. Unified candidate: **3.0.0-private.2**, development head **3e868582d47f21df547fcc554e8ad172814c3ed2**, [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31). Modern build input is desktop/react-launcher plus desktop/field-audit-launcher. launcher-2-preview is retained historical source. The validated local source tree exactly matches the GitHub publication tree; the connected GitHub app published after CLI credential handling stalled.
 
-## Priority and acceptance
+Local build/validation passed: both Windows executables, TypeScript, bundle, embedded phone synchronization, 247 fixture checks and seven native lifecycle checks. Browser verification covered all twelve pages, profile sheets, event search, minimum-width dashboard and compact phone modes. Modern Windows run #4 (39365624611) and historical run #139 (39365624690) passed for this head. The first modern CI failed on stale lockfile specifiers; all seven were corrected and fresh CI passed. Reuse valid local evidence instead of repeating every build.
 
-**One cohesive task:** finish the existing minimalist dark-fantasy launcher UI and UX, dashboard, navigation, real read-only player profiles and event monitoring. Reuse established components, keep the three known-working mods unchanged. Then improve settings/mod controls, backups/reliability, and human-readable project packaging in the order chosen by the owner.
+## Next necessary checks
 
-The owner visually verified **GameVault map Compatibility mode** on iPhone Safari. That narrowly scoped fix is staged in #31; phone expansion remains paused. Test the exact *installed* phone page separately before claiming it fixed locally.
+1. CI and fresh dependency restore passed. Retain run #4 and #139 evidence; rerun only for relevant source changes.
+2. Complete native WebView2/DPI/keyboard visual acceptance; a later visible preview verified startup/accessibility, but screenshot capture timed out and click input lacked geometry. Use disposable settings and --preview-from; do not copy live settings.
+3. Check actual iPhone Safari terrain/touch on the exact phone page. Compatibility is default; Protected/external fallback retained. Browser iframe dimensions/mode attributes passed, but are not device certification.
+4. If separately authorized, rehearse real-game mod/sleep and backup/restore using a disposable server/world. No live server testing.
 
-## Live-server protection — mandatory
+## Package and rollback
 
-- No shutdown, restart, activation, auto-deploy, backup restoration, world edit, mod swap, injector change or live-folder restructure without specific permission. A GitHub change is not permission to perform a live action.
-- Read-only host checks, if desktop access is available, should capture server process presence and startup identity before/after launcher-only testing. Do not publish PIDs, local paths, authenticated URLs, player data or host fingerprints.
-- Prefer disposable source/build folders. Verify rollback and preserve the working launcher and saves. If a safe isolated test is not possible, report it as blocked instead of treating production as test infrastructure.
+A separately staged, human-readable 3.0.0-private.2 candidate contains required managed/native WebView2 DLLs, UI, phone, assets, instructions, manifest and checksums. Private package paths and operational evidence stay local. No installed file was changed. Rollback for this staged review means close/discard only the candidate; preserve the working launcher and existing rollback archives. A future migration must preserve automation journals and requires separate review/authorization.
 
-## End-of-session report template
-
-Record each substantive session in [WORK-LOG.md](WORK-LOG.md) and update [CURRENT-STATE.md](CURRENT-STATE.md) only with confirmed state:
-
-```text
-Date / environment:
-Goal and scope:
-Source branch + before/after SHA:
-Changed paths / PR or issue:
-Validation performed (build, fixture count, visual/runtime):
-Host observation (if authorized): verified / not checked
-Installed or deployed? yes/no, exact target, authorization:
-Live server touched? yes/no/unknown, with evidence:
-Unresolved problems:
-Next smallest safe step:
-```
-
-No commit? Say **not committed**. No desktop connection? Say **not connected/verified**. No actual install? Say **staged only**.
-
-## Important related references
-
-- [PR #31 staging and Windows review](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31)
-- [PR #31 validation handoff on staging branch](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/docs/PR31-VALIDATION-HANDOFF-2026-10-19.md)
-- [Phone compatibility, safe HTML hot-swap guidance](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/launcher-2-preview/phone/README.md)
-- [Main tracker](development-tracker.md), [unresolved work](ISSUE-REGISTER.md), [sharing procedure](AI-WORKFLOW.md)
-
-**Reminder:** Phone and desktop ChatGPT chat histories are not Git commits; this is the durable *summary* needed to work safely across tools, not an automatic transcript backup.
+No server start, stop, restart, patch, mod/config/save write or backup restoration. No merge/public release. GPS and altar rotation stay canceled; companion expansion stays paused.

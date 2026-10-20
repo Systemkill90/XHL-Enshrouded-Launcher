@@ -14,7 +14,7 @@ The **public GitHub repository is the canonical shared *development* record**, n
 
 **At the end of an authorized development session:** commit code only after relevant validation, then record precise SHA/PR/tests in the work log and update current state and handoff when necessary. Mark **staged source**, **CI tested**, **device tested**, **host installed**, and **live released** separately. Never claim source was uploaded or desktop work was executed without verification.
 
-**Current October 19 note:** The owner confirmed the existing server and three working mods. The active consolidated UI candidate is [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31), a 2.2 **candidate** over 2.0 development source, not a verified installed 2.2. Windows CI passed 172 fixtures on the reviewed commit. An iPhone Safari external-map Compatibility embed was owner-verified in a standalone diagnostic; the phone application remains paused except for that staged fix. **Never stop or modify the live server without explicit permission.**
+**Current October 20 note:** Recovered/installed metadata is 3.0.0-private.1; the unified acceptance candidate is 3.0.0-private.2 in draft PR #31 under desktop/. The earlier 2.2 label was provisional. Local Windows builds, 247 fixtures and native dummy checks passed. Native DPI, exact iPhone terrain and disposable-game acceptance remain. Never stop or modify the live server. Consult current state for exact source/CI evidence.
 
 ## Start here
 

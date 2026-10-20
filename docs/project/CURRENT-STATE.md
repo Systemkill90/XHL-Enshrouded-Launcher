@@ -1,54 +1,29 @@
-# ShroudForge — current project state
+# ShroudForge — current verified development state
 
-**Snapshot:** October 19, 2026 (America/New_York)  
-**Purpose:** authoritative, shareable **public development summary**, **not** a representation of the owner's local desktop or live server.
-**Start here for every ChatGPT, Work or Codex development session.** Read [AGENTS.md](../../AGENTS.md), this page, then [session handoff](SESSION-HANDOFF.md).
+Updated October 20, 2026. GitHub is the shared development record; main is documentation, not a deployment.
 
-## State of record
-
-| Item | Evidence and status |
+| Surface | Confirmed state |
 | :-- | :-- |
-| Existing dedicated server | **Owner-confirmed operating October 19**, with the three existing gameplay mods working. This confirmation applies to the owner's existing installation only, not the GitHub development build. |
-| Owner's desktop / installed launcher | **Current installed commit and version not independently verified** by this GitHub review; no assumption that staging code was applied. |
-| Public documentation | `main` is the readable home and project memory; **not a live installation or a release branch**. |
-| Existing launcher baseline | [`feat/launcher-2-overhaul`](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/tree/feat/launcher-2-overhaul/launcher-2-preview), [draft PR #18](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/18). |
-| Consolidated UI candidate | [`feat/ui-navigation-polish-20261019`](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/tree/feat/ui-navigation-polish-20261019/launcher-2-preview), [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31), targeting the 2.0 development branch, **not merged**. |
-| Candidate version | **2.2 is an owner-recalled target/candidate**, not a verified installed binary version. GitHub development sources still carry 2.0 naming. Reconcile actual host files and version metadata before declaring a release. |
-| Latest reviewed staged Windows CI | [Run #135](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39357907800) on reviewed PR #31 commit `a5fcf210054dfea7d09ad4ae5c8f6df0cab2ec36`: Windows compile, **172 fixture checks**, native fixture checks and unsigned preview-artifact upload all passed. If the PR moves, recheck the new head's results. |
-| Public Windows installer | **Not released.** CI artifact is temporary, unsigned and unsuitable for blind replacement of the working installation. |
-| Owner-side visual and device verification | **Incomplete** for the consolidated desktop UI, installed phone page, three-mod/actual-game compatibility, and a fully isolated deployment rehearsal. |
+| Installed launcher | Read-only Windows executable metadata identifies **3.0.0-private.1**, file version 3.0.0.0. Legacy 2.0 folder naming is not the application version. This session did not replace it. |
+| Unified candidate | **3.0.0-private.2**, [draft PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31), development head [3e86858](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/commit/3e868582d47f21df547fcc554e8ad172814c3ed2). Modern source under desktop/, historical Launcher 2.0/PR source retained under launcher-2-preview/. |
+| Reconciliation | Recovered local baseline 0873d2f was clean and newer than PR head a5fcf21. Preserved modern query telemetry, mod management, field audits, recovery/backup journals, classic tools and phone functions. Original local checkouts, recovery archives and uncommitted work were not overwritten. |
+| Local validation | Modern and classic Windows builds, TypeScript/UI bundle, **247 fixture checks** and seven native dummy-process lifecycle checks passed. These used disposable fixtures, not a live game path. |
+| Browser validation | All twelve pages, observed player sheets, searchable events, minimum 1080x740 dashboard, phone tabs and mode switching checked with synthetic status. Phone frame fit checked at 390x844 and 375x568. Provider document loaded; physical iPhone terrain is not certified. |
+| CI | Prior PR head a5fcf21 passed Windows run #135 (172 fixtures + native checks). New modern Windows [run #4](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39365624611) and historical Windows [run #139](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39365624690) passed for this head, including fresh dependency restore, compilation, fixtures, packaging and artifact upload. |
+| Candidate package | Portable unsigned package staged privately with both executables, WebView2 references/loader, bundled UI, phone/assets, instructions, manifest and SHA256 checksums. No public release or live install. |
+| Live server | No shutdown, restart, deployment, game/mod/config/save/restore action was submitted. Read-only process/startup checks are kept privately. No connected-player data is published. |
 
-**Temporary unsigned artifact from the reviewed build:** [preview run #135 artifact](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/actions/runs/39357907800/artifacts/12236151989); executable SHA256 `984fc854812767aa571e5e00db067fc8c10210763a804540b52fa628d99ed8d7`. Artifact availability is time-limited. Neither a passing CI run nor a download proves a live install.
+## Completed candidate work
 
-## Current scope and evidence
+CPU and memory histories from process samples; full available player profiles and completed-session identities; offline/stale network labels; searchable recorded events plus bounded live console; empty/error states, navigation focus, responsive styling and reduced motion; branded loading/error surface; GameVault desktop map with external fallback. Existing settings, mod, world, backup/restore and resilience interfaces are preserved with their operation guards.
 
-### 1. Launcher & Interface
+Phone scope remains narrow: GameVault Compatibility default, reversible Protected mode, no-referrer, external fallback, compact viewport fit, exact embedded/standalone synchronization. Other companion functions are retained. Broader phone development stays paused; GPS and altar rotation remain canceled.
 
-**First priority.** Dark-fantasy UI, splash, dashboard and navigation source exist on the launcher development branch. PR #31 stages the scrollable keyboard-accessible navigation, observable recent activity, readiness/backup indicators and routes to other panels. Read-only player profiles and parsed/raw event views were brought into this staged candidate from earlier draft PRs #19 and #20. The Windows fixture suite passed; desktop visual/DPI/accessibility checks and comparison with any interrupted local Work-session changes remain open. **Profiles do not imply access to player inventory, live position, arbitrary player save files or unsupported character fields.**
+## Remaining acceptance gates
 
-### 2. Server, Mods & Data Management
+- Physical iPhone Safari/WebGL terrain and touch behavior on the exact candidate page.
+- Native Windows WebView2 visual, DPI (100/125/150/200%) and keyboard review. Native WebView2 startup and the isolated read-only dashboard were verified through accessibility. Native screenshot capture timed out and click input lacked geometry; visual/DPI acceptance is not claimed.
+- Owner-authorized disposable-game mod/sleep behavior and full restore rehearsal. Fixtures are not gameplay certification.
+- Review CI on the exact current head and plan any future automation handover/migration separately.
 
-The owner has confirmed the *existing* live server and three mods operating. The development source includes settings, mod management, monitoring, backups, server controls and read-only player event information, but each action requires dedicated validation against a disposable server/build before production claims. Flight pitch-hold, stamina controls, one-player sleep and 60× sleep speed remain tracked requests or validations; do not infer they are fixed from launcher CI. Do not alter the working injector/mod chain as a side effect of UI work.
-
-### 3. Installation, Reliability & GitHub
-
-The documentation landing page is on `main`; active 2.0 and the 2.2 *candidate* remain in draft PRs. Windows CI verifies source compilation and fixture/native tests only. Desktop source reconciliation, executable compatibility, backup/restore recovery rehearsals, predictable installation paths, packaging, launch shortcut and release acceptance remain to be verified.
-
-## Phone companion — narrow exception to pause
-
-Broader phone-app development is **paused**, but the owner authorized a specific map defect correction on October 19. The owner **visually confirmed** the real external GameVault Embervale map rendered inside an iPhone Safari diagnostic iframe in **Compatibility** mode (without the restrictive iframe `sandbox`); the protected iframe showed white. [PR #31](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/31) now stages Compatibility as the **default**, retaining an explicit Protected option, no-referrer policy, click-to-load behavior, troubleshooting and the external map link. The staging sources and CI are verified; the owner has **not confirmed that the updated phone UI was installed on the actual desktop launcher**. The standalone test is not an authenticated server application.
-
-## Explicitly out of scope
-
-- GPS, route guidance, ShroudNav/replacement quest-tracking and autopilot: **canceled** from active work October 19; old [map research PR #21](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/21) and [quest research PR #24](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/pull/24) are archives, not approved features.
-- Flame altar 45° rotation: **canceled**.
-- A public signed release, in-game inventory editing or exact live-player coordinates: **not delivered/verified**.
-- New gameplay mods, replacement loaders, or production server changes: require a separate explicit authorization and an isolated proof.
-
-## Evidence rules
-
-**Owner observed** = reported from actual operation; **Implemented/staged** = code present on a branch; **CI passed** = only specified tests passed; **Host verified** = a recorded check of the actual Windows deployment; **Released** = an explicitly accepted tagged artifact. Never combine these into one completion status.
-
-The numerical progress baseline and dates are at [development tracker](development-tracker.md). Historical estimates are **not** recomputed merely because source or documentation changed.
-
-[Decision log](DECISIONS.md) · [Work log](WORK-LOG.md) · [Issue register](ISSUE-REGISTER.md) · [Shared workflow](AI-WORKFLOW.md)
+No merge, public release, installed-launcher replacement or server change is authorized by this candidate. See [reconciliation evidence](https://github.com/Systemkill90/XHL-Enshrouded-Launcher/blob/feat/ui-navigation-polish-20261019/docs/SHROUDFORGE-CANDIDATE-RECONCILIATION.md), [handoff](SESSION-HANDOFF.md), [issue register](ISSUE-REGISTER.md) and [work log](WORK-LOG.md).
