@@ -1,0 +1,37 @@
+:root { color-scheme: dark; font-family: "Segoe UI", Arial, sans-serif; font-synthesis: none; }
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: #101713; color: #f5ead8; }
+.hud { position: fixed; top: 18px; right: 18px; width: 278px; padding: 13px;
+  border: 1px solid #967e55; border-radius: 12px;
+  background: linear-gradient(160deg, #242c29 0%, #101917 90%);
+  box-shadow: 0 12px 34px #0009; }
+.hud-header { display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px; gap: 8px; }
+.mark { color: #cfb17a; font-size: 10px; letter-spacing: .22em; font-weight: 750; }
+.connection { font-size: 10px; color: #d9b995; text-align: right; }
+.connection.live { color: #b0d19e; }
+.map-panel { display: grid; justify-items: center; }
+.map { position: relative; overflow: hidden; border: 3px solid #ab956b; outline: 3px solid #403b2c;
+  border-radius: 50%; width: 230px; height: 230px; background: #20312c;
+  box-shadow: inset 0 0 24px #000b, 0 0 0 1px #0e1210; }
+.map-grid { position: absolute; inset: 0; opacity: .38;
+  background-image: linear-gradient(#b9ad8652 1px,transparent 1px),linear-gradient(90deg,#b9ad8652 1px,transparent 1px);
+  background-size: 24px 24px; }
+.map.with-image .map-grid { display: none; }
+.north { position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+  color: #fff6e7; text-shadow: 0 1px 3px #000; font: 800 13px Georgia,serif; }
+.position { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%) rotate(var(--heading,0deg));
+  color: #f3d394; font-size: 23px; text-shadow: 0 2px 4px #000; }
+.map-message { position: absolute; top: 56%; left: 10%; width: 80%; margin: 0; padding: 8px;
+  border-radius: 5px; background: #0e161bd9; color: #d5cabb; text-align: center; font-size: 12px; }
+.map-meta { width: 100%; margin-top: 11px; display: flex; justify-content: space-between; gap: 8px;
+  font-size: 10px; color: #b4a992; letter-spacing: .04em; }
+.readouts { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 13px; }
+.readout { border: 1px solid #615843; border-radius: 6px; padding: 10px 9px;
+  background: #151c19; min-width: 0; }
+.readout-label { display: block; font-size: 9px; letter-spacing: .12em; color: #afaa95; }
+.readout-value { display: block; padding-top: 7px; font: 700 21px Georgia,serif; color: #f1deb9; }
+.weather .readout-value { font-size: 15px; white-space: nowrap; }
+footer { display: grid; gap: 5px; margin-top: 12px; font-size: 10px; color: #c4bcae; }
+.scope { color: #8e948d; }
+@media (max-width: 330px) { .hud { width: calc(100vw - 20px); right: 10px; top: 10px; } .map {width: 200px;height:200px;} }
