@@ -50,10 +50,10 @@ footer{margin-top:15px;color:#8d9f98;text-align:center;font-size:10px;line-heigh
 <p class="subtitle">Standalone test of the real GameVault 2D/3D map inside the ShroudForge-sized window. No login, server access, game data, or ShroudForge control commands.</p>
 <section class="panel" aria-label="Map compatibility testing">
  <div class="toolbar">
-  <div class="label"><span class="eyebrow">Embedding compatibility</span><div id="modeLabel">Protected frame (current launcher behavior)</div></div>
+  <div class="label"><span class="eyebrow">Embedding compatibility</span><div id="modeLabel">Compatibility frame (default phone experience)</div></div>
   <div class="controls">
-   <button id="standard" type="button" aria-pressed="true">Protected</button>
-   <button id="compat" type="button" aria-pressed="false">Compatibility</button>
+   <button id="standard" type="button" aria-pressed="false">Protected</button>
+   <button id="compat" type="button" aria-pressed="true">Compatibility</button>
    <button id="retry" type="button">Reload</button>
   </div>
  </div>
@@ -65,7 +65,7 @@ footer{margin-top:15px;color:#8d9f98;text-align:center;font-size:10px;line-heigh
    <p id="helpText">If the map is visible behind this message, tap “It works.” Otherwise try Compatibility. If both fail but the direct site works, the provider probably prevents embedding.</p>
    <div class="buttons">
     <button type="button" id="works">It works</button>
-    <button type="button" id="switch">Try Compatibility</button>
+    <button type="button" id="switch">Try Protected</button>
     <a href="https://enshrouded.gamevault.in/map" class="link" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open full map ↗</a>
    </div>
   </div>
@@ -73,9 +73,9 @@ footer{margin-top:15px;color:#8d9f98;text-align:center;font-size:10px;line-heigh
 </section>
 <div class="result" aria-live="polite">
  <div class="line"><strong id="state">Not started</strong><a class="link" href="https://enshrouded.gamevault.in/map" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer">Open map directly ↗</a></div>
- <div id="diag">Choose Protected or Compatibility to test the same provider under different iframe permissions.</div>
+ <div id="diag">Compatibility is now the default because it worked on your iPhone. Tap Load map here to test the integrated layout.</div>
 </div>
-<p class="note">Protected uses the launcher’s sandbox settings. Compatibility removes the iframe sandbox for a diagnostic test only. It does not bypass the map provider’s security policies. An iframe loading event cannot confirm that its 3D graphics actually rendered; only you can verify that visually.</p>
+<p class="note">Compatibility is the launcher’s default map mode after the successful iPhone test. Protected is an optional stricter diagnostic mode. It does not bypass the map provider’s security policies. An iframe loading event cannot confirm that its 3D graphics actually rendered; only you can verify that visually.</p>
 <footer>ShroudForge 2.2 candidate · Map compatibility diagnostic · No live-server connection</footer>
 </main>
 <script>
@@ -84,7 +84,7 @@ footer{margin-top:15px;color:#8d9f98;text-align:center;font-size:10px;line-heigh
 const mapUrl='https://enshrouded.gamevault.in/map';
 const policy='allow-scripts allow-same-origin allow-forms allow-popups allow-pointer-lock allow-popups-to-escape-sandbox';
 const $=id=>document.getElementById(id);
-let mode='protected',begun=false,attempt=0,timeout=null;
+let mode='compatibility',begun=false,attempt=0,timeout=null;
 const set=(id,msg)=>$(id).textContent=msg;
 function load(){
  begun=true;attempt+=1;const thisAttempt=attempt;
