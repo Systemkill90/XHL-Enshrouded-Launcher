@@ -1,5 +1,5 @@
 export type Command='State'|'Start'|'Stop'|'Restart'|'Backup'|'Restore'|'Recovery'|'AutoBackup'|'Capture'|'Refresh'|'ModStartup'|'RemoveMod'|'SaveField'|'Classic'|'OpenMap'|'CopyPhone'|'ImportMod';
-export type Player={name:string;online:boolean;steamId:string;profile:Record<'Name'|'Status'|'Identity'|'Sessions'|'Connection'|'Incidents'|'Activity'|'Limitations',string>;role:string;ping:number;quality:number;reason:string;seen:string;networkSample:string|null;session:string};
+export type Player={name:string;online:boolean;steamId:string;profile:Record<'Name'|'Status'|'Identity'|'Sessions'|'Connection'|'Incidents'|'Activity'|'Limitations',string>;role:string;ping:number;quality:number;reason:string;seen:string;networkSample:string|null;session:string;sessionHistorical:boolean;lastPing:number;lastQuality:number;historyRecordedUtc:string|null};
 export type ConfigField={path:string;key:string;label:string;section:string;value:string|number|boolean;editable:boolean;reason:string|null;issue:string|null;min:number|null;max:number|null;choices:{Value:string;Text:string}[]|null};
 export type State={
  name:string;online:boolean;ready:boolean;observedUtc:string;busy:boolean;operation:string;

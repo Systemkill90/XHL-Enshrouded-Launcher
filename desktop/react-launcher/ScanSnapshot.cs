@@ -9,6 +9,7 @@ namespace XHLLauncher {
   public DateTime AttemptUtc,SuccessUtc;public string Error="";
   internal string phoneFiles="Unknown",phoneSize="Unknown",phoneWritten="Unknown",latestBackupText="Unknown";
   internal string[] historicalNames=new string[0];internal PlayerSession[] profileSessions=new PlayerSession[0];internal ActivityItem[] profileEvents=new ActivityItem[0];
+  internal PlayerHistoryRecord[] playerHistory=new PlayerHistoryRecord[0];
   internal WorldFiles files=new WorldFiles{available=false,error="Waiting for scan",items=new WorldFileRow[0]};internal BackupRow[] backups=new BackupRow[0];internal ConfigRow[] config=new ConfigRow[0];internal ModRow[] mods=new ModRow[0];
   internal static ScanSnapshot Collect(string App,LauncherSettings Settings,string Backups){var result=new ScanSnapshot();result.Load(App,Settings,Backups);return result;}
   void Load(string App,LauncherSettings Settings,string Backups){

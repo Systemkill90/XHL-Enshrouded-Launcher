@@ -25,8 +25,28 @@ namespace XHLLauncher
         }
         static string Lines(params string[] lines) { return string.Join(Environment.NewLine, lines); }
 
-        public static PlayerSheetSnapshot Create(string name, PlayerState p, IEnumerable<PlayerSession> history, IEnumerable<ActivityItem> events, bool serverRunning, DateTime now)
+        internal static string LastSeen(PlayerState p, IEnumerable<PlayerSession> history, PlayerHistoryRecord recorded=null)
         {
+            DateTime last = p.LastSeen;
+            foreach (var session in history.Where(s=>string.Equals(s.Player,p.Name,StringComparison.OrdinalIgnoreCase)))
+                if(session.Left>last) last=session.Left;
+            return last==DateTime.MinValue?(recorded==null||recorded.IdentityUtc==DateTime.MinValue?"Not recorded":recorded.IdentityUtc.ToLocalTime().ToString("MMM d, h:mm tt")+" (recorded metadata)"):last.ToString("MMM d, h:mm tt");
+        }
+        internal static string SessionSummary(PlayerState p,IEnumerable<PlayerSession> history,bool running,DateTime now)
+        {
+            if(running&&p.Connected&&p.JoinTime!=DateTime.MinValue)return FormatUtil.Duration(now-p.JoinTime);
+            var last=history.Where(s=>string.Equals(s.Player,p.Name,StringComparison.OrdinalIgnoreCase)).OrderByDescending(s=>s.Joined).FirstOrDefault();
+            return last==null?"Not recorded":FormatUtil.Duration(TimeSpan.FromSeconds(Math.Max(0,last.DurationSeconds)));
+        }
+        static PlayerHistoryRecord Recorded(PlayerState p,IEnumerable<PlayerHistoryRecord> records){return records.FirstOrDefault(r=>string.Equals(p.Name,r.Name,StringComparison.OrdinalIgnoreCase)&&(p.SteamId.Length==0||r.SteamId.Length==0||p.SteamId==r.SteamId));}
+        internal static int RecordedPing(PlayerState p,IEnumerable<PlayerHistoryRecord> records){var r=Recorded(p,records);return r==null||r.Network==null?-1:r.Network.PingMs;}
+        internal static int RecordedQuality(PlayerState p,IEnumerable<PlayerHistoryRecord> records){var r=Recorded(p,records);return r==null||r.Network==null?-1:r.Network.HealthScore;}
+        internal static string RecordedNetworkUtc(PlayerState p,IEnumerable<PlayerHistoryRecord> records){var r=Recorded(p,records);return r==null||r.NetworkUtc==DateTime.MinValue?null:r.NetworkUtc.ToString("o");}
+
+        public static PlayerSheetSnapshot Create(string name, PlayerState p, IEnumerable<PlayerSession> history, IEnumerable<ActivityItem> events, bool serverRunning, DateTime now, PlayerHistoryRecord recorded=null)
+        {
+            if(recorded!=null&&p!=null&&p.SteamId.Length>0&&recorded.SteamId.Length>0&&p.SteamId!=recorded.SteamId)recorded=null;
+            if(recorded!=null)p=recorded.FillIdentity(p);
             var sheet = new PlayerSheetSnapshot();
             sheet.Name = name;
             bool online = serverRunning && p != null && p.Connected;
@@ -40,7 +60,8 @@ namespace XHLLauncher
                 "PEER             " + (p == null ? "Not recorded" : Known(p.Peer)),
                 "PLAYER HANDLE    " + (p == null ? "Not recorded" : Known(p.Handle)),
                 "MACHINE INDEX    " + (p == null || p.MachineIndex < 0 ? "Not recorded" : p.MachineIndex.ToString()),
-                "SAVE TRANSFER    " + (p == null || p.CharacterSaveBytes <= 0 ? "Not observed" : FormatUtil.Bytes(p.CharacterSaveBytes) + " (transfer size only)"));
+                "SAVE TRANSFER    " + (p == null || p.CharacterSaveBytes <= 0 ? "Not observed" : FormatUtil.Bytes(p.CharacterSaveBytes) + " (transfer size only)"),
+                "IDENTITY SOURCE   " + (recorded==null?"Available server observations":"Recorded server sessions / logs; last retained " + When(recorded.IdentityUtc.ToLocalTime())));
             double recordedSeconds = sessions.Sum(s => Math.Max(0, s.DurationSeconds));
             string current = online && p.JoinTime != DateTime.MinValue
                 ? FormatUtil.Duration(now - p.JoinTime) : "Not available";
@@ -49,27 +70,32 @@ namespace XHLLauncher
             sheet.Sessions = Lines(
                 "CURRENT SESSION   " + current,
                 "CURRENT JOINED    " + (online && p.JoinTime != DateTime.MinValue ? When(p.JoinTime) : "Not available"),
-                "LAST OBSERVED    " + (online && p.LastSeen != DateTime.MinValue ? When(p.LastSeen) : When(lastSession)),
+                "LAST OBSERVED    " + (online && p.LastSeen != DateTime.MinValue ? When(p.LastSeen) : lastSession!=DateTime.MinValue?When(lastSession):recorded!=null?When(recorded.IdentityUtc.ToLocalTime())+" (metadata/log evidence; exact visit time unknown)":"Not recorded"),
                 "RECORDED VISITS  " + (sessions.Count == 0 ? "None in session CSV" : sessions.Count.ToString()),
                 "RECORDED TIME    " + (sessions.Count == 0 ? "No completed sessions recorded" : FormatUtil.Duration(TimeSpan.FromSeconds(recordedSeconds))),
                 "FIRST / LAST     " + When(firstSession) + "  /  " + When(lastSession),
+                "LAST SESSION     " + (sessions.Count==0?"Not recorded":When(sessions[0].Joined)+" to "+When(sessions[0].Left)+" / "+FormatUtil.Duration(TimeSpan.FromSeconds(Math.Max(0,sessions[0].DurationSeconds)))),
                 "RECENT COMPLETED SESSIONS",
                 sessions.Count == 0 ? "   No completed sessions in available records" :
                     string.Join(Environment.NewLine, sessions.Take(4).Select(s => "   " + When(s.Joined) + "  •  " + FormatUtil.Duration(TimeSpan.FromSeconds(Math.Max(0, s.DurationSeconds)))).ToArray()));
+            var livePlayer=p;
+            bool fresh=online&&p!=null&&p.PingMs>=0&&p.LastNetworkSample!=DateTime.MinValue&&(now-p.LastNetworkSample).TotalSeconds<=15;
+            bool historicalNetwork=!fresh&&recorded!=null&&recorded.Network!=null;
+            if(historicalNetwork)p=recorded.Network;
             sheet.Connection = p == null
                 ? "No network telemetry has been recorded for this name."
                 : Lines(
-                    online && p.PingMs>=0 && (now-p.LastNetworkSample).TotalSeconds<=15 ? "RECENT NETWORK SAMPLE / received " + When(p.LastNetworkSample) : "NETWORK SAMPLE UNAVAILABLE OR STALE",
+                    fresh ? "RECENT NETWORK SAMPLE / received " + When(p.LastNetworkSample) : historicalNetwork?"LAST RECORDED NETWORK SAMPLE (HISTORICAL) / "+(recorded.NetworkTimeEstimated?"log last written ":"sample received ")+When(recorded.NetworkUtc.ToLocalTime()):"NETWORK SAMPLE UNAVAILABLE OR STALE",
                     "PING / JITTER       " + (p.PingMs < 0 ? "Unavailable" : p.PingMs + " ms") + "  /  " + (p.PingMs < 0 ? "Unavailable" : (p.Jitter<0?"Need two samples":p.Jitter.ToString("0.0") + " ms (mean ping change)")),
-                    "PING AVG 1 MIN      " + (p.PingMs < 0 ? "Unavailable" : p.OneMinuteAverage.ToString("0.0") + " ms"),
-                    "PEAK 1 / 5 MIN     " + (p.PingMs < 0 ? "Unavailable" : p.OneMinutePeak + " / " + p.FiveMinutePeak + " ms"),
-                    "CONNECTION ESTIMATE " + (p.PingMs < 0 ? "Unavailable" : p.HealthScore + "/100  " + Theme.HealthLabel(p.HealthScore)),
+                    "PING AVG 1 MIN      " + (p.PingMs < 0 || p.OneMinuteAverage<0 ? "Not recorded" : p.OneMinuteAverage.ToString("0.0") + " ms"),
+                    "PEAK 1 / 5 MIN     " + (p.PingMs < 0 || p.OneMinutePeak<0 ? "Not recorded" : p.OneMinutePeak + " / " + p.FiveMinutePeak + " ms"),
+                    "CONNECTION ESTIMATE " + (p.PingMs < 0 || p.HealthScore<0 ? "Not recorded" : p.HealthScore + "/100  " + Theme.HealthLabel(p.HealthScore)),
                     "CONNECTION NOTES   " + (p.PingMs < 0 ? "No recent samples" : Known(p.HealthReason)),
                     "PENDING PACKETS     " + p.PendingPackets + "  /  Peak " + p.PeakPending,
                     "LOST PACKETS        " + p.LostTotal + " (last server counter; scope unconfirmed)",
                     "CONGESTION RTT      " + (p.CongestionRttMs < 0 ? "Not observed" : p.CongestionRttMs.ToString("0") + " ms"),
-                    "UP / DOWN / REMOTE  " + p.UpRate.ToString("0") + " / " + p.DownRate.ToString("0") + " / " + p.RemoteRate.ToString("0") + " (raw log values; unit unconfirmed)",
-                    "BANDWIDTH LIMIT     " + p.BandwidthLimit.ToString("0") + " (raw log value)");
+                    "UP / DOWN / REMOTE  " + (p.UpRate<0?"Not recorded":p.UpRate.ToString("0") + " / " + p.DownRate.ToString("0") + " / " + p.RemoteRate.ToString("0") + " (raw log values; unit unconfirmed)"),
+                    "BANDWIDTH LIMIT     " + (p.BandwidthLimit<0?"Not recorded":p.BandwidthLimit.ToString("0") + " (raw log value)"));
             sheet.Incidents = p == null ? "No connection diagnostics available for this name." :
                 Lines("CONNECTION TIMEOUTS  " + p.TimeoutCount + " observed",
                       "RECONNECTS           " + p.ReconnectCount + " observed",
@@ -77,6 +103,7 @@ namespace XHLLauncher
                       "LAST ISSUE           " + Known(p.LastIssue),
                       "ISSUE OBSERVED       " + When(p.LastIssueTime),
                       "COUNTERS ARE SESSION OBSERVATIONS, NOT LIFETIME TOTALS.");
+            p=livePlayer;
             var recent = (events ?? Enumerable.Empty<ActivityItem>())
                 .Where(e => e != null && RelevantEvent(name, e.Text))
                 .OrderByDescending(e => e.Time).Take(6).ToArray();

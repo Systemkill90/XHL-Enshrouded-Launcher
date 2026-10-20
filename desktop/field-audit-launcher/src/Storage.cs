@@ -75,9 +75,10 @@ namespace XHLLauncher
                 Path.Combine(serverRoot, "XHL-Diagnostic-Logs", "XHL-PLAYER-SESSIONS.csv"),
                 Path.Combine(serverRoot, "XHL-PLAYER-SESSIONS.csv")
             };
-            string path = null;
-            foreach (string c in candidates) if (File.Exists(c)) { path = c; break; }
-            if (path == null) return result;
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach(string path in candidates)
+            {
+            if(!File.Exists(path))continue;
             try
             {
                 using (StreamReader sr = new StreamReader(path, true))
@@ -92,11 +93,14 @@ namespace XHLLauncher
                         if (!DateTime.TryParse(f[1], out j)) continue;
                         if (!DateTime.TryParse(f[2], out l)) continue;
                         if (!double.TryParse(f[3], NumberStyles.Any, CultureInfo.InvariantCulture, out sec)) sec = (l - j).TotalSeconds;
+                        string key=f[0]+"\0"+j.Ticks+"\0"+l.Ticks;
+                        if(!seen.Add(key))continue;
                         PlayerSession ps = new PlayerSession(); ps.Player = f[0]; ps.Joined = j; ps.Left = l; ps.DurationSeconds = sec; ps.Source = f.Length > 5 ? f[5] : ""; result.Add(ps);
                     }
                 }
             }
             catch { if(strict) throw; }
+            }
             return result;
         }
 

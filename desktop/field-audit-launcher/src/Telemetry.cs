@@ -29,6 +29,12 @@ namespace XHLLauncher
 
     public class TelemetryService : IDisposable
     {
+        readonly Dictionary<string,PlayerHistoryRecord> recordedPlayers=new Dictionary<string,PlayerHistoryRecord>(StringComparer.OrdinalIgnoreCase);
+        DateTime bootstrapWrittenUtc;
+        private TelemetryService() { }
+        internal static PlayerHistoryRecord[] ReadHistoricalPlayers(string path){using(var reader=new TelemetryService()){reader.BootstrapLog(path,true,4L*1024L*1024L);return reader.GetRecordedPlayers();}}
+        internal PlayerHistoryRecord[] GetRecordedPlayers(){lock(gate){return recordedPlayers.Values.Select(r=>new PlayerHistoryRecord{Name=r.Name,SteamId=r.SteamId,Peer=r.Peer,Handle=r.Handle,MachineIndex=r.MachineIndex,CharacterSaveBytes=r.CharacterSaveBytes,IdentityUtc=r.IdentityUtc,NetworkUtc=r.NetworkUtc,NetworkTimeEstimated=r.NetworkTimeEstimated,Network=r.Network==null?null:ClonePlayer(r.Network)}).ToArray();}}
+        void RememberPlayer(PlayerState p,bool historical){PlayerHistoryRecord.Remember(recordedPlayers,p,historical?bootstrapWrittenUtc:DateTime.UtcNow,historical);}
         private readonly object gate = new object();
         private readonly string appBase;
         private readonly LauncherSettings settings;
@@ -172,6 +178,7 @@ namespace XHLLauncher
                 lock (gate)
                 {
                     PruneAndComputePlayerHealth();
+                    foreach(var p in players.Values.Where(p=>p.Connected&&p.PingMs>=0&&DateTime.Now-p.LastNetworkSample<TimeSpan.FromSeconds(15)))RememberPlayer(p,false);
                     engine.BadPerformanceEvents.RemoveAll(x => (DateTime.Now - x).TotalSeconds > 60);
                     engine.BadPerformanceLast60 = engine.BadPerformanceEvents.Count;
                     AddHistory(cpuHistory, host.CpuPercent); AddHistory(ramHistory, host.RamBytes / 1073741824.0); AddHistory(uploadHistory, host.UploadMbps); AddHistory(tickHistory, engine.UpdateAverageMs < 0 ? 0 : engine.UpdateAverageMs);
@@ -403,12 +410,12 @@ namespace XHLLauncher
             catch { }
         }
 
-        private void BootstrapLog(string path)
+        private void BootstrapLog(string path,bool strict=false,long maxBytes=64L*1024L*1024L)
         {
             try
             {
-                FileInfo fi = new FileInfo(path); long start = 0;
-                const long max = 64L * 1024L * 1024L; if (fi.Length > max) start = fi.Length - max;
+                FileInfo fi = new FileInfo(path);bootstrapWrittenUtc=fi.LastWriteTimeUtc; long start = 0;
+                long max = maxBytes; if (fi.Length > max) start = fi.Length - max;
                 using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete))
                 {
                     fs.Seek(start, SeekOrigin.Begin); if (start > 0) { while (fs.Position < fs.Length && fs.ReadByte() != '\n') { } }
@@ -434,7 +441,7 @@ namespace XHLLauncher
                 }
                 // A file write is not evidence of a completed game save.
             }
-            catch { }
+            catch {if(strict)throw;}
         }
 
         private void ProbeSaveDirectoryTimestamp()
@@ -507,7 +514,7 @@ namespace XHLLauncher
                 m = Regex.Match(line, @"\[server\]\s+Remove Player\s+'(.+?)'", RegexOptions.IgnoreCase);
                 if (m.Success) { PlayerState p; if (names.TryGetValue(m.Groups[1].Value, out p)) { p.Connected = false; if (!bootstrap) AddActivity("Info", p.Name + " disconnected", true); } return; }
                 m = Regex.Match(line, @"Sending Character Savegame\s+'(.+?)'(?:\s+Size:([0-9',]+))?", RegexOptions.IgnoreCase);
-                if (m.Success) { PlayerState p; if (names.TryGetValue(m.Groups[1].Value, out p)) { p.LastSeen = DateTime.Now; long b; if (m.Groups[2].Success && long.TryParse(m.Groups[2].Value.Replace("'", "").Replace(",", ""), out b)) p.CharacterSaveBytes = b; } return; }
+                if (m.Success) { PlayerState p; if (names.TryGetValue(m.Groups[1].Value, out p)) { p.LastSeen = DateTime.Now; long b; if (m.Groups[2].Success && long.TryParse(m.Groups[2].Value.Replace("'", "").Replace(",", ""), out b)) p.CharacterSaveBytes = b;RememberPlayer(p,bootstrap); } return; }
                 m = Regex.Match(line, @"^\s*m#(\d+)\([^)]+\):\s+up\s+([0-9,]+).*?down\s+([0-9,]+).*?remote\s+([0-9,]+).*?limit\s+([0-9,]+).*?lost\s+([0-9,]+),\s+ping\s+(\d+)\s+ms,\s+(\S+)", RegexOptions.IgnoreCase);
                 if (m.Success)
                 {
@@ -516,6 +523,7 @@ namespace XHLLauncher
                         p.UpRate = Num(m.Groups[2].Value); p.DownRate = Num(m.Groups[3].Value); p.RemoteRate = Num(m.Groups[4].Value); p.BandwidthLimit = Num(m.Groups[5].Value);
                         int lost = (int)Num(m.Groups[6].Value); p.LostDelta = Math.Max(0, lost - p.LostTotal); p.LostTotal = lost; p.PingMs = Int32.Parse(m.Groups[7].Value); p.SessionState = m.Groups[8].Value; p.LastSeen = DateTime.Now;p.LastNetworkSample=bootstrap?DateTime.MinValue:sampleTime;
                         if (!bootstrap && p.PingMs >= 0 && sampleTime!=DateTime.MinValue) p.PingHistory.Add(new PingSample { Time = sampleTime, Ping = p.PingMs });
+                        RememberPlayer(p,bootstrap);
                     }
                     return;
                 }
@@ -576,6 +584,7 @@ namespace XHLLauncher
         private void BindName(PlayerState p, string name, bool bootstrap)
         {
             p.Name = name; p.Connected = true; p.LastSeen = DateTime.Now; if (p.JoinTime == DateTime.MinValue) p.JoinTime = DateTime.Now; names[name] = p;
+            RememberPlayer(p,bootstrap);
             if (!bootstrap) AddActivity("Player", name + " connected", true);
         }
         private PlayerState NewPlayer(int idx) { return new PlayerState { PlayerIndex = idx, JoinTime = DateTime.Now, LastSeen = DateTime.Now, Connected = true, Name = "Player " + idx }; }
@@ -589,6 +598,7 @@ namespace XHLLauncher
             p.LastIssue = kind; p.LastIssueTime = DateTime.Now; if (pending > 0) { p.PendingPackets = pending; p.PeakPending = Math.Max(p.PeakPending, pending); }
             p.Issues.Add(new IssueEvent { Time = DateTime.Now, Kind = kind, Count = Math.Max(1, count), Pending = pending, Detail = detail });
             while (p.Issues.Count > 1000) p.Issues.RemoveAt(0);
+            RememberPlayer(p,false);
             if (kind == "Timeout") AddActivity("Critical", p.Name + " timed out", true);
             else if (kind == "Congestion") AddActivity("Warning", p.Name + " game connection congested", true);
             else if (kind == "SendFailure") AddActivity("Warning", p.Name + " server send failure", true);
@@ -672,7 +682,7 @@ namespace XHLLauncher
 
         private void RaiseUpdated() { if (Updated != null) Updated(this, EventArgs.Empty); }
 
-        private static PlayerState ClonePlayer(PlayerState p)
+        internal static PlayerState ClonePlayer(PlayerState p)
         {
             PlayerState c = new PlayerState(); c.Name = p.Name; c.PlayerIndex = p.PlayerIndex; c.Peer = p.Peer; c.SteamId = p.SteamId; c.MachineIndex = p.MachineIndex; c.Handle = p.Handle; c.Connected = p.Connected; c.JoinTime = p.JoinTime; c.LastSeen = p.LastSeen; c.LastNetworkSample=p.LastNetworkSample;c.PingMs = p.PingMs; c.LostTotal = p.LostTotal; c.LostDelta = p.LostDelta; c.PendingPackets = p.PendingPackets; c.PeakPending = p.PeakPending; c.TimeoutCount = p.TimeoutCount; c.ReconnectCount = p.ReconnectCount; c.SessionState = p.SessionState; c.UpRate = p.UpRate; c.DownRate = p.DownRate; c.RemoteRate = p.RemoteRate; c.BandwidthLimit = p.BandwidthLimit; c.CongestionRttMs = p.CongestionRttMs; c.ReferenceBandwidth = p.ReferenceBandwidth; c.CharacterSaveBytes = p.CharacterSaveBytes; c.LastIssueTime = p.LastIssueTime; c.LastIssue = p.LastIssue; c.HealthScore = p.HealthScore; c.HealthReason = p.HealthReason; c.Jitter = p.Jitter; c.OneMinuteAverage = p.OneMinuteAverage; c.OneMinutePeak = p.OneMinutePeak; c.FiveMinutePeak = p.FiveMinutePeak; return c;
         }
