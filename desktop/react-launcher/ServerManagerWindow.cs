@@ -16,13 +16,13 @@ namespace XHLLauncher
         readonly TextBox status=new TextBox{Multiline=true,ReadOnly=true,Dock=DockStyle.Bottom,Height=120,ScrollBars=ScrollBars.Vertical};
         readonly Button scan=new Button{Text="Scan Steam / known folders",AutoSize=true},browse=new Button{Text="Scan a folder…",AutoSize=true},create=new Button{Text="Create new server…",AutoSize=true},use=new Button{Text="Use selected server",AutoSize=true},cancel=new Button{Text="Cancel",AutoSize=true};
         readonly List<string> extra=new List<string>();bool working;
-        internal ServerManagerWindow(string app,LauncherSettings settings)
+        internal ServerManagerWindow(string app,LauncherSettings settings,bool createNew=false)
         {
             this.app=app;this.settings=settings;Text="ShroudForge — Server installations";ClientSize=new Size(850,510);MinimumSize=new Size(700,450);StartPosition=FormStartPosition.CenterParent;
             var title=new Label{Text="Find an existing installation or create a separate standard server. Scanning never moves, modifies or starts a server.",Dock=DockStyle.Top,Height=48,Padding=new Padding(12)};
             var actions=new FlowLayoutPanel{Dock=DockStyle.Bottom,Height=52,Padding=new Padding(10)};actions.Controls.AddRange(new Control[]{scan,browse,create,use,cancel});Controls.Add(servers);Controls.Add(status);Controls.Add(actions);Controls.Add(title);
             scan.Click+=async delegate{await Search();};browse.Click+=async delegate{using(var picker=new FolderBrowserDialog{Description="Choose a folder to search (up to four levels)"})if(picker.ShowDialog(this)==DialogResult.OK){extra.Add(picker.SelectedPath);await Search();}};
-            create.Click+=async delegate{await Create();};use.Click+=async delegate{await UseSelected();};cancel.Click+=delegate{Close();};Shown+=async delegate{await Search();};FormClosing+=delegate(object sender,FormClosingEventArgs e){if(working){e.Cancel=true;MessageBox.Show(this,"Wait for the current scan or download to finish.","ShroudForge");}};
+            create.Click+=async delegate{await Create();};use.Click+=async delegate{await UseSelected();};cancel.Click+=delegate{Close();};Shown+=async delegate{if(createNew)await Create();else await Search();};FormClosing+=delegate(object sender,FormClosingEventArgs e){if(working){e.Cancel=true;MessageBox.Show(this,"Wait for the current scan or download to finish.","ShroudForge");}};
         }
         void Working(bool value){working=value;scan.Enabled=browse.Enabled=create.Enabled=use.Enabled=cancel.Enabled=!value;}
         async Task Search()

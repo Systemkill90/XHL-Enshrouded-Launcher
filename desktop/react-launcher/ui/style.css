@@ -41,3 +41,10 @@ aside{width:100%;height:83px;inset:0 0 auto;flex-direction:row;align-items:cente
  .overviewPage .realmStage{height:auto;min-height:clamp(250px,30vh,330px)}
  .overviewPage .stageCopy{margin-bottom:14px}
 }
+
+/* Keep server setup beside the selected realm at every supported desktop width. */
+.realmSelect{display:flex}.realmSelect>div{min-width:0}.realmName{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.newServerButton{display:flex;align-items:center;gap:7px;flex-shrink:0;height:43px;padding:0 12px;background:#283522;border:1px solid #687953;border-radius:7px;color:#e1d5af;white-space:nowrap;font-size:11px}
+.newServerButton:hover{background:#35452c;border-color:#9bac7e}.newServerButton:focus-visible,.realmSelect:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.serverSetupGuide ol{padding-left:20px;color:var(--muted);line-height:1.7}.serverSetupGuide li{margin:12px 0}.serverSetupGuide .panel{display:flex;flex-direction:column}.serverSetupGuide .btn{align-self:flex-start;margin-top:auto}
+@media(max-width:1400px){aside{gap:10px;padding-left:18px;padding-right:18px}.brand{font-size:19px;margin-right:0}.brandIcon{width:30px}.realmSelect{width:155px;padding:8px}.realmSelect small{font-size:7px}.newServerButton{padding:0 10px;font-size:10px}nav{gap:0;max-width:none}nav button{padding:10px 8px;min-width:46px;font-size:9px}.toolMenu{min-width:55px}.toolMenu summary{padding:10px 8px;font-size:9px}}

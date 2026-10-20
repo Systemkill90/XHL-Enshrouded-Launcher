@@ -22,8 +22,11 @@ scheduled backups and automatic recovery pause while the launcher is closed.
 An installer update explicitly closes only the launcher, retaining the running
 server, and still refuses closure during an active operation.
 
-Use the server name in the sidebar, **Tools → Servers · create or scan**, or the
-System page to open server setup. Scanning reads Steam libraries, the current
+Use **New server** beside the selected-server box in the top bar to open the
+**Server setup** guide. Choose **Open new server wizard** for a separate new
+installation or **Scan existing servers** for discovery. The server box, Tools
+menu and System page also open the guide. Both top-bar controls remain visible
+at the supported minimum width. Scanning reads Steam libraries, the current
 folder and folders you choose, up to four directory levels / 3,000 directories.
 Errors and incomplete scans are shown. Files are never moved or started by a scan.
 Selection saves a preference and reopens the launcher. The previous server keeps
