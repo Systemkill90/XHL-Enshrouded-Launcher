@@ -72,13 +72,13 @@ nav.tabs{display:grid;grid-template-columns:1fr 1fr;position:sticky;top:0;z-inde
 <div id=""mapView"" class=""view"" role=""tabpanel"" aria-labelledby=""mapTab"" hidden>
 <section class=""panel""><div class=""mapHeading""><div><div class=""eyebrow"">ShroudForge / Cartography</div><h2>Embervale in 3D</h2></div><span class=""badge"">1.0 terrain</span></div>
 <p class=""mapNote"">Real community map data, not a simulated landscape. Use the map's own 3D view and filters for roads, landmarks, chests, quests and resources. Pinch to zoom; drag to explore.</p>
-<div class=""mapWindow""><div id=""mapStart"" class=""mapStart""><span class=""sigil"" aria-hidden=""true"">◇</span><strong>Explore Embervale</strong><p>Load the interactive 3D world map only when you need it. A connection to the map provider is required.</p><button class=""primary"" onclick=""loadMap()"">Load interactive map</button></div><iframe id=""gameMap"" title=""External interactive Embervale 3D map by GameVault"" referrerpolicy=""no-referrer"" sandbox=""allow-scripts allow-same-origin allow-forms allow-popups"" allow=""fullscreen"" allowfullscreen hidden></iframe><div id=""mapTrouble"" class=""mapTrouble"" role=""status"" hidden><strong>Map still showing white?</strong><p>This map belongs to another website, which may prevent embedding or fail in iPhone Safari. ShroudForge cannot inspect or bypass its frame restrictions. You can open the full interactive map without affecting the server.</p><div class=""mapTroubleActions""><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full 3D map ↗</a><button type=""button"" onclick=""loadMap(true)"">Try again</button><button type=""button"" onclick=""tryCompatibility()"">Compatibility</button><button type=""button"" onclick=""dismissMapHelp()"">Map works / Hide</button></div></div></div>
-<div class=""mapControls""><button id=""reloadMap"" onclick=""loadMap(true)"">Reload map</button><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full map ↗</a></div>
-<p class=""mapNote"" id=""mapHelp"" role=""status"">The external viewer may not permit embedding. If the embedded frame remains blank, choose Open full map. No private server key, save, or player data is sent to the map provider. Live player positions are not available through the current server data.</p>
+<div class=""mapWindow""><div id=""mapStart"" class=""mapStart""><span class=""sigil"" aria-hidden=""true"">◇</span><strong>Explore Embervale</strong><p>Load the interactive 3D world map only when you need it. A connection to the map provider is required.</p><button class=""primary"" onclick=""loadMap()"">Load interactive map</button></div><iframe id=""gameMap"" title=""External interactive Embervale 3D map by GameVault"" referrerpolicy=""no-referrer"" allow=""fullscreen; gyroscope; accelerometer"" allowfullscreen hidden></iframe><div id=""mapTrouble"" class=""mapTrouble"" role=""status"" hidden><strong>Map still showing white?</strong><p>This map belongs to another website, which may prevent embedding or fail in iPhone Safari. ShroudForge cannot inspect or bypass its frame restrictions. You can open the full interactive map without affecting the server.</p><div class=""mapTroubleActions""><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full 3D map ↗</a><button type=""button"" onclick=""loadMap(true)"">Try again</button><button id=""mapHelpMode"" type=""button"" onclick=""toggleMapMode()"">Try Protected mode</button><button type=""button"" onclick=""dismissMapHelp()"">Map works / Hide</button></div></div></div>
+<div class=""mapControls""><button id=""reloadMap"" onclick=""loadMap(true)"">Reload map</button><button id=""mapMode"" type=""button"" aria-pressed=""true"" onclick=""toggleMapMode()"">Use Protected mode</button><button id=""mapTroubleshoot"" type=""button"" onclick=""showMapTrouble()"">Map blank?</button><a href=""https://enshrouded.gamevault.in/map"" target=""_blank"" rel=""noopener noreferrer"" referrerpolicy=""no-referrer"">Open full map ↗</a></div>
+<p class=""mapNote"" id=""mapHelp"" role=""status"">Compatibility mode is the default because it rendered successfully in iPhone Safari. This loads an external map only after you tap Load. The provider stays on its own website and receives no ShroudForge key, private URL, save or player data. For stricter iframe controls, select Protected mode.</p>
 <p class=""mapNote"">3D terrain and map markers provided by GameVault's Companion for Enshrouded. Not affiliated with Keen Games. Map loading is independent of your server controls.</p>
 </section></div>
 </main><script>
-let current={},sending=false,notice='',mapLoaded=false,mapAssistTimer=null,mapCompatibility=false;const el=id=>document.getElementById(id);
+let current={},sending=false,notice='',mapLoaded=false,mapAssistTimer=null,mapCompatibility=true;const el=id=>document.getElementById(id);
 function showTab(which){
  const map=which==='map';el('dashboardView').hidden=map;el('mapView').hidden=!map;
  el('overviewTab').setAttribute('aria-selected',String(!map));
@@ -91,14 +91,21 @@ function showMapTrouble(){
  el('mapTrouble').hidden=false;
  text('mapHelp','If the map is blank or white, open the full interactive map. A browser iframe load event does not prove its 3D content actually rendered.');
 }
-function tryCompatibility(){
- // Opt-in full iframe functionality if the original sandbox blocked WebGL/map controls.
- // Same-origin rules still isolate the external provider from launcher data.
- mapCompatibility=true;loadMap(true);
+function syncMapMode(){
+ el('mapMode').textContent=mapCompatibility?'Use Protected mode':'Use Compatibility mode';
+ el('mapMode').setAttribute('aria-pressed',String(mapCompatibility));
+ el('mapHelpMode').textContent=mapCompatibility?'Try Protected mode':'Try Compatibility';
+}
+function toggleMapMode(){
+ mapCompatibility=!mapCompatibility;
+ syncMapMode();
+ if(mapLoaded)loadMap(true);
 }
 function loadMap(reload){
  const frame=el('gameMap');
  if(mapAssistTimer!==null)clearTimeout(mapAssistTimer);
+ mapAssistTimer=null;
+ syncMapMode();
  el('mapTrouble').hidden=true;
  el('mapStart').hidden=true;
  frame.hidden=false;
@@ -106,11 +113,11 @@ function loadMap(reload){
  else frame.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups');
  if(!mapLoaded||reload){
   mapLoaded=true;frame.src='https://enshrouded.gamevault.in/map';
-  text('mapHelp',mapCompatibility?'Compatibility mode: more iframe permissions are enabled only for this map. If still white, open the full map directly.':'Protected mode: if white, select Compatibility in the map panel or open the full map directly. No server controls are affected.');
+  text('mapHelp',mapCompatibility?'Compatibility mode is active: this external map uses normal cross-origin iframe rules and no-referrer. Select Map blank? only if you need help.':'Protected mode is active: stricter iframe permissions might produce white terrain. Switch back to Compatibility if needed.');
  }
  // Cross-origin iframe failure is not reliably observable in Safari.
  // Never show a misleading success indicator just because the iframe fires ""load"".
- mapAssistTimer=setTimeout(showMapTrouble,9000);
+ if(!mapCompatibility)mapAssistTimer=setTimeout(showMapTrouble,9000);
 }
 function text(id,value){el(id).textContent=value;}function lock(){['start','restart','stop','backup','autoBackup','recovery'].forEach(id=>el(id).disabled=true);}
 async function refresh(){try{let r=await fetch('status',{cache:'no-store'});if(!r.ok)throw Error();let s=await r.json();current=s;text('name',s.name);text('stateText',s.busy?'Operation in progress':s.online?'The realm is online':'The realm is resting');el('state').className='state'+(s.online?' online':'');text('updated','Updated '+s.updated);text('uptime',s.uptime);text('count',s.players);text('cpu',s.cpu==='—'?'—':s.cpu+'%');text('memory',s.memory);text('playerBadge',s.players);const list=el('roster');list.replaceChildren();(s.roster||[]).forEach(p=>{
@@ -121,7 +128,7 @@ async function refresh(){try{let r=await fetch('status',{cache:'no-store'});if(!
  row.append(top,session,details);if(p.lastIssue){let issue=document.createElement('small');issue.textContent='Last issue: '+p.lastIssue;row.append(issue);}list.append(row);
 });if(!list.children.length)list.textContent=s.online?'No named players currently observed.':'Server offline';['worldFiles','worldSize','worldSaved','bases'].forEach(id=>text(id,s[id]||'Not observed'));const known=el('knownPlayers');known.replaceChildren();(s.knownPlayers||[]).forEach(p=>{let row=document.createElement('div');row.className='row';let name=document.createElement('strong');name.textContent=p.name;let evidence=document.createElement('small');evidence.textContent=p.evidence;row.append(name,evidence);known.append(row);});if(!known.children.length)known.textContent='No identifiable player records in the available history.';const events=el('activity');events.replaceChildren();(s.activity||[]).forEach(e=>{let row=document.createElement('div');row.className='row';let message=document.createElement('span');message.className='activityText';message.textContent=e.message;let when=document.createElement('small');when.textContent=e.time;row.append(message,when);events.append(row);});if(!events.children.length)events.textContent='No recent activity available.';
 text('lastBackup',(s.backupCount>=0?s.backupCount+' verified · ':'')+s.lastBackup);text('backupSchedule','Every '+s.backupMinutes+' minutes'+(s.autoBackup?' · Next '+s.nextBackup:' · Currently off'));text('backupResult',s.backupStatus||'');text('result',s.operation||notice||'Ready for your next action');el('result').className='result'+(s.busy?' working':'');['autoBackup','recovery'].forEach(id=>{el(id).setAttribute('aria-pressed',s[id]?'true':'false');text(id,s[id]?'On':'Off');});const busy=s.busy||!s.controls||sending;el('start').disabled=busy||s.online;el('stop').disabled=el('restart').disabled=busy||!s.online;['backup','autoBackup','recovery'].forEach(id=>el(id).disabled=busy);}catch(e){lock();text('stateText','Connection lost');text('updated','Check the host launcher and Wi-Fi.');}}
-async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}showTab(location.hash==='#map'?'map':'overview');refresh();setInterval(refresh,2000);
+async function run(op){if(sending)return;if(['Start','Stop','Restart'].includes(op)&&!confirm(op+' the server?'+(op==='Start'?'':' Connected players will be disconnected.')))return;sending=true;lock();notice='Sending request…';text('result',notice);try{let r=await fetch('command/'+op,{method:'POST',headers:{'X-XHL-Key':location.pathname.split('/')[1]}});let v=await r.json();notice=v.message;text('result',notice);}catch(e){notice='Request result unknown. Check status before retrying.';text('result',notice);}finally{sending=false;}await refresh();}syncMapMode();showTab(location.hash==='#map'?'map':'overview');refresh();setInterval(refresh,2000);
 </script></body></html>";
  }
 }
