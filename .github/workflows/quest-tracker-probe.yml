@@ -1,0 +1,55 @@
+name: Vanilla quest tracker research proof
+
+on:
+  push:
+    branches:
+      - research/vanilla-quest-tracker-proof
+    paths:
+      - 'research/quest-tracker-probe/**'
+      - '.github/workflows/quest-tracker-probe.yml'
+  pull_request:
+    paths:
+      - 'research/quest-tracker-probe/**'
+      - '.github/workflows/quest-tracker-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Check compiler and exact-build probe template
+        run: |
+          python -m py_compile research/quest-tracker-probe/probe.py
+          python -m unittest discover -s research/quest-tracker-probe/tests -p 'test_*.py' -v
+      - name: Confirm discovery mod has export-only permissions
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          file=pathlib.Path('research/quest-tracker-probe/read-only-type-discovery/mod.json')
+          data=json.loads(file.read_text(encoding='utf-8'))
+          assert data['capabilities']==['export']
+          script=pathlib.Path('research/quest-tracker-probe/read-only-type-discovery/mod.lua').read_text(encoding='utf-8')
+          assert 'get_resource_types' in script and 'io.export' in script
+          assert 'create_content' not in script and 'write_resource' not in script
+          print('Verified export-only source discovery')
+          PY
+      - name: Upload source-only offline research toolkit
+        uses: actions/upload-artifact@v4
+        with:
+          name: shroudnav-quest-tracker-proof-source
+          path: |
+            research/quest-tracker-probe/README.md
+            research/quest-tracker-probe/probe.py
+            research/quest-tracker-probe/probe.lua.template
+            research/quest-tracker-probe/read-only-type-discovery/mod.json
+            research/quest-tracker-probe/read-only-type-discovery/mod.lua
+          retention-days: 21

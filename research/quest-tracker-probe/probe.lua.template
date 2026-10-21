@@ -1,0 +1,78 @@
+-- ShroudForge / ShroudNav — single-ID quest text transmission PROOF, not a release.
+-- EML patch capability, disposable dedicated-server clone only.
+-- This script never reads player saves or changes quest completion flags.
+-- Values are generated from a local EML localization export by probe.py.
+local TARGET_BUILD = __BUILD__
+local TARGET_ID = "__ID__"
+local ORIGINAL = __ORIGINAL__
+local REPLACEMENT = __REPLACEMENT__
+local LANGUAGE = "__LANGUAGE__"
+
+local function deny(message)
+    print("[ShroudNav quest probe] REFUSED: " .. message)
+end
+
+-- EML docs: game.version begins with the numeric SVN/game build.
+local current = tonumber(tostring(game.version or ""):match("^(%d+)"))
+if not current or current ~= TARGET_BUILD then
+    deny("game build does not exactly match expected build " .. tostring(TARGET_BUILD))
+    return
+end
+if not game.assets or not game.guid or not buffer then
+    deny("EML asset patch interfaces unavailable")
+    return
+end
+
+local result = game.assets.get_resources_by_type("keen::LocaTagCollectionResource")
+if not result or #result ~= 1 then
+    deny("expected exactly one localization registry; found " .. tostring(result and #result or 0))
+    return
+end
+local data = result[1].data
+if not data or not data.languages then
+    deny("localization registry is malformed")
+    return
+end
+local language_resource = nil
+for _, loc in ipairs(data.languages) do
+    if loc.language == LANGUAGE then
+        if language_resource then deny("duplicate language"); return end
+        language_resource = loc
+    end
+end
+if not language_resource then deny("requested language not present"); return end
+
+local ok, err = pcall(function()
+    local guid = game.guid.from_content_hash(language_resource.dataHash)
+    local content = game.assets.get_content(guid)
+    if not content then error("language content missing") end
+    local records = content:read_data():read_resource("keen::LocaTagCollectionResourceData")
+    if not records or not records.tags then error("language tag table missing") end
+
+    -- First pass performs all precondition checks, without mutating any asset.
+    local exact_count = 0
+    local target = nil
+    for _, tag in ipairs(records.tags) do
+        if tag.id and tostring(tag.id.value) == TARGET_ID then
+            exact_count = exact_count + 1
+            target = tag
+        end
+    end
+    if exact_count ~= 1 then error("selected tag ID is absent or ambiguous") end
+    if target.text ~= ORIGINAL then
+        error("original text mismatch; refusing to patch unknown game content")
+    end
+    if REPLACEMENT == ORIGINAL then error("replacement text is identical") end
+
+    -- Rebuild just this one string in a fresh localization content resource.
+    target.text = REPLACEMENT
+    local compiled = buffer.create()
+    compiled:write_resource("keen::LocaTagCollectionResourceData", records)
+    local replacement_asset = game.assets.create_content(compiled)
+    if not replacement_asset then error("localization rebuild returned no resource") end
+    language_resource.dataHash = game.guid.to_content_hash(replacement_asset.guid)
+    print("[ShroudNav quest probe] PATCH PREPARED: single ID " .. TARGET_ID ..
+          " on exact game build " .. tostring(current) ..
+          ". Vanilla client display still unverified.")
+end)
+if not ok then deny(tostring(err)) end
